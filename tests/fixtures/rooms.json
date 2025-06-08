@@ -1,0 +1,695 @@
+{
+  "validRooms": [
+    {
+      "_id": "507f1f77bcf86cd799440001",
+      "hotel": "507f1f77bcf86cd799439011",
+      "number": "101",
+      "type": "Simple",
+      "floor": 1,
+      "basePrice": 150,
+      "description": "Chambre simple confortable avec vue sur jardin",
+      "amenities": [
+        "WiFi gratuit",
+        "Climatisation",
+        "Télévision LCD",
+        "Minibar",
+        "Coffre-fort",
+        "Salle de bain privée"
+      ],
+      "maxOccupancy": 1,
+      "status": "Available",
+      "images": [
+        {
+          "filename": "room_101_main.jpg",
+          "originalName": "chambre_simple_101.jpg",
+          "path": "/uploads/rooms/room_101_main.jpg",
+          "size": 756000,
+          "mimetype": "image/jpeg",
+          "isMain": true,
+          "uploadedAt": "2025-07-01T11:00:00.000Z"
+        }
+      ],
+      "statusHistory": [
+        {
+          "previousStatus": "Maintenance",
+          "newStatus": "Available",
+          "reason": "Fin travaux rénovation",
+          "changedBy": "507f1f77bcf86cd799430001",
+          "changedAt": "2025-07-01T10:00:00.000Z"
+        }
+      ],
+      "createdBy": "507f1f77bcf86cd799430001",
+      "createdAt": "2025-06-01T08:00:00.000Z",
+      "updatedAt": "2025-07-01T10:00:00.000Z"
+    },
+    {
+      "_id": "507f1f77bcf86cd799440002",
+      "hotel": "507f1f77bcf86cd799439011",
+      "number": "201",
+      "type": "Double",
+      "floor": 2,
+      "basePrice": 250,
+      "description": "Chambre double standard avec balcon",
+      "amenities": [
+        "WiFi gratuit",
+        "Climatisation",
+        "Télévision LCD 42\"",
+        "Minibar",
+        "Coffre-fort",
+        "Balcon privé",
+        "Salle de bain avec baignoire"
+      ],
+      "maxOccupancy": 2,
+      "status": "Occupied",
+      "currentBooking": "507f1f77bcf86cd799450001",
+      "images": [
+        {
+          "filename": "room_201_main.jpg",
+          "originalName": "chambre_double_201.jpg",
+          "path": "/uploads/rooms/room_201_main.jpg",
+          "size": 892000,
+          "mimetype": "image/jpeg",
+          "isMain": true,
+          "uploadedAt": "2025-06-15T14:30:00.000Z"
+        },
+        {
+          "filename": "room_201_balcony.jpg",
+          "originalName": "balcon_201.jpg",
+          "path": "/uploads/rooms/room_201_balcony.jpg",
+          "size": 634000,
+          "mimetype": "image/jpeg",
+          "isMain": false,
+          "uploadedAt": "2025-06-15T14:35:00.000Z"
+        }
+      ],
+      "statusHistory": [],
+      "createdBy": "507f1f77bcf86cd799430001",
+      "createdAt": "2025-06-01T08:15:00.000Z",
+      "updatedAt": "2025-07-10T15:20:00.000Z"
+    },
+    {
+      "_id": "507f1f77bcf86cd799440003",
+      "hotel": "507f1f77bcf86cd799439011",
+      "number": "301",
+      "type": "Double Confort",
+      "floor": 3,
+      "basePrice": 350,
+      "description": "Chambre double confort avec équipements premium",
+      "amenities": [
+        "WiFi haut débit",
+        "Climatisation intelligente",
+        "Smart TV 50\"",
+        "Minibar premium",
+        "Coffre-fort électronique",
+        "Balcon avec mobilier",
+        "Salle de bain avec douche à l'italienne",
+        "Peignoirs et chaussons",
+        "Machine à café Nespresso"
+      ],
+      "maxOccupancy": 2,
+      "status": "Available",
+      "images": [],
+      "statusHistory": [],
+      "createdBy": "507f1f77bcf86cd799430001",
+      "createdAt": "2025-06-01T08:30:00.000Z",
+      "updatedAt": "2025-06-01T08:30:00.000Z"
+    },
+    {
+      "_id": "507f1f77bcf86cd799440004",
+      "hotel": "507f1f77bcf86cd799439011",
+      "number": "501",
+      "type": "Suite",
+      "floor": 5,
+      "basePrice": 600,
+      "description": "Suite luxueuse avec salon séparé et vue panoramique",
+      "amenities": [
+        "WiFi haut débit",
+        "Climatisation zones multiples",
+        "Smart TV 65\" salon + 42\" chambre",
+        "Minibar premium",
+        "Coffre-fort électronique",
+        "Terrasse privée",
+        "Salon séparé",
+        "Salle de bain avec jacuzzi",
+        "Dressing",
+        "Service en chambre 24h",
+        "Machine à café professionnelle"
+      ],
+      "maxOccupancy": 4,
+      "status": "Maintenance",
+      "maintenanceNotes": "Réparation climatisation salon",
+      "images": [
+        {
+          "filename": "suite_501_salon.jpg",
+          "originalName": "salon_suite_501.jpg",
+          "path": "/uploads/rooms/suite_501_salon.jpg",
+          "size": 1245000,
+          "mimetype": "image/jpeg",
+          "isMain": true,
+          "uploadedAt": "2025-06-20T16:00:00.000Z"
+        }
+      ],
+      "statusHistory": [
+        {
+          "previousStatus": "Available",
+          "newStatus": "Maintenance",
+          "reason": "Panne climatisation signalée",
+          "changedBy": "507f1f77bcf86cd799430002",
+          "changedAt": "2025-07-12T09:15:00.000Z"
+        }
+      ],
+      "createdBy": "507f1f77bcf86cd799430001",
+      "createdAt": "2025-06-01T09:00:00.000Z",
+      "updatedAt": "2025-07-12T09:15:00.000Z"
+    },
+    {
+      "_id": "507f1f77bcf86cd799440005",
+      "hotel": "507f1f77bcf86cd799439012",
+      "number": "Ocean_Suite_1",
+      "type": "Suite",
+      "floor": 8,
+      "basePrice": 900,
+      "description": "Suite océan avec vue imprenable sur l'Atlantique",
+      "amenities": [
+        "WiFi très haut débit",
+        "Climatisation intelligente",
+        "Smart TV 75\"",
+        "Bar privé",
+        "Coffre-fort digital",
+        "Terrasse océan",
+        "Salon panoramique",
+        "Salle de bain spa",
+        "Dressing sur mesure",
+        "Majordome personnel",
+        "Machine à café de luxe",
+        "Télescope terrasse"
+      ],
+      "maxOccupancy": 4,
+      "status": "Available",
+      "images": [],
+      "statusHistory": [],
+      "createdBy": "507f1f77bcf86cd799430001",
+      "createdAt": "2025-06-15T10:30:00.000Z",
+      "updatedAt": "2025-06-15T10:30:00.000Z"
+    },
+    {
+      "_id": "507f1f77bcf86cd799440006",
+      "hotel": "507f1f77bcf86cd799439013",
+      "number": "Riad_Room_A",
+      "type": "Double",
+      "floor": 1,
+      "basePrice": 200,
+      "description": "Chambre traditionnelle avec décoration marocaine authentique",
+      "amenities": [
+        "WiFi",
+        "Climatisation",
+        "Télévision",
+        "Minibar",
+        "Décoration traditionnelle",
+        "Vue sur patio",
+        "Salle de bain avec tadelakt"
+      ],
+      "maxOccupancy": 2,
+      "status": "Out of Order",
+      "maintenanceNotes": "Rénovation complète décoration - travaux 2 semaines",
+      "images": [],
+      "statusHistory": [
+        {
+          "previousStatus": "Available",
+          "newStatus": "Out of Order",
+          "reason": "Début travaux rénovation planifiés",
+          "changedBy": "507f1f77bcf86cd799430001",
+          "changedAt": "2025-07-01T08:00:00.000Z"
+        }
+      ],
+      "createdBy": "507f1f77bcf86cd799430001",
+      "createdAt": "2025-06-20T12:00:00.000Z",
+      "updatedAt": "2025-07-01T08:00:00.000Z"
+    }
+  ],
+
+  "invalidRooms": [
+    {
+      "hotel": "507f1f77bcf86cd799439011",
+      "number": "",
+      "type": "TypeInvalide",
+      "floor": -1,
+      "basePrice": -100,
+      "description": "Chambre avec données invalides",
+      "maxOccupancy": 0,
+      "status": "StatutInexistant"
+    },
+    {
+      "hotel": "invalid_hotel_id",
+      "number": "999",
+      "type": "Simple",
+      "floor": 100,
+      "basePrice": 50000,
+      "description": "Chambre avec hôtel inexistant et prix hors limites",
+      "maxOccupancy": 50
+    }
+  ],
+
+  "roomCreationData": [
+    {
+      "valid": {
+        "hotel": "507f1f77bcf86cd799439011",
+        "number": "102",
+        "type": "Simple",
+        "floor": 1,
+        "basePrice": 160,
+        "description": "Nouvelle chambre simple",
+        "amenities": ["WiFi", "Climatisation", "TV"],
+        "maxOccupancy": 1
+      },
+      "duplicateNumber": {
+        "hotel": "507f1f77bcf86cd799439011",
+        "number": "101",
+        "type": "Double",
+        "floor": 1,
+        "basePrice": 200,
+        "description": "Chambre avec numéro déjà existant"
+      },
+      "invalidHotel": {
+        "hotel": "507f1f77bcf86cd799999999",
+        "number": "103",
+        "type": "Simple",
+        "floor": 1,
+        "basePrice": 150,
+        "description": "Chambre avec hôtel inexistant"
+      },
+      "invalidType": {
+        "hotel": "507f1f77bcf86cd799439011",
+        "number": "104",
+        "type": "TypeInexistant",
+        "floor": 1,
+        "basePrice": 150,
+        "description": "Chambre avec type invalide"
+      },
+      "invalidPrice": {
+        "hotel": "507f1f77bcf86cd799439011",
+        "number": "105",
+        "type": "Simple",
+        "floor": 1,
+        "basePrice": 25,
+        "description": "Chambre avec prix trop bas"
+      },
+      "invalidFloor": {
+        "hotel": "507f1f77bcf86cd799439011",
+        "number": "106",
+        "type": "Simple",
+        "floor": 100,
+        "basePrice": 150,
+        "description": "Chambre avec étage invalide"
+      }
+    }
+  ],
+
+  "roomUpdateData": [
+    {
+      "validUpdate": {
+        "description": "Description mise à jour",
+        "basePrice": 180,
+        "amenities": ["WiFi", "Climatisation", "TV", "Minibar"]
+      },
+      "invalidUpdate": {
+        "type": "TypeInvalide",
+        "basePrice": -50,
+        "status": "StatutInexistant"
+      },
+      "numberConflict": {
+        "number": "201"
+      },
+      "statusUpdate": {
+        "status": "Maintenance",
+        "reason": "Maintenance préventive"
+      }
+    }
+  ],
+
+  "statusTransitionData": [
+    {
+      "validTransitions": [
+        {
+          "from": "Available",
+          "to": "Occupied",
+          "reason": "Client check-in",
+          "allowed": true
+        },
+        {
+          "from": "Available",
+          "to": "Maintenance",
+          "reason": "Maintenance préventive",
+          "allowed": true
+        },
+        {
+          "from": "Occupied",
+          "to": "Available",
+          "reason": "Client check-out",
+          "allowed": true
+        },
+        {
+          "from": "Maintenance",
+          "to": "Available",
+          "reason": "Fin maintenance",
+          "allowed": true
+        },
+        {
+          "from": "Out of Order",
+          "to": "Maintenance",
+          "reason": "Début réparations",
+          "allowed": true
+        }
+      ],
+      "invalidTransitions": [
+        {
+          "from": "Occupied",
+          "to": "Out of Order",
+          "reason": "Transition non autorisée",
+          "allowed": false
+        },
+        {
+          "from": "Maintenance",
+          "to": "Occupied",
+          "reason": "Saut d'étape",
+          "allowed": false
+        }
+      ]
+    }
+  ],
+
+  "availabilityTestData": [
+    {
+      "scenarios": [
+        {
+          "description": "Chambre disponible, pas de conflit",
+          "roomId": "507f1f77bcf86cd799440001",
+          "checkInDate": "2025-08-01T14:00:00.000Z",
+          "checkOutDate": "2025-08-05T12:00:00.000Z",
+          "expectedAvailable": true
+        },
+        {
+          "description": "Chambre occupée par réservation existante",
+          "roomId": "507f1f77bcf86cd799440002",
+          "checkInDate": "2025-07-15T14:00:00.000Z",
+          "checkOutDate": "2025-07-18T12:00:00.000Z",
+          "expectedAvailable": false,
+          "conflictReason": "Occupied by current booking"
+        },
+        {
+          "description": "Chambre en maintenance",
+          "roomId": "507f1f77bcf86cd799440004",
+          "checkInDate": "2025-07-20T14:00:00.000Z",
+          "checkOutDate": "2025-07-22T12:00:00.000Z",
+          "expectedAvailable": false,
+          "conflictReason": "Room in maintenance"
+        },
+        {
+          "description": "Chambre hors service",
+          "roomId": "507f1f77bcf86cd799440006",
+          "checkInDate": "2025-07-25T14:00:00.000Z",
+          "checkOutDate": "2025-07-28T12:00:00.000Z",
+          "expectedAvailable": false,
+          "conflictReason": "Room out of order"
+        }
+      ]
+    }
+  ],
+
+  "assignmentTestData": [
+    {
+      "autoAssignmentScenarios": [
+        {
+          "description": "Attribution simple - 1 chambre disponible",
+          "hotelId": "507f1f77bcf86cd799439011",
+          "roomType": "Simple",
+          "roomsNeeded": 1,
+          "expectedAssignments": ["507f1f77bcf86cd799440001"],
+          "preferences": {}
+        },
+        {
+          "description": "Attribution avec préférence étage",
+          "hotelId": "507f1f77bcf86cd799439011",
+          "roomType": "Double Confort",
+          "roomsNeeded": 1,
+          "expectedAssignments": ["507f1f77bcf86cd799440003"],
+          "preferences": {
+            "preferredFloor": 3
+          }
+        },
+        {
+          "description": "Attribution impossible - chambre en maintenance",
+          "hotelId": "507f1f77bcf86cd799439011",
+          "roomType": "Suite",
+          "roomsNeeded": 1,
+          "expectedAssignments": [],
+          "errorExpected": true,
+          "errorReason": "No available rooms of requested type"
+        }
+      ]
+    }
+  ],
+
+  "roomsByHotelData": [
+    {
+      "hotelRoomCounts": {
+        "507f1f77bcf86cd799439011": {
+          "total": 4,
+          "byType": {
+            "Simple": 1,
+            "Double": 1,
+            "Double Confort": 1,
+            "Suite": 1
+          },
+          "byStatus": {
+            "Available": 2,
+            "Occupied": 1,
+            "Maintenance": 1,
+            "Out of Order": 0
+          },
+          "byFloor": {
+            "1": 1,
+            "2": 1,
+            "3": 1,
+            "5": 1
+          }
+        },
+        "507f1f77bcf86cd799439012": {
+          "total": 1,
+          "byType": {
+            "Suite": 1
+          },
+          "byStatus": {
+            "Available": 1
+          }
+        },
+        "507f1f77bcf86cd799439013": {
+          "total": 1,
+          "byType": {
+            "Double": 1
+          },
+          "byStatus": {
+            "Out of Order": 1
+          }
+        }
+      }
+    }
+  ],
+
+  "pricingTestData": [
+    {
+      "priceCalculationScenarios": [
+        {
+          "roomId": "507f1f77bcf86cd799440001",
+          "basePrice": 150,
+          "roomType": "Simple",
+          "hotelCategory": 4,
+          "multipliers": {
+            "roomType": 1.0,
+            "hotelCategory": 1.5,
+            "expectedBaseMultiplied": 225
+          }
+        },
+        {
+          "roomId": "507f1f77bcf86cd799440004",
+          "basePrice": 600,
+          "roomType": "Suite",
+          "hotelCategory": 4,
+          "multipliers": {
+            "roomType": 2.5,
+            "hotelCategory": 1.5,
+            "expectedBaseMultiplied": 2250
+          }
+        }
+      ]
+    }
+  ],
+
+  "searchFilterData": [
+    {
+      "filterScenarios": [
+        {
+          "description": "Filtrer par type de chambre",
+          "filters": {
+            "type": "Simple"
+          },
+          "expectedCount": 1,
+          "expectedRooms": ["507f1f77bcf86cd799440001"]
+        },
+        {
+          "description": "Filtrer par statut",
+          "filters": {
+            "status": "Available"
+          },
+          "expectedCount": 3,
+          "expectedRooms": ["507f1f77bcf86cd799440001", "507f1f77bcf86cd799440003", "507f1f77bcf86cd799440005"]
+        },
+        {
+          "description": "Filtrer par étage",
+          "filters": {
+            "floor": 1
+          },
+          "expectedCount": 2,
+          "expectedRooms": ["507f1f77bcf86cd799440001", "507f1f77bcf86cd799440006"]
+        },
+        {
+          "description": "Filtres combinés",
+          "filters": {
+            "type": "Suite",
+            "status": "Available"
+          },
+          "expectedCount": 1,
+          "expectedRooms": ["507f1f77bcf86cd799440005"]
+        }
+      ]
+    }
+  ],
+
+  "imageUploadData": [
+    {
+      "validRoomImages": [
+        {
+          "filename": "room_test_1.jpg",
+          "originalName": "chambre_principale.jpg",
+          "mimetype": "image/jpeg",
+          "size": 1024000,
+          "buffer": "fake_room_image_buffer_1"
+        },
+        {
+          "filename": "room_test_2.png",
+          "originalName": "salle_bain.png",
+          "mimetype": "image/png",
+          "size": 512000,
+          "buffer": "fake_room_image_buffer_2"
+        }
+      ],
+      "invalidRoomImages": [
+        {
+          "filename": "room_document.pdf",
+          "originalName": "plan_chambre.pdf",
+          "mimetype": "application/pdf",
+          "size": 2048000,
+          "buffer": "fake_pdf_buffer"
+        }
+      ]
+    }
+  ],
+
+  "occupancyStatsData": [
+    {
+      "statsScenarios": [
+        {
+          "hotelId": "507f1f77bcf86cd799439011",
+          "period": "30d",
+          "expectedMetrics": {
+            "totalRooms": 4,
+            "occupiedRooms": 1,
+            "availableRooms": 2,
+            "maintenanceRooms": 1,
+            "occupancyRate": 25,
+            "availabilityRate": 50
+          }
+        },
+        {
+          "hotelId": "507f1f77bcf86cd799439012",
+          "period": "7d",
+          "expectedMetrics": {
+            "totalRooms": 1,
+            "occupiedRooms": 0,
+            "availableRooms": 1,
+            "occupancyRate": 0,
+            "availabilityRate": 100
+          }
+        }
+      ]
+    }
+  ],
+
+  "performanceTestData": [
+    {
+      "topPerformingRooms": [
+        {
+          "roomId": "507f1f77bcf86cd799440002",
+          "metrics": {
+            "totalRevenue": 15750,
+            "bookingCount": 12,
+            "averageRevenue": 1312.50,
+            "occupancyRate": 85
+          }
+        },
+        {
+          "roomId": "507f1f77bcf86cd799440004",
+          "metrics": {
+            "totalRevenue": 28500,
+            "bookingCount": 8,
+            "averageRevenue": 3562.50,
+            "occupancyRate": 70
+          }
+        }
+      ]
+    }
+  ],
+
+  "permissionsTestData": [
+    {
+      "operationsByRole": {
+        "ADMIN": {
+          "allowedOperations": [
+            "createRoom",
+            "updateRoom", 
+            "deleteRoom",
+            "updateRoomStatus",
+            "uploadImages",
+            "viewAllRooms",
+            "viewStats"
+          ]
+        },
+        "RECEPTIONIST": {
+          "allowedOperations": [
+            "viewHotelRooms",
+            "updateRoomStatus",
+            "autoAssignRooms",
+            "viewOccupancy"
+          ],
+          "restrictedOperations": [
+            "createRoom",
+            "deleteRoom",
+            "uploadImages"
+          ]
+        },
+        "CLIENT": {
+          "allowedOperations": [
+            "searchAvailableRooms"
+          ],
+          "restrictedOperations": [
+            "createRoom",
+            "updateRoom",
+            "deleteRoom",
+            "updateRoomStatus",
+            "viewAllRooms"
+          ]
+        }
+      }
+    }
+  ]
+}

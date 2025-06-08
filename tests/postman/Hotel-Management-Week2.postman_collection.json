@@ -1,0 +1,1606 @@
+{
+  "info": {
+    "name": "Hotel Management System - Week 2",
+    "description": "Collection complète pour tester toutes les routes Week 2: Hotels, Rooms, Bookings avec workflow complet",
+    "version": "2.0.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{accessToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000/api",
+      "type": "string"
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "refreshToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "adminUserId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "receptionistUserId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "clientUserId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "hotelId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "roomId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "bookingId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "🔐 Authentication (Week 1)",
+      "item": [
+        {
+          "name": "Register Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('adminUserId', response.data.user._id);",
+                  "    pm.collectionVariables.set('accessToken', response.data.accessToken);",
+                  "    pm.collectionVariables.set('refreshToken', response.data.refreshToken);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Admin\",\n  \"lastName\": \"System\",\n  \"email\": \"admin@hotel.ma\",\n  \"password\": \"Admin123!\",\n  \"phone\": \"+212612345678\",\n  \"role\": \"ADMIN\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Register Receptionist",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('receptionistUserId', response.data.user._id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Marie\",\n  \"lastName\": \"Dupont\",\n  \"email\": \"reception@hotel.ma\",\n  \"password\": \"Reception123!\",\n  \"phone\": \"+212612345679\",\n  \"role\": \"RECEPTIONIST\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Register Client",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('clientUserId', response.data.user._id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Ahmed\",\n  \"lastName\": \"Bennani\",\n  \"email\": \"client@email.ma\",\n  \"password\": \"Client123!\",\n  \"phone\": \"+212612345680\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Login Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('accessToken', response.data.accessToken);",
+                  "    pm.collectionVariables.set('refreshToken', response.data.refreshToken);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@hotel.ma\",\n  \"password\": \"Admin123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🏨 Hotels Management",
+      "item": [
+        {
+          "name": "Create Hotel",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('hotelId', response.data.hotel._id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"RAB001\",\n  \"name\": \"Hôtel Atlas Rabat\",\n  \"address\": \"Avenue Mohammed V\",\n  \"city\": \"Rabat\",\n  \"postalCode\": \"10000\",\n  \"phone\": \"+212537123456\",\n  \"email\": \"contact@atlas-rabat.ma\",\n  \"category\": 4,\n  \"description\": \"Hôtel 4 étoiles au cœur de Rabat\",\n  \"amenities\": [\"WiFi gratuit\", \"Piscine\", \"Spa\", \"Restaurant\", \"Parking\"],\n  \"seasonalPricing\": [\n    {\n      \"roomType\": \"Double\",\n      \"season\": \"High Season\",\n      \"basePrice\": 350,\n      \"multiplier\": 1.3\n    },\n    {\n      \"roomType\": \"Suite\",\n      \"season\": \"Peak Season\",\n      \"basePrice\": 800,\n      \"multiplier\": 1.6\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/hotels",
+              "host": ["{{baseUrl}}"],
+              "path": ["hotels"]
+            }
+          }
+        },
+        {
+          "name": "Get All Hotels",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/hotels?page=1&limit=10&includeStats=true",
+              "host": ["{{baseUrl}}"],
+              "path": ["hotels"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "includeStats",
+                  "value": "true"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Hotel by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/hotels/{{hotelId}}?includeRooms=true&includeStats=true",
+              "host": ["{{baseUrl}}"],
+              "path": ["hotels", "{{hotelId}}"],
+              "query": [
+                {
+                  "key": "includeRooms",
+                  "value": "true"
+                },
+                {
+                  "key": "includeStats",
+                  "value": "true"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Hotel",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Hôtel 4 étoiles rénové au cœur de Rabat\",\n  \"amenities\": [\"WiFi gratuit\", \"Piscine\", \"Spa\", \"Restaurant\", \"Parking\", \"Salle de fitness\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/hotels/{{hotelId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["hotels", "{{hotelId}}"]
+            }
+          }
+        },
+        {
+          "name": "Get Hotel Pricing",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/hotels/{{hotelId}}/pricing",
+              "host": ["{{baseUrl}}"],
+              "path": ["hotels", "{{hotelId}}", "pricing"]
+            }
+          }
+        },
+        {
+          "name": "Update Hotel Pricing",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"seasonalPricing\": [\n    {\n      \"roomType\": \"Simple\",\n      \"season\": \"Low Season\",\n      \"basePrice\": 150,\n      \"multiplier\": 0.8\n    },\n    {\n      \"roomType\": \"Double\",\n      \"season\": \"Medium Season\",\n      \"basePrice\": 250,\n      \"multiplier\": 1.0\n    },\n    {\n      \"roomType\": \"Double Confort\",\n      \"season\": \"High Season\",\n      \"basePrice\": 400,\n      \"multiplier\": 1.3\n    },\n    {\n      \"roomType\": \"Suite\",\n      \"season\": \"Peak Season\",\n      \"basePrice\": 800,\n      \"multiplier\": 1.6\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/hotels/{{hotelId}}/pricing",
+              "host": ["{{baseUrl}}"],
+              "path": ["hotels", "{{hotelId}}", "pricing"]
+            }
+          }
+        },
+        {
+          "name": "Calculate Hotel Price",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"roomType\": \"Suite\",\n  \"checkInDate\": \"2025-12-25\",\n  \"checkOutDate\": \"2025-12-28\",\n  \"numberOfRooms\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/hotels/{{hotelId}}/calculate-price",
+              "host": ["{{baseUrl}}"],
+              "path": ["hotels", "{{hotelId}}", "calculate-price"]
+            }
+          }
+        },
+        {
+          "name": "Get Hotel Stats",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/hotels/{{hotelId}}/stats?period=30d",
+              "host": ["{{baseUrl}}"],
+              "path": ["hotels", "{{hotelId}}", "stats"],
+              "query": [
+                {
+                  "key": "period",
+                  "value": "30d"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🏠 Rooms Management",
+      "item": [
+        {
+          "name": "Create Room",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('roomId', response.data.room._id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"number\": \"301\",\n  \"type\": \"Suite\",\n  \"floor\": 3,\n  \"basePrice\": 800,\n  \"description\": \"Suite luxueuse avec vue sur la ville\",\n  \"amenities\": [\"Balcon\", \"Jacuzzi\", \"Vue panoramique\", \"Minibar\"],\n  \"maxOccupancy\": 4\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/hotels/{{hotelId}}/rooms",
+              "host": ["{{baseUrl}}"],
+              "path": ["hotels", "{{hotelId}}", "rooms"]
+            }
+          }
+        },
+        {
+          "name": "Create Multiple Rooms",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"number\": \"201\",\n  \"type\": \"Double\",\n  \"floor\": 2,\n  \"basePrice\": 250,\n  \"description\": \"Chambre double standard\",\n  \"amenities\": [\"WiFi\", \"TV\", \"Climatisation\"],\n  \"maxOccupancy\": 2\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/hotels/{{hotelId}}/rooms",
+              "host": ["{{baseUrl}}"],
+              "path": ["hotels", "{{hotelId}}", "rooms"]
+            }
+          }
+        },
+        {
+          "name": "Get Rooms by Hotel",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/hotels/{{hotelId}}/rooms?page=1&limit=20&includeAvailability=true&checkInDate=2025-07-15&checkOutDate=2025-07-18",
+              "host": ["{{baseUrl}}"],
+              "path": ["hotels", "{{hotelId}}", "rooms"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "includeAvailability",
+                  "value": "true"
+                },
+                {
+                  "key": "checkInDate",
+                  "value": "2025-07-15"
+                },
+                {
+                  "key": "checkOutDate",
+                  "value": "2025-07-18"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Room by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/rooms/{{roomId}}?includeBookings=true&includeAvailability=true",
+              "host": ["{{baseUrl}}"],
+              "path": ["rooms", "{{roomId}}"],
+              "query": [
+                {
+                  "key": "includeBookings",
+                  "value": "true"
+                },
+                {
+                  "key": "includeAvailability",
+                  "value": "true"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Room",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Suite luxueuse rénovée avec vue sur la ville\",\n  \"amenities\": [\"Balcon\", \"Jacuzzi\", \"Vue panoramique\", \"Minibar\", \"Machine à café\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/rooms/{{roomId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["rooms", "{{roomId}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Room Status",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Maintenance\",\n  \"reason\": \"Réparation climatisation\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/rooms/{{roomId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["rooms", "{{roomId}}", "status"]
+            }
+          }
+        },
+        {
+          "name": "Check Room Availability",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/rooms/{{roomId}}/availability?checkInDate=2025-07-15&checkOutDate=2025-07-18",
+              "host": ["{{baseUrl}}"],
+              "path": ["rooms", "{{roomId}}", "availability"],
+              "query": [
+                {
+                  "key": "checkInDate",
+                  "value": "2025-07-15"
+                },
+                {
+                  "key": "checkOutDate",
+                  "value": "2025-07-18"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Search Available Rooms",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/rooms/search/available?hotelId={{hotelId}}&checkInDate=2025-12-25&checkOutDate=2025-12-28&roomType=Suite&roomsNeeded=1",
+              "host": ["{{baseUrl}}"],
+              "path": ["rooms", "search", "available"],
+              "query": [
+                {
+                  "key": "hotelId",
+                  "value": "{{hotelId}}"
+                },
+                {
+                  "key": "checkInDate",
+                  "value": "2025-12-25"
+                },
+                {
+                  "key": "checkOutDate",
+                  "value": "2025-12-28"
+                },
+                {
+                  "key": "roomType",
+                  "value": "Suite"
+                },
+                {
+                  "key": "roomsNeeded",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Room Types Config",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/rooms/types/config",
+              "host": ["{{baseUrl}}"],
+              "path": ["rooms", "types", "config"]
+            }
+          }
+        },
+        {
+          "name": "Get Room Occupancy Stats",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/rooms/stats/occupancy?hotelId={{hotelId}}&period=30d",
+              "host": ["{{baseUrl}}"],
+              "path": ["rooms", "stats", "occupancy"],
+              "query": [
+                {
+                  "key": "hotelId",
+                  "value": "{{hotelId}}"
+                },
+                {
+                  "key": "period",
+                  "value": "30d"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "📋 Bookings Management",
+      "item": [
+        {
+          "name": "Create Booking (Client)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('bookingId', response.data.booking._id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"hotelId\": \"{{hotelId}}\",\n  \"checkInDate\": \"2025-12-25\",\n  \"checkOutDate\": \"2025-12-28\",\n  \"rooms\": [\n    {\n      \"type\": \"Suite\",\n      \"quantity\": 1\n    }\n  ],\n  \"numberOfGuests\": 2,\n  \"specialRequests\": \"Vue sur la ville et late check-out si possible\",\n  \"source\": \"WEB\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/bookings",
+              "host": ["{{baseUrl}}"],
+              "path": ["bookings"]
+            }
+          }
+        },
+        {
+          "name": "Create Corporate Booking",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"hotelId\": \"{{hotelId}}\",\n  \"checkInDate\": \"2025-08-15\",\n  \"checkOutDate\": \"2025-08-18\",\n  \"rooms\": [\n    {\n      \"type\": \"Double\",\n      \"quantity\": 3\n    },\n    {\n      \"type\": \"Suite\",\n      \"quantity\": 1\n    }\n  ],\n  \"numberOfGuests\": 8,\n  \"specialRequests\": \"Chambres adjacentes pour équipe + suite pour directeur\",\n  \"source\": \"WEB\",\n  \"corporateDetails\": {\n    \"companyName\": \"Tech Solutions Maroc\",\n    \"siret\": \"12345678901234\",\n    \"contactPerson\": \"Directeur Commercial\",\n    \"address\": \"Zone Industrielle, Casablanca\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/bookings",
+              "host": ["{{baseUrl}}"],
+              "path": ["bookings"]
+            }
+          }
+        },
+        {
+          "name": "Get All Bookings",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/bookings?page=1&limit=10&status=Pending",
+              "host": ["{{baseUrl}}"],
+              "path": ["bookings"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "status",
+                  "value": "Pending"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get My Bookings (Client)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/bookings/my-bookings",
+              "host": ["{{baseUrl}}"],
+              "path": ["bookings", "my-bookings"]
+            }
+          }
+        },
+        {
+          "name": "Get Booking by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/bookings/{{bookingId}}?includeRooms=true&includePricing=true&includeHistory=true",
+              "host": ["{{baseUrl}}"],
+              "path": ["bookings", "{{bookingId}}"],
+              "query": [
+                {
+                  "key": "includeRooms",
+                  "value": "true"
+                },
+                {
+                  "key": "includePricing",
+                  "value": "true"
+                },
+                {
+                  "key": "includeHistory",
+                  "value": "true"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Booking",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"newCheckInDate\": \"2025-12-26\",\n  \"newCheckOutDate\": \"2025-12-29\",\n  \"specialRequests\": \"Vue sur la ville, late check-out et early check-in\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/bookings/{{bookingId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["bookings", "{{bookingId}}"]
+            }
+          }
+        },
+        {
+          "name": "Validate Booking (Admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"approve\",\n  \"reason\": \"Réservation validée - disponibilité confirmée\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/bookings/{{bookingId}}/validate",
+              "host": ["{{baseUrl}}"],
+              "path": ["bookings", "{{bookingId}}", "validate"]
+            }
+          }
+        },
+        {
+          "name": "Check-in Booking",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"actualCheckInTime\": \"2025-12-26T15:30:00Z\",\n  \"roomAssignments\": [\n    {\n      \"bookingRoomIndex\": 0,\n      \"roomId\": \"{{roomId}}\"\n    }\n  ],\n  \"guestNotes\": \"Client VIP - service premium\",\n  \"specialServices\": [\"Late checkout\", \"Room service premium\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/bookings/{{bookingId}}/checkin",
+              "host": ["{{baseUrl}}"],
+              "path": ["bookings", "{{bookingId}}", "checkin"]
+            }
+          }
+        },
+        {
+          "name": "Add Booking Extras",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"extras\": [\n    {\n      \"name\": \"Mini-bar\",\n      \"category\": \"Boissons\",\n      \"price\": 150,\n      \"quantity\": 1,\n      \"description\": \"Consommation mini-bar suite\"\n    },\n    {\n      \"name\": \"Room service\",\n      \"category\": \"Restauration\",\n      \"price\": 280,\n      \"quantity\": 2,\n      \"description\": \"Repas en chambre petit-déjeuner et dîner\"\n    },\n    {\n      \"name\": \"Blanchisserie express\",\n      \"category\": \"Services\",\n      \"price\": 85,\n      \"quantity\": 1,\n      \"description\": \"Service blanchisserie 24h\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/bookings/{{bookingId}}/extras",
+              "host": ["{{baseUrl}}"],
+              "path": ["bookings", "{{bookingId}}", "extras"]
+            }
+          }
+        },
+        {
+          "name": "Get Booking Extras",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/bookings/{{bookingId}}/extras",
+              "host": ["{{baseUrl}}"],
+              "path": ["bookings", "{{bookingId}}", "extras"]
+            }
+          }
+        },
+        {
+          "name": "Check-out Booking",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"actualCheckOutTime\": \"2025-12-29T12:00:00Z\",\n  \"roomCondition\": [\n    {\n      \"roomId\": \"{{roomId}}\",\n      \"condition\": \"good\",\n      \"notes\": \"Chambre en excellent état\"\n    }\n  ],\n  \"finalExtras\": [\n    {\n      \"name\": \"Téléphone longue distance\",\n      \"category\": \"Communication\",\n      \"price\": 45,\n      \"quantity\": 1,\n      \"description\": \"Appels internationaux\"\n    }\n  ],\n  \"paymentStatus\": \"Paid\",\n  \"generateInvoice\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/bookings/{{bookingId}}/checkout",
+              "host": ["{{baseUrl}}"],
+              "path": ["bookings", "{{bookingId}}", "checkout"]
+            }
+          }
+        },
+        {
+          "name": "Cancel Booking",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Changement de plans - voyage reporté\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/bookings/{{bookingId}}/cancel",
+              "host": ["{{baseUrl}}"],
+              "path": ["bookings", "{{bookingId}}", "cancel"]
+            }
+          }
+        },
+        {
+          "name": "Get Booking Invoice",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/bookings/{{bookingId}}/invoice?format=json",
+              "host": ["{{baseUrl}}"],
+              "path": ["bookings", "{{bookingId}}", "invoice"],
+              "query": [
+                {
+                  "key": "format",
+                  "value": "json"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Send Invoice by Email",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"client@email.ma\",\n  \"subject\": \"Facture séjour Hôtel Atlas Rabat\",\n  \"message\": \"Merci pour votre séjour. Veuillez trouver ci-joint votre facture.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/bookings/{{bookingId}}/invoice/email",
+              "host": ["{{baseUrl}}"],
+              "path": ["bookings", "{{bookingId}}", "invoice", "email"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "📊 Statistics & Reports",
+      "item": [
+        {
+          "name": "Booking Dashboard Stats",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/bookings/stats/dashboard?hotelId={{hotelId}}&period=30d&groupBy=day",
+              "host": ["{{baseUrl}}"],
+              "path": ["bookings", "stats", "dashboard"],
+              "query": [
+                {
+                  "key": "hotelId",
+                  "value": "{{hotelId}}"
+                },
+                {
+                  "key": "period",
+                  "value": "30d"
+                },
+                {
+                  "key": "groupBy",
+                  "value": "day"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Revenue Analysis",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/bookings/stats/revenue?hotelId={{hotelId}}&period=90d&breakdown=weekly",
+              "host": ["{{baseUrl}}"],
+              "path": ["bookings", "stats", "revenue"],
+              "query": [
+                {
+                  "key": "hotelId",
+                  "value": "{{hotelId}}"
+                },
+                {
+                  "key": "period",
+                  "value": "90d"
+                },
+                {
+                  "key": "breakdown",
+                  "value": "weekly"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Pending Bookings (Admin)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/bookings/pending?limit=20&sortBy=createdAt&sortOrder=asc",
+              "host": ["{{baseUrl}}"],
+              "path": ["bookings", "pending"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "createdAt"
+                },
+                {
+                  "key": "sortOrder",
+                  "value": "asc"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Today Check-ins",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/bookings/checkin-today?hotelId={{hotelId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["bookings", "checkin-today"],
+              "query": [
+                {
+                  "key": "hotelId",
+                  "value": "{{hotelId}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Today Check-outs",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/bookings/checkout-today?hotelId={{hotelId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["bookings", "checkout-today"],
+              "query": [
+                {
+                  "key": "hotelId",
+                  "value": "{{hotelId}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Daily Report",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/bookings/reports/daily?hotelId={{hotelId}}&date=2025-07-15&format=json",
+              "host": ["{{baseUrl}}"],
+              "path": ["bookings", "reports", "daily"],
+              "query": [
+                {
+                  "key": "hotelId",
+                  "value": "{{hotelId}}"
+                },
+                {
+                  "key": "date",
+                  "value": "2025-07-15"
+                },
+                {
+                  "key": "format",
+                  "value": "json"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔍 Advanced Search & Operations",
+      "item": [
+        {
+          "name": "Advanced Booking Search",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/bookings/search/advanced?query=Ahmed&status=Confirmed&checkInStart=2025-07-01&minAmount=500&hasExtras=true&roomType=Suite&page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["bookings", "search", "advanced"],
+              "query": [
+                {
+                  "key": "query",
+                  "value": "Ahmed"
+                },
+                {
+                  "key": "status",
+                  "value": "Confirmed"
+                },
+                {
+                  "key": "checkInStart",
+                  "value": "2025-07-01"
+                },
+                {
+                  "key": "minAmount",
+                  "value": "500"
+                },
+                {
+                  "key": "hasExtras",
+                  "value": "true"
+                },
+                {
+                  "key": "roomType",
+                  "value": "Suite"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Hotel Search Suggestions",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/hotels/search/suggestions?q=Atlas",
+              "host": ["{{baseUrl}}"],
+              "path": ["hotels", "search", "suggestions"],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "Atlas"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Room Availability Calendar",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/rooms/availability/calendar?hotelId={{hotelId}}&startDate=2025-07-01&endDate=2025-07-31&roomType=Suite",
+              "host": ["{{baseUrl}}"],
+              "path": ["rooms", "availability", "calendar"],
+              "query": [
+                {
+                  "key": "hotelId",
+                  "value": "{{hotelId}}"
+                },
+                {
+                  "key": "startDate",
+                  "value": "2025-07-01"
+                },
+                {
+                  "key": "endDate",
+                  "value": "2025-07-31"
+                },
+                {
+                  "key": "roomType",
+                  "value": "Suite"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Auto-assign Rooms",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bookingId\": \"{{bookingId}}\",\n  \"preferences\": {\n    \"preferredFloor\": 3,\n    \"adjacentRooms\": false,\n    \"quietArea\": true\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/rooms/auto-assign",
+              "host": ["{{baseUrl}}"],
+              "path": ["rooms", "auto-assign"]
+            }
+          }
+        },
+        {
+          "name": "Bulk Validate Bookings (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bookingIds\": [\"{{bookingId}}\"],\n  \"action\": \"approve\",\n  \"reason\": \"Validation automatique batch weekend\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/bookings/bulk-validate",
+              "host": ["{{baseUrl}}"],
+              "path": ["bookings", "bulk-validate"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "⚙️ Configuration & Utilities",
+      "item": [
+        {
+          "name": "Booking Workflow Config",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/bookings/config/workflow",
+              "host": ["{{baseUrl}}"],
+              "path": ["bookings", "config", "workflow"]
+            }
+          }
+        },
+        {
+          "name": "Hotel Check Availability",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/hotels/{{hotelId}}/availability?checkInDate=2025-12-25&checkOutDate=2025-12-28&roomType=Suite&roomsNeeded=1",
+              "host": ["{{baseUrl}}"],
+              "path": ["hotels", "{{hotelId}}", "availability"],
+              "query": [
+                {
+                  "key": "checkInDate",
+                  "value": "2025-12-25"
+                },
+                {
+                  "key": "checkOutDate",
+                  "value": "2025-12-28"
+                },
+                {
+                  "key": "roomType",
+                  "value": "Suite"
+                },
+                {
+                  "key": "roomsNeeded",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Room Status History",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/rooms/{{roomId}}/status/history?limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["rooms", "{{roomId}}", "status", "history"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Room Performance Stats",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/rooms/stats/performance?hotelId={{hotelId}}&period=30d&metric=revenue&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["rooms", "stats", "performance"],
+              "query": [
+                {
+                  "key": "hotelId",
+                  "value": "{{hotelId}}"
+                },
+                {
+                  "key": "period",
+                  "value": "30d"
+                },
+                {
+                  "key": "metric",
+                  "value": "revenue"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🧪 Test Scenarios",
+      "item": [
+        {
+          "name": "Complete Booking Flow Test",
+          "item": [
+            {
+              "name": "1. Create Booking (PENDING)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Booking created successfully', function () {",
+                      "    pm.response.to.have.status(201);",
+                      "    const response = pm.response.json();",
+                      "    pm.expect(response.data.booking.status).to.eql('Pending');",
+                      "    pm.collectionVariables.set('testBookingId', response.data.booking._id);",
+                      "});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"hotelId\": \"{{hotelId}}\",\n  \"checkInDate\": \"2025-09-15\",\n  \"checkOutDate\": \"2025-09-18\",\n  \"rooms\": [\n    {\n      \"type\": \"Suite\",\n      \"quantity\": 1\n    }\n  ],\n  \"numberOfGuests\": 2,\n  \"specialRequests\": \"Test booking flow\",\n  \"source\": \"WEB\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/bookings",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["bookings"]
+                }
+              }
+            },
+            {
+              "name": "2. Validate Booking (CONFIRMED)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Booking validated successfully', function () {",
+                      "    pm.response.to.have.status(200);",
+                      "    const response = pm.response.json();",
+                      "    pm.expect(response.data.booking.status).to.eql('Confirmed');",
+                      "});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"action\": \"approve\",\n  \"reason\": \"Test validation - booking approved\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/bookings/{{testBookingId}}/validate",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["bookings", "{{testBookingId}}", "validate"]
+                }
+              }
+            },
+            {
+              "name": "3. Check-in Booking (CHECKED_IN)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Check-in successful', function () {",
+                      "    pm.response.to.have.status(200);",
+                      "    const response = pm.response.json();",
+                      "    pm.expect(response.data.booking.status).to.eql('Checked-in');",
+                      "});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"roomAssignments\": [\n    {\n      \"bookingRoomIndex\": 0,\n      \"roomId\": \"{{roomId}}\"\n    }\n  ],\n  \"guestNotes\": \"Test check-in process\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/bookings/{{testBookingId}}/checkin",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["bookings", "{{testBookingId}}", "checkin"]
+                }
+              }
+            },
+            {
+              "name": "4. Add Extras",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Extras added successfully', function () {",
+                      "    pm.response.to.have.status(200);",
+                      "    const response = pm.response.json();",
+                      "    pm.expect(response.data.addedExtras.length).to.be.greaterThan(0);",
+                      "});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"extras\": [\n    {\n      \"name\": \"Test Mini-bar\",\n      \"category\": \"Boissons\",\n      \"price\": 100,\n      \"quantity\": 1,\n      \"description\": \"Test extra pour flow complet\"\n    }\n  ]\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/bookings/{{testBookingId}}/extras",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["bookings", "{{testBookingId}}", "extras"]
+                }
+              }
+            },
+            {
+              "name": "5. Check-out Booking (COMPLETED)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Check-out successful', function () {",
+                      "    pm.response.to.have.status(200);",
+                      "    const response = pm.response.json();",
+                      "    pm.expect(response.data.booking.status).to.eql('Completed');",
+                      "});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"roomCondition\": [\n    {\n      \"roomId\": \"{{roomId}}\",\n      \"condition\": \"good\",\n      \"notes\": \"Test check-out - chambre en bon état\"\n    }\n  ],\n  \"paymentStatus\": \"Paid\",\n  \"generateInvoice\": true\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/bookings/{{testBookingId}}/checkout",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["bookings", "{{testBookingId}}", "checkout"]
+                }
+              }
+            },
+            {
+              "name": "6. Get Final Invoice",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Invoice generated successfully', function () {",
+                      "    pm.response.to.have.status(200);",
+                      "    const response = pm.response.json();",
+                      "    pm.expect(response.data.invoice).to.exist;",
+                      "    pm.expect(response.data.invoice.invoice.number).to.exist;",
+                      "});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/bookings/{{testBookingId}}/invoice?format=json",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["bookings", "{{testBookingId}}", "invoice"],
+                  "query": [
+                    {
+                      "key": "format",
+                      "value": "json"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Availability Conflict Test",
+          "item": [
+            {
+              "name": "1. Create First Booking",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "if (pm.response.code === 201) {",
+                      "    const response = pm.response.json();",
+                      "    pm.collectionVariables.set('conflictBooking1', response.data.booking._id);",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"hotelId\": \"{{hotelId}}\",\n  \"checkInDate\": \"2025-10-15\",\n  \"checkOutDate\": \"2025-10-18\",\n  \"rooms\": [\n    {\n      \"type\": \"Suite\",\n      \"quantity\": 1\n    }\n  ],\n  \"numberOfGuests\": 2,\n  \"source\": \"WEB\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/bookings",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["bookings"]
+                }
+              }
+            },
+            {
+              "name": "2. Validate First Booking",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"action\": \"approve\",\n  \"reason\": \"First booking approved\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/bookings/{{conflictBooking1}}/validate",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["bookings", "{{conflictBooking1}}", "validate"]
+                }
+              }
+            },
+            {
+              "name": "3. Try Conflicting Booking (Should Fail)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Conflicting booking should fail', function () {",
+                      "    pm.response.to.have.status(400);",
+                      "    const response = pm.response.json();",
+                      "    pm.expect(response.message).to.include('disponibles');",
+                      "});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"hotelId\": \"{{hotelId}}\",\n  \"checkInDate\": \"2025-10-16\",\n  \"checkOutDate\": \"2025-10-19\",\n  \"rooms\": [\n    {\n      \"type\": \"Suite\",\n      \"quantity\": 1\n    }\n  ],\n  \"numberOfGuests\": 2,\n  \"source\": \"WEB\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/bookings",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["bookings"]
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

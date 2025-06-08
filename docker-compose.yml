@@ -1,0 +1,202 @@
+# Hotel Management System - Docker Compose for Development
+version: '3.8'
+
+services:
+  # ================================
+  # Hotel Management API
+  # ================================
+  hotel-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: hotel-management-api
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+      - "3001:3001"  # Socket.io port
+    environment:
+      - NODE_ENV=development
+      - PORT=5000
+      - MONGODB_URI=${MONGODB_URI}
+      - JWT_SECRET=${JWT_SECRET}
+      - EMAIL_USER=${EMAIL_USER}
+      - EMAIL_PASS=${EMAIL_PASS}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - STRIPE_PUBLISHABLE_KEY=${STRIPE_PUBLISHABLE_KEY}
+    env_file:
+      - .env.development
+    volumes:
+      # Development: mount source code for hot reloading
+      - .:/app
+      - /app/node_modules
+      # Persistent storage
+      - hotel_uploads:/app/uploads
+      - hotel_logs:/app/logs
+      - hotel_invoices:/app/invoices
+      - hotel_exports:/app/exports
+    networks:
+      - hotel-network
+    depends_on:
+      - mongo-dev
+      - redis-dev
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # ================================
+  # MongoDB for Development
+  # ================================
+  mongo-dev:
+    image: mongo:7-jammy
+    container_name: hotel-mongodb-dev
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: hotel_admin_pass
+      MONGO_INITDB_DATABASE: hotel_management_dev
+    volumes:
+      - hotel_mongo_data:/data/db
+      - hotel_mongo_config:/data/configdb
+      - ./scripts/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+    networks:
+      - hotel-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # ================================
+  # Redis for Caching & Sessions
+  # ================================
+  redis-dev:
+    image: redis:7-alpine
+    container_name: hotel-redis-dev
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes --requirepass hotel_redis_pass
+    volumes:
+      - hotel_redis_data:/data
+    networks:
+      - hotel-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ================================
+  # MongoDB Express (Database Admin UI)
+  # ================================
+  mongo-express:
+    image: mongo-express:1-20-alpine3.18
+    container_name: hotel-mongo-express
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: admin
+      ME_CONFIG_MONGODB_ADMINPASSWORD: hotel_admin_pass
+      ME_CONFIG_MONGODB_URL: mongodb://admin:hotel_admin_pass@mongo-dev:27017/
+      ME_CONFIG_BASICAUTH_USERNAME: admin
+      ME_CONFIG_BASICAUTH_PASSWORD: hotel_admin_ui
+      ME_CONFIG_MONGODB_ENABLE_ADMIN: 'true'
+    networks:
+      - hotel-network
+    depends_on:
+      - mongo-dev
+
+  # ================================
+  # Redis Commander (Redis Admin UI)
+  # ================================
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: hotel-redis-commander
+    restart: unless-stopped
+    ports:
+      - "8082:8081"
+    environment:
+      REDIS_HOSTS: local:redis-dev:6379
+      REDIS_PASSWORD: hotel_redis_pass
+      HTTP_USER: admin
+      HTTP_PASSWORD: hotel_redis_ui
+    networks:
+      - hotel-network
+    depends_on:
+      - redis-dev
+
+  # ================================
+  # Mailhog (Email Testing)
+  # ================================
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: hotel-mailhog
+    restart: unless-stopped
+    ports:
+      - "1025:1025"  # SMTP server
+      - "8025:8025"  # Web UI
+    networks:
+      - hotel-network
+
+  # ================================
+  # Nginx (Load Balancer/Reverse Proxy)
+  # ================================
+  nginx:
+    image: nginx:alpine
+    container_name: hotel-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - nginx_logs:/var/log/nginx
+    networks:
+      - hotel-network
+    depends_on:
+      - hotel-api
+
+# ================================
+# Networks
+# ================================
+networks:
+  hotel-network:
+    driver: bridge
+    name: hotel-management-network
+
+# ================================
+# Volumes
+# ================================
+volumes:
+  # Application data
+  hotel_uploads:
+    name: hotel_uploads
+  hotel_logs:
+    name: hotel_logs
+  hotel_invoices:
+    name: hotel_invoices
+  hotel_exports:
+    name: hotel_exports
+  
+  # Database data
+  hotel_mongo_data:
+    name: hotel_mongo_data
+  hotel_mongo_config:
+    name: hotel_mongo_config
+  
+  # Cache data
+  hotel_redis_data:
+    name: hotel_redis_data
+  
+  # Nginx logs
+  nginx_logs:
+    name: nginx_logs

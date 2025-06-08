@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facture {{invoice.number}} - {{hotel.name}}</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; background-color: #f4f4f4; }
+        .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
+        .header { background: linear-gradient(135deg, #343a40 0%, #495057 100%); color: white; padding: 40px; text-align: center; }
+        .header h1 { font-size: 28px; margin-bottom: 15px; }
+        .content { padding: 30px; }
+        .invoice-header { background: #f8f9fa; border-radius: 10px; padding: 25px; margin: 25px 0; border-left: 5px solid #007bff; }
+        .invoice-details { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0; }
+        .detail-box { background: white; border: 1px solid #dee2e6; border-radius: 8px; padding: 15px; }
+        .detail-label { font-weight: bold; color: #666; font-size: 12px; text-transform: uppercase; margin-bottom: 5px; }
+        .detail-value { font-size: 16px; color: #333; }
+        .amount-section { background: #007bff; color: white; border-radius: 10px; padding: 25px; text-align: center; margin: 25px 0; }
+        .amount { font-size: 36px; font-weight: bold; margin: 15px 0; }
+        .download-section { background: #e7f3ff; border: 2px solid #007bff; border-radius: 10px; padding: 25px; margin: 25px 0; text-align: center; }
+        .btn { display: inline-block; background: #007bff; color: white; padding: 15px 30px; text-decoration: none; border-radius: 25px; font-weight: bold; margin: 10px; transition: all 0.3s ease; }
+        .btn:hover { background: #0056b3; transform: translateY(-2px); }
+        .btn-success { background: #28a745; }
+        .btn-success:hover { background: #218838; }
+        .info-section { background: #fff3cd; border-left: 4px solid #ffc107; padding: 20px; margin: 25px 0; }
+        .footer { background: #333; color: white; padding: 30px; text-align: center; }
+        .footer a { color: #007bff; text-decoration: none; }
+        @media (max-width: 600px) { .invoice-details { grid-template-columns: 1fr; } .container { margin: 0; } .content { padding: 20px; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📄 Facture Générée</h1>
+            <p>Votre facture est prête {{user.firstName}} !</p>
+        </div>
+
+        <div class="content">
+            <div class="invoice-header">
+                <h2>📋 Détails de la Facture</h2>
+                <div class="invoice-details">
+                    <div class="detail-box">
+                        <div class="detail-label">📄 Numéro de Facture</div>
+                        <div class="detail-value"><strong>{{invoice.number}}</strong></div>
+                    </div>
+                    <div class="detail-box">
+                        <div class="detail-label">📅 Date d'Émission</div>
+                        <div class="detail-value">{{invoice.date}}</div>
+                    </div>
+                    <div class="detail-box">
+                        <div class="detail-label">🏨 Établissement</div>
+                        <div class="detail-value">{{hotel.name}}</div>
+                    </div>
+                    <div class="detail-box">
+                        <div class="detail-label">📍 Adresse</div>
+                        <div class="detail-value">{{hotel.address}}, {{hotel.city}}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="amount-section">
+                <div>💰 Montant Total</div>
+                <div class="amount">{{invoice.totalAmount}} {{invoice.currency}}</div>
+                <div>TVA incluse</div>
+            </div>
+
+            <div class="download-section">
+                <h3 style="color: #007bff; margin-bottom: 15px;">📥 Télécharger votre Facture</h3>
+                <p>Votre facture PDF est disponible en pièce jointe de cet email.</p>
+                <p style="margin: 15px 0;">Vous pouvez également la télécharger depuis votre espace client.</p>
+                <a href="{{FRONTEND_URL}}/account/invoices" class="btn">
+                    📱 Mon Espace Client
+                </a>
+                <a href="{{FRONTEND_URL}}/invoice/{{invoice.id}}/download" class="btn btn-success">
+                    📄 Télécharger PDF
+                </a>
+            </div>
+
+            <div style="background: #f8f9fa; border-radius: 10px; padding: 25px; margin: 25px 0;">
+                <h3>📊 Utilisation de votre Facture</h3>
+                <div style="margin-top: 15px;">
+                    <div style="background: white; padding: 15px; border-radius: 8px; margin: 10px 0; border-left: 4px solid #28a745;">
+                        <strong>✅ Comptabilité :</strong> Document officiel pour vos déclarations
+                    </div>
+                    <div style="background: white; padding: 15px; border-radius: 8px; margin: 10px 0; border-left: 4px solid #17a2b8;">
+                        <strong>💼 Frais Professionnels :</strong> Justificatif pour vos notes de frais
+                    </div>
+                    <div style="background: white; padding: 15px; border-radius: 8px; margin: 10px 0; border-left: 4px solid #6f42c1;">
+                        <strong>🏦 Remboursement :</strong> Pièce justificative pour vos remboursements
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-section">
+                <h4 style="color: #856404; margin-bottom: 15px;">ℹ️ Informations Importantes</h4>
+                <div style="color: #856404;">
+                    <p><strong>Conservation :</strong> Conservez cette facture pendant au moins 10 ans</p>
+                    <p><strong>Questions :</strong> Pour toute question, contactez-nous avec le numéro de facture</p>
+                    <p><strong>Duplicata :</strong> Vous pouvez re-télécharger cette facture à tout moment</p>
+                </div>
+            </div>
+
+            <div style="background: #d4edda; border-radius: 10px; padding: 25px; margin: 25px 0; text-align: center;">
+                <h3 style="color: #155724; margin-bottom: 15px;">🎯 Facture Électronique</h3>
+                <div style="color: #155724;">
+                    <p>Cette facture électronique a la même valeur légale qu'une facture papier.</p>
+                    <p style="margin-top: 10px;">Format PDF/A conforme aux normes fiscales françaises.</p>
+                </div>
+            </div>
+
+            <div style="background: linear-gradient(135deg, #6f42c1 0%, #e83e8c 100%); color: white; border-radius: 15px; padding: 25px; margin: 25px 0; text-align: center;">
+                <h3>🌟 Merci pour votre Séjour !</h3>
+                <p style="margin: 15px 0;">Nous espérons que vous avez passé un excellent moment.</p>
+                <p>Votre satisfaction est notre priorité !</p>
+                <div style="margin-top: 20px;">
+                    <a href="{{FRONTEND_URL}}/review" style="background: rgba(255,255,255,0.2); color: white; padding: 10px 20px; text-decoration: none; border-radius: 20px; margin: 5px;">
+                        ⭐ Laisser un Avis
+                    </a>
+                    <a href="{{FRONTEND_URL}}/search" style="background: rgba(255,255,255,0.2); color: white; padding: 10px 20px; text-decoration: none; border-radius: 20px; margin: 5px;">
+                        🔄 Réserver à Nouveau
+                    </a>
+                </div>
+            </div>
+
+            <div style="background: #e7f3ff; border-radius: 10px; padding: 20px; margin: 25px 0;">
+                <h4 style="color: #004085; margin-bottom: 15px;">📞 Support Client</h4>
+                <div style="color: #004085;">
+                    <p><strong>Email :</strong> comptabilite@hotelmanagement.com</p>
+                    <p><strong>Téléphone :</strong> +33 1 23 45 67 89</p>
+                    <p><strong>Horaires :</strong> Lundi - Vendredi, 9h00 - 18h00</p>
+                    <p style="margin-top: 10px;"><em>Mentionnez toujours votre numéro de facture : {{invoice.number}}</em></p>
+                </div>
+            </div>
+
+            <div style="border: 2px dashed #dee2e6; border-radius: 10px; padding: 20px; margin: 25px 0; text-align: center;">
+                <h4>📱 Application Mobile</h4>
+                <p>Retrouvez toutes vos factures sur notre application mobile.</p>
+                <p style="margin-top: 10px;">
+                    <span style="background: #007bff; color: white; padding: 5px 15px; border-radius: 15px; margin: 5px;">📱 iOS</span>
+                    <span style="background: #28a745; color: white; padding: 5px 15px; border-radius: 15px; margin: 5px;">🤖 Android</span>
+                </p>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Facture électronique générée automatiquement 🏨</p>
+            <p>
+                <a href="mailto:{{supportEmail}}">Support</a> | 
+                <a href="{{FRONTEND_URL}}/legal">Mentions Légales</a> | 
+                <a href="{{FRONTEND_URL}}/privacy">Confidentialité</a>
+            </p>
+            <p style="margin-top: 15px; font-size: 12px; opacity: 0.7;">
+                © {{year}} Hotel Management System. Document généré le {{invoice.date}}.
+            </p>
+        </div>
+    </div>
+</body>
+</html>

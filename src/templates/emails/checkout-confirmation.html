@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Merci pour votre Séjour - {{hotel.name}}</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; background-color: #f4f4f4; }
+        .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
+        .header { background: linear-gradient(135deg, #6f42c1 0%, #e83e8c 100%); color: white; padding: 40px; text-align: center; }
+        .header h1 { font-size: 32px; margin-bottom: 15px; }
+        .content { padding: 30px; }
+        .thank-you-section { background: #f8f9fa; border-radius: 15px; padding: 30px; text-align: center; margin: 25px 0; border: 2px solid #6f42c1; }
+        .thank-you-icon { font-size: 64px; margin-bottom: 20px; }
+        .stay-summary { background: #e7f3ff; border-radius: 10px; padding: 25px; margin: 25px 0; }
+        .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0; }
+        .summary-item { background: white; padding: 15px; border-radius: 8px; text-align: center; }
+        .summary-value { font-size: 24px; font-weight: bold; color: #6f42c1; }
+        .summary-label { font-size: 12px; color: #666; text-transform: uppercase; margin-top: 5px; }
+        .rating-section { background: #fff3cd; border-radius: 10px; padding: 25px; margin: 25px 0; text-align: center; }
+        .stars { font-size: 32px; margin: 15px 0; }
+        .star { color: #ddd; cursor: pointer; transition: color 0.2s; }
+        .star:hover, .star.active { color: #ffc107; }
+        .btn { display: inline-block; background: #6f42c1; color: white; padding: 15px 30px; text-decoration: none; border-radius: 25px; font-weight: bold; margin: 10px; transition: all 0.3s ease; }
+        .btn:hover { background: #5a32a3; transform: translateY(-2px); }
+        .btn-secondary { background: #17a2b8; }
+        .btn-secondary:hover { background: #138496; }
+        .footer { background: #333; color: white; padding: 30px; text-align: center; }
+        @media (max-width: 600px) { .summary-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌟 Merci pour votre Séjour !</h1>
+            <p>Au revoir {{user.firstName}}, à bientôt !</p>
+        </div>
+
+        <div class="content">
+            <div class="thank-you-section">
+                <div class="thank-you-icon">🙏</div>
+                <h2 style="color: #6f42c1; margin-bottom: 15px;">Merci de votre Confiance</h2>
+                <p>Nous espérons que vous avez passé un séjour agréable à {{hotel.name}}. Votre satisfaction est notre priorité.</p>
+            </div>
+
+            <div class="stay-summary">
+                <h3>📊 Résumé de votre Séjour</h3>
+                <div class="summary-grid">
+                    <div class="summary-item">
+                        <div class="summary-value">{{booking.nights}}</div>
+                        <div class="summary-label">Nuitées</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-value">{{booking.rooms.length}}</div>
+                        <div class="summary-label">Chambres</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-value">{{booking.checkInDate}}</div>
+                        <div class="summary-label">Arrivée</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-value">{{booking.checkOutDate}}</div>
+                        <div class="summary-label">Départ</div>
+                    </div>
+                </div>
+                
+                <div style="background: white; padding: 20px; border-radius: 10px; margin-top: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span><strong>Confirmation:</strong></span>
+                        <span style="color: #6f42c1; font-weight: bold;">{{booking.confirmationNumber}}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="rating-section">
+                <h3 style="color: #856404; margin-bottom: 15px;">⭐ Comment était votre Séjour ?</h3>
+                <p style="color: #856404; margin-bottom: 20px;">Votre avis nous aide à nous améliorer</p>
+                <div class="stars">
+                    <span class="star" data-rating="1">⭐</span>
+                    <span class="star" data-rating="2">⭐</span>
+                    <span class="star" data-rating="3">⭐</span>
+                    <span class="star" data-rating="4">⭐</span>
+                    <span class="star" data-rating="5">⭐</span>
+                </div>
+                <a href="{{FRONTEND_URL}}/review/{{booking.id}}" class="btn">
+                    Laisser un Avis Complet
+                </a>
+            </div>
+
+            <div style="background: #d1ecf1; border-radius: 10px; padding: 25px; margin: 25px 0;">
+                <h3 style="color: #0c5460; margin-bottom: 15px;">🎁 Avantages Fidélité</h3>
+                <div style="color: #0c5460;">
+                    <p>✨ +{{loyaltyPoints}} points gagnés ce séjour</p>
+                    <p>🏆 Total: {{totalLoyaltyPoints}} points</p>
+                    <p style="margin-top: 15px;">Utilisez vos points pour votre prochain séjour !</p>
+                </div>
+            </div>
+
+            <div style="background: #f8f9fa; border-radius: 10px; padding: 25px; margin: 25px 0; text-align: center;">
+                <h3>📧 Facture et Documents</h3>
+                <p>Votre facture détaillée a été envoyée par email.</p>
+                <p>Retrouvez tous vos documents dans votre espace client.</p>
+                <a href="{{FRONTEND_URL}}/account/bookings" class="btn btn-secondary">
+                    Mes Réservations
+                </a>
+            </div>
+
+            <div style="background: #e7f3ff; border-left: 4px solid #007bff; padding: 20px; margin: 25px 0;">
+                <h4 style="color: #004085; margin-bottom: 15px;">🔄 Réservez à Nouveau</h4>
+                <p style="color: #004085;">Envie de revenir ? Bénéficiez de 10% de réduction sur votre prochaine réservation avec le code <strong>FIDELE10</strong></p>
+                <a href="{{FRONTEND_URL}}/search" class="btn" style="margin-top: 15px;">
+                    Nouvelle Réservation
+                </a>
+            </div>
+
+            <div style="text-align: center; margin: 30px 0;">
+                <h3>Au Revoir et à Bientôt ! 👋</h3>
+                <p>L'équipe de {{hotel.name}} vous remercie et espère vous revoir très prochainement.</p>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Merci de votre confiance ! 🏨</p>
+            <p>Restez connecté: <a href="{{FRONTEND_URL}}/newsletter" style="color: #e83e8c;">Newsletter</a> | <a href="{{supportEmail}}" style="color: #e83e8c;">Support</a></p>
+        </div>
+    </div>
+
+    <script>
+        // Simple star rating interaction
+        document.querySelectorAll('.star').forEach(star => {
+            star.addEventListener('click', function() {
+                const rating = this.dataset.rating;
+                document.querySelectorAll('.star').forEach((s, index) => {
+                    s.classList.toggle('active', index < rating);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

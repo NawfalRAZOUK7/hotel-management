@@ -1,0 +1,1339 @@
+{
+  "validBookings": [
+    {
+      "_id": "507f1f77bcf86cd799450001",
+      "hotel": "507f1f77bcf86cd799439011",
+      "customer": "507f1f77bcf86cd799430003",
+      "checkInDate": "2025-07-20T14:00:00.000Z",
+      "checkOutDate": "2025-07-23T12:00:00.000Z",
+      "rooms": [
+        {
+          "_id": "507f1f77bcf86cd799451001",
+          "type": "Double",
+          "basePrice": 250,
+          "calculatedPrice": 975,
+          "room": "507f1f77bcf86cd799440002",
+          "assignedAt": "2025-07-20T13:45:00.000Z",
+          "assignedBy": "507f1f77bcf86cd799430002"
+        }
+      ],
+      "numberOfGuests": 2,
+      "totalPrice": 975,
+      "status": "Checked-in",
+      "source": "Web",
+      "clientType": "Individual",
+      "specialRequests": "Chambre non-fumeur avec vue si possible",
+      "confirmedAt": "2025-07-15T10:30:00.000Z",
+      "confirmedBy": "507f1f77bcf86cd799430001",
+      "actualCheckInDate": "2025-07-20T14:15:00.000Z",
+      "checkedInBy": "507f1f77bcf86cd799430002",
+      "guestNotes": "Client VIP - anniversaire de mariage",
+      "specialServices": ["Late checkout", "Champagne welcome"],
+      "extras": [
+        {
+          "name": "Room service petit-déjeuner",
+          "category": "Restauration",
+          "price": 85,
+          "quantity": 2,
+          "total": 170,
+          "addedAt": "2025-07-21T08:30:00.000Z",
+          "addedBy": "507f1f77bcf86cd799430002"
+        },
+        {
+          "name": "Minibar",
+          "category": "Boissons",
+          "price": 45,
+          "quantity": 1,
+          "total": 45,
+          "addedAt": "2025-07-21T20:15:00.000Z",
+          "addedBy": "507f1f77bcf86cd799430002"
+        }
+      ],
+      "extrasTotal": 215,
+      "paymentStatus": "Partial",
+      "paymentMethod": "Credit Card",
+      "statusHistory": [
+        {
+          "previousStatus": "Pending",
+          "newStatus": "Confirmed",
+          "reason": "Validation automatique admin",
+          "changedBy": "507f1f77bcf86cd799430001",
+          "changedAt": "2025-07-15T10:30:00.000Z"
+        },
+        {
+          "previousStatus": "Confirmed",
+          "newStatus": "Checked-in",
+          "reason": "Arrivée client",
+          "changedBy": "507f1f77bcf86cd799430002",
+          "changedAt": "2025-07-20T14:15:00.000Z"
+        }
+      ],
+      "createdBy": "507f1f77bcf86cd799430003",
+      "createdAt": "2025-07-14T16:45:00.000Z",
+      "updatedAt": "2025-07-21T20:15:00.000Z"
+    },
+    {
+      "_id": "507f1f77bcf86cd799450002",
+      "hotel": "507f1f77bcf86cd799439011",
+      "customer": "507f1f77bcf86cd799430004",
+      "checkInDate": "2025-08-15T14:00:00.000Z",
+      "checkOutDate": "2025-08-18T12:00:00.000Z",
+      "rooms": [
+        {
+          "_id": "507f1f77bcf86cd799451002",
+          "type": "Suite",
+          "basePrice": 600,
+          "calculatedPrice": 2340,
+          "room": null,
+          "assignedAt": null,
+          "assignedBy": null
+        }
+      ],
+      "numberOfGuests": 3,
+      "totalPrice": 2340,
+      "status": "Confirmed",
+      "source": "Mobile",
+      "clientType": "Individual",
+      "specialRequests": "Étage élevé préféré, arrivée tardive possible",
+      "confirmedAt": "2025-07-16T09:15:00.000Z",
+      "confirmedBy": "507f1f77bcf86cd799430001",
+      "actualCheckInDate": null,
+      "checkedInBy": null,
+      "guestNotes": "",
+      "specialServices": [],
+      "extras": [],
+      "extrasTotal": 0,
+      "paymentStatus": "Pending",
+      "statusHistory": [
+        {
+          "previousStatus": "Pending",
+          "newStatus": "Confirmed",
+          "reason": "Validation admin après vérification disponibilité",
+          "changedBy": "507f1f77bcf86cd799430001",
+          "changedAt": "2025-07-16T09:15:00.000Z"
+        }
+      ],
+      "createdBy": "507f1f77bcf86cd799430004",
+      "createdAt": "2025-07-15T19:30:00.000Z",
+      "updatedAt": "2025-07-16T09:15:00.000Z"
+    },
+    {
+      "_id": "507f1f77bcf86cd799450003",
+      "hotel": "507f1f77bcf86cd799439012",
+      "customer": "507f1f77bcf86cd799430005",
+      "checkInDate": "2025-12-25T14:00:00.000Z",
+      "checkOutDate": "2025-12-28T12:00:00.000Z",
+      "rooms": [
+        {
+          "_id": "507f1f77bcf86cd799451003",
+          "type": "Double",
+          "basePrice": 350,
+          "calculatedPrice": 1638,
+          "room": null,
+          "assignedAt": null,
+          "assignedBy": null
+        },
+        {
+          "_id": "507f1f77bcf86cd799451004",
+          "type": "Suite",
+          "basePrice": 900,
+          "calculatedPrice": 4212,
+          "room": null,
+          "assignedAt": null,
+          "assignedBy": null
+        }
+      ],
+      "numberOfGuests": 6,
+      "totalPrice": 5850,
+      "status": "Pending",
+      "source": "Web",
+      "clientType": "Corporate",
+      "corporateDetails": {
+        "companyName": "Tech Solutions Maroc",
+        "siret": "12345678901234",
+        "contactPerson": "Directeur Commercial",
+        "address": "Zone Industrielle, Casablanca"
+      },
+      "specialRequests": "Chambres adjacentes si possible, facturation entreprise",
+      "confirmedAt": null,
+      "confirmedBy": null,
+      "actualCheckInDate": null,
+      "checkedInBy": null,
+      "guestNotes": "",
+      "specialServices": [],
+      "extras": [],
+      "extrasTotal": 0,
+      "paymentStatus": "Pending",
+      "paymentMethod": "Bank Transfer",
+      "statusHistory": [],
+      "createdBy": "507f1f77bcf86cd799430005",
+      "createdAt": "2025-07-10T11:20:00.000Z",
+      "updatedAt": "2025-07-10T11:20:00.000Z"
+    },
+    {
+      "_id": "507f1f77bcf86cd799450004",
+      "hotel": "507f1f77bcf86cd799439011",
+      "customer": "507f1f77bcf86cd799430006",
+      "checkInDate": "2025-06-10T14:00:00.000Z",
+      "checkOutDate": "2025-06-12T12:00:00.000Z",
+      "rooms": [
+        {
+          "_id": "507f1f77bcf86cd799451005",
+          "type": "Simple",
+          "basePrice": 150,
+          "calculatedPrice": 390,
+          "room": "507f1f77bcf86cd799440001",
+          "assignedAt": "2025-06-10T13:30:00.000Z",
+          "assignedBy": "507f1f77bcf86cd799430002"
+        }
+      ],
+      "numberOfGuests": 1,
+      "totalPrice": 465,
+      "status": "Completed",
+      "source": "Reception",
+      "clientType": "Individual",
+      "specialRequests": "",
+      "confirmedAt": "2025-06-08T14:20:00.000Z",
+      "confirmedBy": "507f1f77bcf86cd799430001",
+      "actualCheckInDate": "2025-06-10T14:30:00.000Z",
+      "checkedInBy": "507f1f77bcf86cd799430002",
+      "actualCheckOutDate": "2025-06-12T11:45:00.000Z",
+      "checkedOutBy": "507f1f77bcf86cd799430002",
+      "actualStayDuration": 2,
+      "guestNotes": "Client d'affaires",
+      "specialServices": ["Early breakfast"],
+      "extras": [
+        {
+          "name": "Blanchisserie express",
+          "category": "Services",
+          "price": 75,
+          "quantity": 1,
+          "total": 75,
+          "addedAt": "2025-06-11T16:00:00.000Z",
+          "addedBy": "507f1f77bcf86cd799430002"
+        }
+      ],
+      "extrasTotal": 75,
+      "paymentStatus": "Paid",
+      "paymentMethod": "Cash",
+      "paidAt": "2025-06-12T11:45:00.000Z",
+      "statusHistory": [
+        {
+          "previousStatus": "Pending",
+          "newStatus": "Confirmed",
+          "reason": "Validation admin",
+          "changedBy": "507f1f77bcf86cd799430001",
+          "changedAt": "2025-06-08T14:20:00.000Z"
+        },
+        {
+          "previousStatus": "Confirmed",
+          "newStatus": "Checked-in",
+          "reason": "Arrivée client",
+          "changedBy": "507f1f77bcf86cd799430002",
+          "changedAt": "2025-06-10T14:30:00.000Z"
+        },
+        {
+          "previousStatus": "Checked-in",
+          "newStatus": "Completed",
+          "reason": "Check-out normal",
+          "changedBy": "507f1f77bcf86cd799430002",
+          "changedAt": "2025-06-12T11:45:00.000Z"
+        }
+      ],
+      "createdBy": "507f1f77bcf86cd799430002",
+      "createdAt": "2025-06-07T15:30:00.000Z",
+      "updatedAt": "2025-06-12T11:45:00.000Z"
+    },
+    {
+      "_id": "507f1f77bcf86cd799450005",
+      "hotel": "507f1f77bcf86cd799439011",
+      "customer": "507f1f77bcf86cd799430007",
+      "checkInDate": "2025-08-05T14:00:00.000Z",
+      "checkOutDate": "2025-08-07T12:00:00.000Z",
+      "rooms": [
+        {
+          "_id": "507f1f77bcf86cd799451006",
+          "type": "Double",
+          "basePrice": 250,
+          "calculatedPrice": 650,
+          "room": null,
+          "assignedAt": null,
+          "assignedBy": null
+        }
+      ],
+      "numberOfGuests": 2,
+      "totalPrice": 650,
+      "status": "Cancelled",
+      "source": "Web",
+      "clientType": "Individual",
+      "specialRequests": "Vue jardin préférée",
+      "confirmedAt": null,
+      "confirmedBy": null,
+      "actualCheckInDate": null,
+      "checkedInBy": null,
+      "cancelledAt": "2025-07-18T10:15:00.000Z",
+      "cancelledBy": "507f1f77bcf86cd799430007",
+      "cancellationReason": "Changement de plans personnels",
+      "refundPercentage": 100,
+      "refundAmount": 650,
+      "cancellationFee": 0,
+      "refundReason": "Annulation gratuite (plus de 24h)",
+      "guestNotes": "",
+      "specialServices": [],
+      "extras": [],
+      "extrasTotal": 0,
+      "paymentStatus": "Refunded",
+      "statusHistory": [
+        {
+          "previousStatus": "Pending",
+          "newStatus": "Cancelled",
+          "reason": "Annulation client - gratuite",
+          "changedBy": "507f1f77bcf86cd799430007",
+          "changedAt": "2025-07-18T10:15:00.000Z"
+        }
+      ],
+      "createdBy": "507f1f77bcf86cd799430007",
+      "createdAt": "2025-07-17T14:20:00.000Z",
+      "updatedAt": "2025-07-18T10:15:00.000Z"
+    },
+    {
+      "_id": "507f1f77bcf86cd799450006",
+      "hotel": "507f1f77bcf86cd799439011",
+      "customer": "507f1f77bcf86cd799430008",
+      "checkInDate": "2025-07-25T14:00:00.000Z",
+      "checkOutDate": "2025-07-26T12:00:00.000Z",
+      "rooms": [
+        {
+          "_id": "507f1f77bcf86cd799451007",
+          "type": "Double Confort",
+          "basePrice": 350,
+          "calculatedPrice": 455,
+          "room": null,
+          "assignedAt": null,
+          "assignedBy": null
+        }
+      ],
+      "numberOfGuests": 2,
+      "totalPrice": 455,
+      "status": "Rejected",
+      "source": "Mobile",
+      "clientType": "Individual",
+      "specialRequests": "Check-in très tardif (2h du matin)",
+      "confirmedAt": null,
+      "confirmedBy": null,
+      "rejectedAt": "2025-07-20T16:30:00.000Z",
+      "rejectedBy": "507f1f77bcf86cd799430001",
+      "rejectionReason": "Demande check-in tardif incompatible avec nos horaires d'accueil",
+      "actualCheckInDate": null,
+      "checkedInBy": null,
+      "guestNotes": "",
+      "specialServices": [],
+      "extras": [],
+      "extrasTotal": 0,
+      "paymentStatus": "Cancelled",
+      "statusHistory": [
+        {
+          "previousStatus": "Pending",
+          "newStatus": "Rejected",
+          "reason": "Check-in tardif non gérable",
+          "changedBy": "507f1f77bcf86cd799430001",
+          "changedAt": "2025-07-20T16:30:00.000Z"
+        }
+      ],
+      "createdBy": "507f1f77bcf86cd799430008",
+      "createdAt": "2025-07-19T23:45:00.000Z",
+      "updatedAt": "2025-07-20T16:30:00.000Z"
+    }
+  ],
+
+  "workflowTestData": [
+    {
+      "statusTransitions": [
+        {
+          "description": "Transition PENDING → CONFIRMED (Admin)",
+          "fromStatus": "Pending",
+          "toStatus": "Confirmed",
+          "user": {
+            "_id": "507f1f77bcf86cd799430001",
+            "role": "ADMIN"
+          },
+          "transitionData": {
+            "reason": "Validation admin après vérification",
+            "modifications": {
+              "newPrice": 2500,
+              "priceReason": "Ajustement tarif groupe"
+            }
+          },
+          "expectedResult": "success",
+          "requiredValidations": ["availabilityCheck", "adminPermission"]
+        },
+        {
+          "description": "Transition CONFIRMED → CHECKED_IN (Receptionist)",
+          "fromStatus": "Confirmed",
+          "toStatus": "Checked-in",
+          "user": {
+            "_id": "507f1f77bcf86cd799430002",
+            "role": "RECEPTIONIST"
+          },
+          "transitionData": {
+            "actualCheckInTime": "2025-08-15T14:30:00.000Z",
+            "roomAssignments": [
+              {
+                "bookingRoomIndex": 0,
+                "roomId": "507f1f77bcf86cd799440004"
+              }
+            ],
+            "guestNotes": "Client arrivé en avance",
+            "specialServices": ["Airport transfer"]
+          },
+          "expectedResult": "success",
+          "requiredValidations": ["staffPermission", "roomAvailability"]
+        },
+        {
+          "description": "Transition CHECKED_IN → COMPLETED (Receptionist)",
+          "fromStatus": "Checked-in",
+          "toStatus": "Completed",
+          "user": {
+            "_id": "507f1f77bcf86cd799430002",
+            "role": "RECEPTIONIST"
+          },
+          "transitionData": {
+            "actualCheckOutTime": "2025-08-18T11:30:00.000Z",
+            "finalExtras": [
+              {
+                "name": "Parking supplémentaire",
+                "category": "Services",
+                "price": 50,
+                "quantity": 1
+              }
+            ],
+            "roomCondition": [
+              {
+                "roomId": "507f1f77bcf86cd799440004",
+                "condition": "good",
+                "notes": "Chambre en parfait état"
+              }
+            ],
+            "paymentStatus": "Paid",
+            "generateInvoice": true
+          },
+          "expectedResult": "success",
+          "requiredValidations": ["staffPermission", "roomAssignment"]
+        },
+        {
+          "description": "Transition PENDING → CANCELLED (Client)",
+          "fromStatus": "Pending",
+          "toStatus": "Cancelled",
+          "user": {
+            "_id": "507f1f77bcf86cd799430007",
+            "role": "CLIENT"
+          },
+          "transitionData": {
+            "reason": "Annulation pour raisons personnelles"
+          },
+          "expectedResult": "success",
+          "requiredValidations": ["ownershipCheck", "cancellationPolicy"]
+        },
+        {
+          "description": "Transition PENDING → REJECTED (Admin)",
+          "fromStatus": "Pending",
+          "toStatus": "Rejected",
+          "user": {
+            "_id": "507f1f77bcf86cd799430001",
+            "role": "ADMIN"
+          },
+          "transitionData": {
+            "reason": "Demandes spéciales impossibles à satisfaire avec nos installations actuelles"
+          },
+          "expectedResult": "success",
+          "requiredValidations": ["adminPermission", "reasonRequired"]
+        }
+      ],
+      "invalidTransitions": [
+        {
+          "description": "CLIENT essaie de valider (non autorisé)",
+          "fromStatus": "Pending",
+          "toStatus": "Confirmed",
+          "user": {
+            "_id": "507f1f77bcf86cd799430003",
+            "role": "CLIENT"
+          },
+          "expectedResult": "error",
+          "expectedError": "Seuls les admins peuvent confirmer"
+        },
+        {
+          "description": "Transition directe PENDING → CHECKED_IN (saut d'étape)",
+          "fromStatus": "Pending",
+          "toStatus": "Checked-in",
+          "user": {
+            "_id": "507f1f77bcf86cd799430002",
+            "role": "RECEPTIONIST"
+          },
+          "expectedResult": "error",
+          "expectedError": "Transition Pending → Checked-in non autorisée"
+        },
+        {
+          "description": "Check-out sans chambre assignée",
+          "fromStatus": "Checked-in",
+          "toStatus": "Completed",
+          "user": {
+            "_id": "507f1f77bcf86cd799430002",
+            "role": "RECEPTIONIST"
+          },
+          "bookingWithoutRooms": true,
+          "expectedResult": "error",
+          "expectedError": "chambre(s) non assignée(s)"
+        }
+      ]
+    }
+  ],
+
+  "bookingCreationData": [
+    {
+      "validCreations": [
+        {
+          "description": "Réservation simple client",
+          "data": {
+            "hotelId": "507f1f77bcf86cd799439011",
+            "checkInDate": "2025-09-15T14:00:00.000Z",
+            "checkOutDate": "2025-09-18T12:00:00.000Z",
+            "rooms": [
+              {
+                "type": "Double",
+                "quantity": 1
+              }
+            ],
+            "numberOfGuests": 2,
+            "specialRequests": "Chambre calme",
+            "source": "Web"
+          },
+          "user": {
+            "_id": "507f1f77bcf86cd799430003",
+            "role": "CLIENT"
+          },
+          "expectedStatus": "Pending",
+          "expectedValidations": ["availability", "pricing", "dateValidation"]
+        },
+        {
+          "description": "Réservation corporate multi-chambres",
+          "data": {
+            "hotelId": "507f1f77bcf86cd799439012",
+            "checkInDate": "2025-10-20T14:00:00.000Z",
+            "checkOutDate": "2025-10-23T12:00:00.000Z",
+            "rooms": [
+              {
+                "type": "Double",
+                "quantity": 3
+              },
+              {
+                "type": "Suite",
+                "quantity": 1
+              }
+            ],
+            "numberOfGuests": 8,
+            "specialRequests": "Chambres même étage, facturation entreprise",
+            "source": "Web",
+            "corporateDetails": {
+              "companyName": "Innovate Corp",
+              "siret": "98765432109876",
+              "contactPerson": "Marie Dubois",
+              "address": "Technopolis, Rabat"
+            }
+          },
+          "user": {
+            "_id": "507f1f77bcf86cd799430009",
+            "role": "CLIENT"
+          },
+          "expectedStatus": "Pending",
+          "expectedClientType": "Corporate"
+        },
+        {
+          "description": "Réservation créée par réceptionniste",
+          "data": {
+            "hotelId": "507f1f77bcf86cd799439011",
+            "checkInDate": "2025-08-25T14:00:00.000Z",
+            "checkOutDate": "2025-08-27T12:00:00.000Z",
+            "rooms": [
+              {
+                "type": "Simple",
+                "quantity": 1
+              }
+            ],
+            "numberOfGuests": 1,
+            "source": "Reception",
+            "customerInfo": {
+              "firstName": "Hassan",
+              "lastName": "Alami",
+              "email": "h.alami@email.ma",
+              "phone": "+212666123456"
+            }
+          },
+          "user": {
+            "_id": "507f1f77bcf86cd799430002",
+            "role": "RECEPTIONIST"
+          },
+          "expectedStatus": "Pending",
+          "shouldCreateCustomer": true
+        }
+      ],
+      "invalidCreations": [
+        {
+          "description": "Dates invalides (fin avant début)",
+          "data": {
+            "hotelId": "507f1f77bcf86cd799439011",
+            "checkInDate": "2025-09-20T14:00:00.000Z",
+            "checkOutDate": "2025-09-18T12:00:00.000Z",
+            "rooms": [{"type": "Double", "quantity": 1}],
+            "numberOfGuests": 2
+          },
+          "expectedError": "INVALID_DATE_RANGE"
+        },
+        {
+          "description": "Date dans le passé",
+          "data": {
+            "hotelId": "507f1f77bcf86cd799439011",
+            "checkInDate": "2025-06-01T14:00:00.000Z",
+            "checkOutDate": "2025-06-03T12:00:00.000Z",
+            "rooms": [{"type": "Double", "quantity": 1}],
+            "numberOfGuests": 2
+          },
+          "expectedError": "DATE_IN_PAST"
+        },
+        {
+          "description": "Hôtel inexistant",
+          "data": {
+            "hotelId": "507f1f77bcf86cd799999999",
+            "checkInDate": "2025-09-15T14:00:00.000Z",
+            "checkOutDate": "2025-09-18T12:00:00.000Z",
+            "rooms": [{"type": "Double", "quantity": 1}],
+            "numberOfGuests": 2
+          },
+          "expectedError": "HOTEL_NOT_FOUND"
+        },
+        {
+          "description": "Type de chambre invalide",
+          "data": {
+            "hotelId": "507f1f77bcf86cd799439011",
+            "checkInDate": "2025-09-15T14:00:00.000Z",
+            "checkOutDate": "2025-09-18T12:00:00.000Z",
+            "rooms": [{"type": "TypeInvalide", "quantity": 1}],
+            "numberOfGuests": 2
+          },
+          "expectedError": "INVALID_ROOM_TYPE"
+        },
+        {
+          "description": "Trop de chambres",
+          "data": {
+            "hotelId": "507f1f77bcf86cd799439011",
+            "checkInDate": "2025-09-15T14:00:00.000Z",
+            "checkOutDate": "2025-09-18T12:00:00.000Z",
+            "rooms": [{"type": "Double", "quantity": 15}],
+            "numberOfGuests": 30
+          },
+          "expectedError": "MAX_ROOMS_EXCEEDED"
+        },
+        {
+          "description": "Chambres non disponibles",
+          "data": {
+            "hotelId": "507f1f77bcf86cd799439011",
+            "checkInDate": "2025-07-20T14:00:00.000Z",
+            "checkOutDate": "2025-07-23T12:00:00.000Z",
+            "rooms": [{"type": "Double", "quantity": 1}],
+            "numberOfGuests": 2
+          },
+          "expectedError": "ROOMS_NOT_AVAILABLE",
+          "conflictsWith": "507f1f77bcf86cd799450001"
+        }
+      ]
+    }
+  ],
+
+  "extrasTestData": [
+    {
+      "validExtras": [
+        {
+          "name": "Room service dîner",
+          "category": "Restauration",
+          "price": 120,
+          "quantity": 2,
+          "description": "Menu gastronomique en chambre"
+        },
+        {
+          "name": "Spa massage",
+          "category": "Bien-être",
+          "price": 350,
+          "quantity": 1,
+          "description": "Massage relaxant 60 minutes"
+        },
+        {
+          "name": "Navette aéroport",
+          "category": "Transport",
+          "price": 150,
+          "quantity": 1,
+          "description": "Transfert aller-retour aéroport"
+        },
+        {
+          "name": "Minibar premium",
+          "category": "Boissons",
+          "price": 85,
+          "quantity": 1,
+          "description": "Sélection premium minibar"
+        }
+      ],
+      "invalidExtras": [
+        {
+          "name": "",
+          "category": "Test",
+          "price": 100,
+          "quantity": 1,
+          "expectedError": "Nom requis"
+        },
+        {
+          "name": "Service test",
+          "category": "Test",
+          "price": -50,
+          "quantity": 1,
+          "expectedError": "Prix invalide"
+        },
+        {
+          "name": "Service test",
+          "category": "Test",
+          "price": 100,
+          "quantity": 0,
+          "expectedError": "Quantité invalide"
+        }
+      ]
+    }
+  ],
+
+  "invoiceTestData": [
+    {
+      "completedBookingForInvoice": "507f1f77bcf86cd799450004",
+      "expectedInvoiceData": {
+        "invoice": {
+          "type": "INDIVIDUAL",
+          "currency": "MAD"
+        },
+        "customer": {
+          "name": "Client Test",
+          "clientType": "Individual"
+        },
+        "stay": {
+          "nightsActual": 2
+        },
+        "billing": {
+          "roomsSubtotal": 390,
+          "extrasSubtotal": 75,
+          "subtotal": 465,
+          "total": 465
+        },
+        "payment": {
+          "status": "Paid",
+          "method": "Cash"
+        }
+      },
+      "corporateBookingForInvoice": "507f1f77bcf86cd799450003",
+      "expectedCorporateInvoice": {
+        "invoice": {
+          "type": "CORPORATE"
+        },
+        "customer": {
+          "clientType": "Corporate",
+          "company": {
+            "name": "Tech Solutions Maroc",
+            "siret": "12345678901234"
+          }
+        },
+        "payment": {
+          "terms": "Paiement sous 30 jours"
+        }
+      }
+    }
+  ],
+
+  "searchFilterData": [
+    {
+      "searchScenarios": [
+        {
+          "description": "Recherche par statut",
+          "filters": {
+            "status": "Confirmed"
+          },
+          "expectedCount": 1,
+          "expectedBookings": ["507f1f77bcf86cd799450002"]
+        },
+        {
+          "description": "Recherche par hôtel",
+          "filters": {
+            "hotelId": "507f1f77bcf86cd799439011"
+          },
+          "expectedCount": 5,
+          "expectedBookings": [
+            "507f1f77bcf86cd799450001",
+            "507f1f77bcf86cd799450002", 
+            "507f1f77bcf86cd799450004",
+            "507f1f77bcf86cd799450005",
+            "507f1f77bcf86cd799450006"
+          ]
+        },
+        {
+          "description": "Recherche par période check-in",
+          "filters": {
+            "checkInDate": "2025-07-01T00:00:00.000Z",
+            "checkOutDate": "2025-07-31T23:59:59.999Z"
+          },
+          "expectedCount": 3,
+          "expectedBookings": [
+            "507f1f77bcf86cd799450001",
+            "507f1f77bcf86cd799450005",
+            "507f1f77bcf86cd799450006"
+          ]
+        },
+        {
+          "description": "Recherche par source",
+          "filters": {
+            "source": "Web"
+          },
+          "expectedCount": 3,
+          "expectedBookings": [
+            "507f1f77bcf86cd799450001",
+            "507f1f77bcf86cd799450003",
+            "507f1f77bcf86cd799450005"
+          ]
+        },
+        {
+          "description": "Recherche par type client",
+          "filters": {
+            "clientType": "Corporate"
+          },
+          "expectedCount": 1,
+          "expectedBookings": ["507f1f77bcf86cd799450003"]
+        },
+        {
+          "description": "Filtres combinés",
+          "filters": {
+            "status": "Completed",
+            "hotelId": "507f1f77bcf86cd799439011",
+            "source": "Reception"
+          },
+          "expectedCount": 1,
+          "expectedBookings": ["507f1f77bcf86cd799450004"]
+        }
+      ]
+    }
+  ],
+
+  "statisticsTestData": [
+    {
+      "dashboardMetrics": {
+        "hotel507f1f77bcf86cd799439011": {
+          "period": "30d",
+          "expectedStats": {
+            "totalBookings": 5,
+            "totalRevenue": 4535,
+            "averageBookingValue": 907,
+            "statusBreakdown": {
+              "Checked-in": {"count": 1, "revenue": 975},
+              "Confirmed": {"count": 1, "revenue": 2340},
+              "Completed": {"count": 1, "revenue": 465},
+              "Cancelled": {"count": 1, "revenue": 0},
+              "Rejected": {"count": 1, "revenue": 0}
+            },
+            "sourceBreakdown": {
+              "Web": {"count": 3, "percentage": 60},
+              "Mobile": {"count": 1, "percentage": 20},
+              "Reception": {"count": 1, "percentage": 20}
+            },
+            "conversionRate": 60,
+            "cancellationRate": 20,
+            "completionRate": 20
+          }
+        },
+        "globalStats": {
+          "totalBookings": 6,
+          "totalRevenue": 10385,
+          "averageBookingValue": 1730.83,
+          "clientTypeBreakdown": {
+            "Individual": {"count": 5, "percentage": 83.33},
+            "Corporate": {"count": 1, "percentage": 16.67}
+          }
+        }
+      },
+      "revenueAnalysis": {
+        "dailyRevenue": [
+          {
+            "date": "2025-06-12",
+            "revenue": 465,
+            "bookings": 1,
+            "source": "Reception"
+          },
+          {
+            "date": "2025-07-20",
+            "revenue": 975,
+            "bookings": 1,
+            "source": "Web"
+          }
+        ],
+        "monthlyTrends": [
+          {
+            "month": "2025-06",
+            "revenue": 465,
+            "bookings": 1,
+            "averageValue": 465
+          },
+          {
+            "month": "2025-07",
+            "revenue": 9920,
+            "bookings": 5,
+            "averageValue": 1984
+          }
+        ]
+      }
+    }
+  ],
+
+  "permissionsTestData": [
+    {
+      "roleBasedAccess": {
+        "CLIENT": {
+          "ownBookings": {
+            "canView": ["507f1f77bcf86cd799450001"],
+            "cannotView": ["507f1f77bcf86cd799450002"],
+            "canModify": ["507f1f77bcf86cd799450003"],
+            "cannotModify": ["507f1f77bcf86cd799450001"]
+          },
+          "allowedOperations": [
+            "createBooking",
+            "viewOwnBookings", 
+            "cancelOwnBookings",
+            "modifyPendingBookings"
+          ],
+          "restrictedOperations": [
+            "validateBookings",
+            "viewAllBookings",
+            "checkInOut",
+            "addExtras"
+          ]
+        },
+        "RECEPTIONIST": {
+          "hotelBookings": {
+            "canView": "507f1f77bcf86cd799439011",
+            "cannotView": "507f1f77bcf86cd799439012",
+            "canCheckIn": ["507f1f77bcf86cd799450002"],
+            "canCheckOut": ["507f1f77bcf86cd799450001"]
+          },
+          "allowedOperations": [
+            "createBookingForClients",
+            "viewHotelBookings",
+            "checkInOut",
+            "addExtras",
+            "updateRoomStatus"
+          ],
+          "restrictedOperations": [
+            "validateBookings",
+            "viewAllBookings",
+            "accessOtherHotels"
+          ]
+        },
+        "ADMIN": {
+          "allowedOperations": [
+            "validateBookings",
+            "viewAllBookings", 
+            "checkInOut",
+            "addExtras",
+            "overridePolicies",
+            "bulkOperations",
+            "viewAllStatistics"
+          ],
+          "noRestrictions": true
+        }
+      }
+    }
+  ],
+
+  "cancellationTestData": [
+    {
+      "cancellationScenarios": [
+        {
+          "description": "Annulation gratuite (>24h)",
+          "bookingId": "507f1f77bcf86cd799450005",
+          "cancellationDate": "2025-08-04T10:00:00.000Z",
+          "checkInDate": "2025-08-05T14:00:00.000Z",
+          "hoursUntilCheckIn": 28,
+          "expectedRefund": {
+            "refundPercentage": 100,
+            "refundAmount": 650,
+            "cancellationFee": 0,
+            "policy": "free"
+          }
+        },
+        {
+          "description": "Annulation tardive (12-24h)",
+          "bookingId": "507f1f77bcf86cd799450002",
+          "cancellationDate": "2025-08-14T20:00:00.000Z",
+          "checkInDate": "2025-08-15T14:00:00.000Z",
+          "hoursUntilCheckIn": 18,
+          "expectedRefund": {
+            "refundPercentage": 50,
+            "refundAmount": 1170,
+            "cancellationFee": 1170,
+            "policy": "partial"
+          }
+        },
+        {
+          "description": "Annulation très tardive (<12h)",
+          "bookingId": "507f1f77bcf86cd799450002",
+          "cancellationDate": "2025-08-15T08:00:00.000Z",
+          "checkInDate": "2025-08-15T14:00:00.000Z",
+          "hoursUntilCheckIn": 6,
+          "expectedRefund": {
+            "refundPercentage": 0,
+            "refundAmount": 0,
+            "cancellationFee": 2340,
+            "policy": "none"
+          }
+        },
+        {
+          "description": "Override admin remboursement personnalisé",
+          "bookingId": "507f1f77bcf86cd799450002",
+          "cancellationDate": "2025-08-15T08:00:00.000Z",
+          "checkInDate": "2025-08-15T14:00:00.000Z",
+          "hoursUntilCheckIn": 6,
+          "adminOverride": {
+            "customRefundAmount": 1000,
+            "reason": "Geste commercial exceptionnel"
+          },
+          "expectedRefund": {
+            "refundPercentage": 42.74,
+            "refundAmount": 1000,
+            "cancellationFee": 1340
+          }
+        }
+      ]
+    }
+  ],
+
+  "notificationTestData": [
+    {
+      "emailNotifications": [
+        {
+          "trigger": "bookingCreated",
+          "bookingId": "507f1f77bcf86cd799450003",
+          "recipient": "customer",
+          "template": "booking_created_confirmation",
+          "expectedData": {
+            "customer": "Tech Solutions Maroc",
+            "checkIn": "2025-12-25",
+            "rooms": 2,
+            "total": 5850
+          }
+        },
+        {
+          "trigger": "bookingConfirmed", 
+          "bookingId": "507f1f77bcf86cd799450002",
+          "recipient": "customer",
+          "template": "booking_confirmed",
+          "expectedData": {
+            "customer": "Client Individual",
+            "confirmationNumber": "507f1f77bcf86cd799450002"
+          }
+        },
+        {
+          "trigger": "bookingRejected",
+          "bookingId": "507f1f77bcf86cd799450006",
+          "recipient": "customer",
+          "template": "booking_rejected",
+          "expectedData": {
+            "reason": "Check-in tardif non gérable"
+          }
+        },
+        {
+          "trigger": "checkInCompleted",
+          "bookingId": "507f1f77bcf86cd799450001",
+          "recipient": "customer",
+          "template": "welcome_checkin",
+          "expectedData": {
+            "roomNumber": "201",
+            "specialServices": ["Late checkout", "Champagne welcome"]
+          }
+        },
+        {
+          "trigger": "checkOutCompleted",
+          "bookingId": "507f1f77bcf86cd799450004",
+          "recipient": "customer",
+          "template": "checkout_invoice",
+          "expectedData": {
+            "finalAmount": 465,
+            "invoiceGenerated": true
+          }
+        }
+      ],
+      "internalNotifications": [
+        {
+          "trigger": "pendingValidation",
+          "bookingId": "507f1f77bcf86cd799450003",
+          "recipient": "admin_team",
+          "priority": "high",
+          "message": "Réservation corporate en attente validation"
+        },
+        {
+          "trigger": "checkInToday",
+          "date": "2025-07-20",
+          "recipient": "reception_team",
+          "expectedBookings": ["507f1f77bcf86cd799450001"],
+          "priority": "normal"
+        }
+      ]
+    }
+  ],
+
+  "paginationSortingData": [
+    {
+      "paginationScenarios": [
+        {
+          "page": 1,
+          "limit": 3,
+          "expectedTotalPages": 2,
+          "expectedBookings": 3,
+          "expectedHasNext": true,
+          "expectedHasPrev": false
+        },
+        {
+          "page": 2,
+          "limit": 3,
+          "expectedTotalPages": 2,
+          "expectedBookings": 3,
+          "expectedHasNext": false,
+          "expectedHasPrev": true
+        }
+      ],
+      "sortingScenarios": [
+        {
+          "sortBy": "createdAt",
+          "sortOrder": "desc",
+          "expectedFirst": "507f1f77bcf86cd799450006"
+        },
+        {
+          "sortBy": "totalPrice",
+          "sortOrder": "desc",
+          "expectedFirst": "507f1f77bcf86cd799450003"
+        },
+        {
+          "sortBy": "checkInDate",
+          "sortOrder": "asc",
+          "expectedFirst": "507f1f77bcf86cd799450004"
+        },
+        {
+          "sortBy": "status",
+          "sortOrder": "asc",
+          "expectedFirst": "507f1f77bcf86cd799450005"
+        }
+      ]
+    }
+  ],
+
+  "bulkOperationsData": [
+    {
+      "bulkValidation": {
+        "validBookingIds": [
+          "507f1f77bcf86cd799450003"
+        ],
+        "invalidBookingIds": [
+          "507f1f77bcf86cd799450001",
+          "507f1f77bcf86cd799450004"
+        ],
+        "action": "approve",
+        "reason": "Validation en lot weekend",
+        "expectedSuccessful": 1,
+        "expectedFailed": 2,
+        "expectedErrors": [
+          "Impossible de valider une réservation Checked-in",
+          "Impossible de valider une réservation Completed"
+        ]
+      },
+      "bulkAssignment": {
+        "bookingIds": [
+          "507f1f77bcf86cd799450002"
+        ],
+        "globalPreferences": {
+          "distributeByFloor": true,
+          "preferredFloors": [3, 4, 5]
+        },
+        "expectedAssignments": {
+          "507f1f77bcf86cd799450002": {
+            "roomAssigned": "507f1f77bcf86cd799440004",
+            "floor": 5
+          }
+        }
+      }
+    }
+  ],
+
+  "reportingData": [
+    {
+      "dailyReport": {
+        "date": "2025-07-20",
+        "hotelId": "507f1f77bcf86cd799439011",
+        "expectedData": {
+          "newBookings": [
+            {
+              "id": "507f1f77bcf86cd799450001",
+              "customer": "Ahmed Bennani", 
+              "amount": 975,
+              "status": "Checked-in"
+            }
+          ],
+          "checkIns": [
+            {
+              "id": "507f1f77bcf86cd799450001",
+              "customer": "Ahmed Bennani",
+              "rooms": "201",
+              "actualCheckIn": "2025-07-20T14:15:00.000Z"
+            }
+          ],
+          "checkOuts": [],
+          "cancellations": [],
+          "pendingValidations": [
+            {
+              "id": "507f1f77bcf86cd799450003",
+              "hoursWaiting": 240,
+              "amount": 5850
+            }
+          ]
+        }
+      },
+      "weeklyReport": {
+        "startDate": "2025-07-14",
+        "endDate": "2025-07-21",
+        "expectedMetrics": {
+          "totalBookings": 3,
+          "totalRevenue": 2080,
+          "averageBookingValue": 693.33,
+          "checkInCount": 1,
+          "checkOutCount": 0,
+          "cancellationCount": 1
+        }
+      }
+    }
+  ],
+
+  "availabilityConflictData": [
+    {
+      "conflictScenarios": [
+        {
+          "description": "Conflit avec réservation checked-in",
+          "existingBooking": "507f1f77bcf86cd799450001",
+          "conflictingDates": {
+            "checkInDate": "2025-07-21T14:00:00.000Z",
+            "checkOutDate": "2025-07-24T12:00:00.000Z"
+          },
+          "roomType": "Double",
+          "hotelId": "507f1f77bcf86cd799439011",
+          "expectedConflict": true,
+          "conflictReason": "Room 201 occupied"
+        },
+        {
+          "description": "Pas de conflit - dates différentes",
+          "existingBooking": "507f1f77bcf86cd799450001", 
+          "nonConflictingDates": {
+            "checkInDate": "2025-07-25T14:00:00.000Z",
+            "checkOutDate": "2025-07-28T12:00:00.000Z"
+          },
+          "roomType": "Double",
+          "hotelId": "507f1f77bcf86cd799439011",
+          "expectedConflict": false
+        },
+        {
+          "description": "Conflit partiel - chevauchement fin",
+          "existingBooking": "507f1f77bcf86cd799450001",
+          "overlappingDates": {
+            "checkInDate": "2025-07-22T14:00:00.000Z",
+            "checkOutDate": "2025-07-25T12:00:00.000Z"
+          },
+          "roomType": "Double",
+          "hotelId": "507f1f77bcf86cd799439011",
+          "expectedConflict": true,
+          "conflictType": "partial_overlap"
+        }
+      ]
+    }
+  ],
+
+  "userTestData": [
+    {
+      "customers": [
+        {
+          "_id": "507f1f77bcf86cd799430003",
+          "firstName": "Ahmed",
+          "lastName": "Bennani",
+          "email": "a.bennani@email.ma",
+          "phone": "+212661234567",
+          "role": "CLIENT",
+          "clientType": "Individual"
+        },
+        {
+          "_id": "507f1f77bcf86cd799430004",
+          "firstName": "Fatima",
+          "lastName": "Zahra",
+          "email": "f.zahra@email.ma",
+          "phone": "+212662345678",
+          "role": "CLIENT",
+          "clientType": "Individual"
+        },
+        {
+          "_id": "507f1f77bcf86cd799430005",
+          "firstName": "Youssef",
+          "lastName": "Alami",
+          "email": "y.alami@techsolutions.ma",
+          "phone": "+212663456789",
+          "role": "CLIENT",
+          "clientType": "Corporate"
+        },
+        {
+          "_id": "507f1f77bcf86cd799430006",
+          "firstName": "Khadija",
+          "lastName": "Benali",
+          "email": "k.benali@business.ma",
+          "phone": "+212664567890",
+          "role": "CLIENT",
+          "clientType": "Individual"
+        },
+        {
+          "_id": "507f1f77bcf86cd799430007",
+          "firstName": "Omar",
+          "lastName": "Tahiri",
+          "email": "o.tahiri@gmail.com",
+          "phone": "+212665678901",
+          "role": "CLIENT",
+          "clientType": "Individual"
+        },
+        {
+          "_id": "507f1f77bcf86cd799430008",
+          "firstName": "Aicha",
+          "lastName": "Mansouri",
+          "email": "a.mansouri@yahoo.ma",
+          "phone": "+212666789012",
+          "role": "CLIENT",
+          "clientType": "Individual"
+        }
+      ],
+      "staff": [
+        {
+          "_id": "507f1f77bcf86cd799430001",
+          "firstName": "Admin",
+          "lastName": "System",
+          "email": "admin@hotel.ma",
+          "role": "ADMIN"
+        },
+        {
+          "_id": "507f1f77bcf86cd799430002",
+          "firstName": "Marie",
+          "lastName": "Dupont",
+          "email": "m.dupont@hotel.ma",
+          "role": "RECEPTIONIST",
+          "assignedHotel": "507f1f77bcf86cd799439011"
+        }
+      ]
+    }
+  ]
+}
