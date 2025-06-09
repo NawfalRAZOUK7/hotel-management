@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facture Mensuelle - {{companyName}}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+        }
+        
+        .email-container {
+            max-width: 700px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #2c5aa0 0%, #1e3a66 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 150px;
+            height: 150px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .header .subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+            position: relative;
+            z-index: 2;
+        }
+        
+        /* Company Info */
+        .company-info {
+            background: #f8f9fa;
+            padding: 25px 30px;
+            border-left: 4px solid #2c5aa0;
+        }
+        
+        .company-info h2 {
+            color: #2c5aa0;
+            font-size: 22px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .company-info h2::before {
+            content: "🏢";
+            margin-right: 10px;
+            font-size: 24px;
+        }
+        
+        .company-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 15px;
+        }
+        
+        .detail-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .detail-label {
+            font-weight: 600;
+            color: #495057;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+        }
+        
+        .detail-value {
+            font-size: 16px;
+            color: #2c5aa0;
+            font-weight: 600;
+        }
+        
+        /* Invoice Summary */
+        .invoice-summary {
+            padding: 30px;
+            background: white;
+        }
+        
+        .invoice-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .invoice-number {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2c5aa0;
+            margin-bottom: 10px;
+        }
+        
+        .invoice-period {
+            font-size: 18px;
+            color: #6c757d;
+            background: #f8f9fa;
+            padding: 10px 20px;
+            border-radius: 25px;
+            display: inline-block;
+        }
+        
+        /* Financial Summary */
+        .financial-summary {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 25px 0;
+            border: 1px solid #dee2e6;
+        }
+        
+        .financial-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .financial-row:last-child {
+            border-bottom: none;
+            padding-top: 20px;
+            margin-top: 15px;
+            border-top: 2px solid #2c5aa0;
+            font-weight: 700;
+            font-size: 18px;
+        }
+        
+        .financial-label {
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        .financial-value {
+            font-weight: 700;
+            color: #2c5aa0;
+        }
+        
+        .discount-highlight {
+            color: #28a745 !important;
+            background: rgba(40, 167, 69, 0.1);
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+        
+        .total-amount {
+            font-size: 24px !important;
+            color: #2c5aa0 !important;
+            background: rgba(44, 90, 160, 0.1);
+            padding: 10px 15px;
+            border-radius: 10px;
+        }
+        
+        /* Booking Details */
+        .booking-details {
+            margin: 30px 0;
+        }
+        
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2c5aa0;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e9ecef;
+            display: flex;
+            align-items: center;
+        }
+        
+        .section-title::before {
+            content: "📊";
+            margin-right: 10px;
+            font-size: 22px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e9ecef;
+            transition: transform 0.2s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-2px);
+        }
+        
+        .stat-number {
+            font-size: 28px;
+            font-weight: 700;
+            color: #2c5aa0;
+            display: block;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: #6c757d;
+            margin-top: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        /* Payment Information */
+        .payment-info {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 30px 0;
+            border-left: 5px solid #ffc107;
+        }
+        
+        .payment-info h3 {
+            color: #856404;
+            font-size: 18px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .payment-info h3::before {
+            content: "💳";
+            margin-right: 10px;
+            font-size: 20px;
+        }
+        
+        .payment-details {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+        
+        .payment-method {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 10px;
+        }
+        
+        .payment-instructions {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .payment-instructions li {
+            padding: 8px 0;
+            color: #6c757d;
+            border-bottom: 1px solid #f8f9fa;
+        }
+        
+        .payment-instructions li:last-child {
+            border-bottom: none;
+        }
+        
+        .due-date-warning {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        /* Action Buttons */
+        .action-buttons {
+            text-align: center;
+            padding: 30px;
+            background: #f8f9fa;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 15px 30px;
+            margin: 10px;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #2c5aa0 0%, #1e3a66 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(44, 90, 160, 0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(44, 90, 160, 0.4);
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: #2c5aa0;
+            border: 2px solid #2c5aa0;
+        }
+        
+        .btn-secondary:hover {
+            background: #2c5aa0;
+            color: white;
+        }
+        
+        /* Footer */
+        .footer {
+            background: #343a40;
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .footer-content {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .footer h4 {
+            margin-bottom: 15px;
+            color: #ffffff;
+        }
+        
+        .footer p {
+            margin-bottom: 10px;
+            color: #adb5bd;
+        }
+        
+        .footer a {
+            color: #ffc107;
+            text-decoration: none;
+        }
+        
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        
+        .social-links {
+            margin-top: 20px;
+        }
+        
+        .social-links a {
+            margin: 0 10px;
+            font-size: 20px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 600px) {
+            .email-container {
+                margin: 0;
+                box-shadow: none;
+            }
+            
+            .header, .invoice-summary, .action-buttons, .footer {
+                padding: 20px;
+            }
+            
+            .company-details {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .btn {
+                display: block;
+                margin: 10px 0;
+            }
+            
+            .financial-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+        }
+        
+        /* Print Styles */
+        @media print {
+            .action-buttons {
+                display: none;
+            }
+            
+            .email-container {
+                box-shadow: none;
+            }
+            
+            .header {
+                background: #2c5aa0 !important;
+                -webkit-print-color-adjust: exact;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <!-- Header -->
+        <div class="header">
+            <h1>💰 Facture Mensuelle</h1>
+            <p class="subtitle">Votre facture {{period}} est disponible</p>
+        </div>
+        
+        <!-- Company Information -->
+        <div class="company-info">
+            <h2>{{companyName}}</h2>
+            <div class="company-details">
+                <div class="detail-item">
+                    <div class="detail-label">Numéro de facture</div>
+                    <div class="detail-value">{{invoiceNumber}}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Période</div>
+                    <div class="detail-value">{{period}}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Date d'émission</div>
+                    <div class="detail-value">{{issueDate}}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Date d'échéance</div>
+                    <div class="detail-value">{{dueDate}}</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Invoice Summary -->
+        <div class="invoice-summary">
+            <div class="invoice-header">
+                <div class="invoice-number">Facture {{invoiceNumber}}</div>
+                <div class="invoice-period">{{period}}</div>
+            </div>
+            
+            <!-- Financial Summary -->
+            <div class="financial-summary">
+                <div class="financial-row">
+                    <span class="financial-label">Sous-total HT</span>
+                    <span class="financial-value">{{subtotal}} {{currency}}</span>
+                </div>
+                
+                {{#if discountAmount}}
+                <div class="financial-row">
+                    <span class="financial-label">Remise entreprise ({{discountRate}}%)</span>
+                    <span class="financial-value discount-highlight">-{{discountAmount}} {{currency}}</span>
+                </div>
+                {{/if}}
+                
+                <div class="financial-row">
+                    <span class="financial-label">Net HT</span>
+                    <span class="financial-value">{{netAmount}} {{currency}}</span>
+                </div>
+                
+                <div class="financial-row">
+                    <span class="financial-label">TVA (20%)</span>
+                    <span class="financial-value">{{vatAmount}} {{currency}}</span>
+                </div>
+                
+                <div class="financial-row">
+                    <span class="financial-label">Total TTC</span>
+                    <span class="financial-value total-amount">{{totalAmount}} {{currency}}</span>
+                </div>
+            </div>
+            
+            <!-- Booking Statistics -->
+            <div class="booking-details">
+                <h3 class="section-title">Résumé de l'activité</h3>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <span class="stat-number">{{bookingCount}}</span>
+                        <span class="stat-label">Réservations</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number">{{departmentCount}}</span>
+                        <span class="stat-label">Départements</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number">{{paymentTerms}}</span>
+                        <span class="stat-label">Jours de paiement</span>
+                    </div>
+                    {{#if discountAmount}}
+                    <div class="stat-card">
+                        <span class="stat-number" style="color: #28a745;">{{discountAmount}}</span>
+                        <span class="stat-label">Économies réalisées</span>
+                    </div>
+                    {{/if}}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Payment Information -->
+        <div class="payment-info">
+            <h3>Informations de paiement</h3>
+            
+            <div class="due-date-warning">
+                <strong>⚠️ Échéance de paiement : {{dueDate}}</strong>
+            </div>
+            
+            <div class="payment-details">
+                <div class="payment-method">
+                    Virement bancaire (méthode préférée)
+                </div>
+                <ul class="payment-instructions">
+                    <li><strong>IBAN :</strong> FR76 1234 5678 9012 3456 7890 123</li>
+                    <li><strong>BIC :</strong> BANKFRPP</li>
+                    <li><strong>Référence obligatoire :</strong> {{invoiceNumber}}</li>
+                    <li><strong>Bénéficiaire :</strong> HOTEL MANAGEMENT SAS</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <a href="{{invoiceUrl}}" class="btn btn-primary">
+                📄 Voir la facture détaillée
+            </a>
+            <a href="{{dashboardUrl}}" class="btn btn-secondary">
+                📊 Accéder au dashboard
+            </a>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            <div class="footer-content">
+                <h4>HOTEL MANAGEMENT SAS</h4>
+                <p>123 Rue de la Paix, 75001 Paris, France</p>
+                <p>Tél: +33 1 XX XX XX XX | Email: <a href="mailto:{{contactSupport}}">{{contactSupport}}</a></p>
+                <p>SIRET: 123 456 789 00012 | TVA: FR12345678901</p>
+                
+                <div class="social-links">
+                    <a href="#" title="LinkedIn">💼</a>
+                    <a href="#" title="Twitter">🐦</a>
+                    <a href="#" title="Website">🌐</a>
+                </div>
+                
+                <p style="margin-top: 20px; font-size: 12px; color: #6c757d;">
+                    Cet email a été envoyé automatiquement. Pour toute question, contactez notre service client.
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

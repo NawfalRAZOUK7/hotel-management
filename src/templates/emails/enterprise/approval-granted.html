@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demande Approuvée - {{companyName}}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f4f4f4;
+        }
+        
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        
+        .header-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+            display: block;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px 30px;
+        }
+        
+        .greeting {
+            font-size: 18px;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        
+        .good-news {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .good-news h2 {
+            color: #155724;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        .good-news p {
+            color: #155724;
+            font-size: 16px;
+        }
+        
+        .approval-details {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 25px;
+            margin: 25px 0;
+            border-left: 4px solid #27ae60;
+        }
+        
+        .approval-details h3 {
+            color: #2c3e50;
+            font-size: 18px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .detail-label {
+            font-size: 12px;
+            font-weight: bold;
+            color: #7f8c8d;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+        
+        .detail-value {
+            font-size: 14px;
+            color: #2c3e50;
+            font-weight: 500;
+        }
+        
+        .amount-highlight {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 18px;
+            text-align: center;
+            margin: 5px 0;
+        }
+        
+        .approver-info {
+            background-color: #e8f5e8;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .approver-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            margin: 0 auto 15px;
+        }
+        
+        .next-steps {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+        
+        .next-steps h3 {
+            color: #856404;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+        
+        .next-steps ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .next-steps li {
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .next-steps li:last-child {
+            border-bottom: none;
+        }
+        
+        .next-steps li::before {
+            content: "✓";
+            color: #27ae60;
+            font-weight: bold;
+            margin-right: 10px;
+            background-color: #d4edda;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+        
+        .action-buttons {
+            text-align: center;
+            margin: 30px 0;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            margin: 0 10px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background-color: #ecf0f1;
+            color: #2c3e50;
+            border: 1px solid #bdc3c7;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .comments-section {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .comments-section h4 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        
+        .comments-content {
+            background-color: white;
+            padding: 15px;
+            border-radius: 6px;
+            font-style: italic;
+            color: #555;
+            border-left: 3px solid #27ae60;
+        }
+        
+        .footer {
+            background-color: #2c3e50;
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        
+        .footer-links {
+            margin: 20px 0;
+        }
+        
+        .footer-links a {
+            color: #3498db;
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 14px;
+        }
+        
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+        
+        .footer-note {
+            font-size: 12px;
+            color: #bdc3c7;
+            margin-top: 20px;
+            line-height: 1.4;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background-color: #27ae60;
+            color: white;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        
+        .timeline {
+            margin: 20px 0;
+        }
+        
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+        
+        .timeline-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background-color: #27ae60;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 12px;
+        }
+        
+        @media only screen and (max-width: 600px) {
+            .email-container {
+                margin: 0;
+                box-shadow: none;
+            }
+            
+            .content {
+                padding: 20px 15px;
+            }
+            
+            .details-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .header h1 {
+                font-size: 24px;
+            }
+            
+            .btn {
+                display: block;
+                margin: 10px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <!-- Header -->
+        <div class="header">
+            <span class="header-icon">✅</span>
+            <h1>Demande Approuvée</h1>
+            <p>Votre réservation a été validée</p>
+        </div>
+        
+        <!-- Content -->
+        <div class="content">
+            <div class="greeting">
+                Bonjour <strong>{{guestName}}</strong>,
+            </div>
+            
+            <div class="good-news">
+                <h2>🎉 Excellente nouvelle !</h2>
+                <p>Votre demande de réservation a été <strong>approuvée</strong> et votre séjour est confirmé.</p>
+            </div>
+            
+            <!-- Approval Details -->
+            <div class="approval-details">
+                <h3>📋 Détails de votre réservation</h3>
+                
+                <div class="details-grid">
+                    <div class="detail-item">
+                        <span class="detail-label">Montant approuvé</span>
+                        <div class="amount-highlight">{{amount}}€</div>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <span class="detail-label">Statut</span>
+                        <span class="status-badge">Confirmé</span>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <span class="detail-label">Objet du voyage</span>
+                        <span class="detail-value">{{purpose}}</span>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <span class="detail-label">Date d'approbation</span>
+                        <span class="detail-value">{{approvedAt}}</span>
+                    </div>
+                </div>
+                
+                {{#if hotelName}}
+                <div class="details-grid">
+                    <div class="detail-item">
+                        <span class="detail-label">Hôtel</span>
+                        <span class="detail-value">{{hotelName}}</span>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <span class="detail-label">Période</span>
+                        <span class="detail-value">Du {{checkInDate}} au {{checkOutDate}}</span>
+                    </div>
+                </div>
+                {{/if}}
+                
+                {{#if bookingReference}}
+                <div class="detail-item">
+                    <span class="detail-label">Référence de réservation</span>
+                    <span class="detail-value"><strong>{{bookingReference}}</strong></span>
+                </div>
+                {{/if}}
+            </div>
+            
+            <!-- Approver Info -->
+            <div class="approver-info">
+                <div class="approver-avatar">
+                    {{approverName.[0]}}{{approverName.[1]}}
+                </div>
+                <div>
+                    <strong>Approuvé par</strong><br>
+                    {{approverName}}<br>
+                    <small>{{approverTitle}}</small>
+                </div>
+            </div>
+            
+            <!-- Comments -->
+            {{#if comments}}
+            <div class="comments-section">
+                <h4>💬 Commentaires de l'approbateur</h4>
+                <div class="comments-content">
+                    "{{comments}}"
+                </div>
+            </div>
+            {{/if}}
+            
+            <!-- Next Steps -->
+            <div class="next-steps">
+                <h3>📌 Prochaines étapes</h3>
+                <ul>
+                    <li>Votre réservation est maintenant confirmée dans le système</li>
+                    <li>Vous recevrez sous peu la confirmation de l'hôtel</li>
+                    <li>Vérifiez vos emails pour les détails de check-in</li>
+                    <li>La facture sera traitée selon les termes de votre entreprise</li>
+                </ul>
+            </div>
+            
+            <!-- Timeline -->
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-icon">1</div>
+                    <span>Demande soumise et transmise pour approbation</span>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-icon">✓</div>
+                    <span><strong>Demande approuvée</strong> - Réservation confirmée</span>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-icon">3</div>
+                    <span>Confirmation hôtel et préparation du séjour</span>
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                {{#if bookingUrl}}
+                <a href="{{bookingUrl}}" class="btn btn-primary">
+                    📋 Voir ma réservation
+                </a>
+                {{/if}}
+                <a href="{{dashboardUrl}}" class="btn btn-secondary">
+                    🏠 Accéder au tableau de bord
+                </a>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            <div>
+                <strong>Plateforme de Gestion Hôtelière</strong><br>
+                <small>Votre partenaire pour vos déplacements professionnels</small>
+            </div>
+            
+            <div class="footer-links">
+                <a href="{{dashboardUrl}}">Tableau de bord</a>
+                <a href="{{dashboardUrl}}/bookings">Mes réservations</a>
+                <a href="{{dashboardUrl}}/profile">Mon profil</a>
+                <a href="{{dashboardUrl}}/help">Aide</a>
+            </div>
+            
+            <div class="footer-note">
+                <p>
+                    Cet email a été envoyé automatiquement suite à l'approbation de votre demande.<br>
+                    Pour toute question, contactez votre service RH ou notre support technique.<br>
+                    <strong>Ne pas répondre à cet email.</strong>
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
