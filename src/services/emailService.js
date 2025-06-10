@@ -54,6 +54,14 @@ class EmailService {
             'checkin-reminder.html',
             'checkout-confirmation.html',
             'loyalty-points.html',
+            'tier-upgrade.html',
+            'loyalty-welcome.html',
+            'points-expiry-warning.html',
+            'birthday-bonus.html',
+            'referral-bonus.html',
+            'review-bonus.html',
+            'anniversary-bonus.html',
+            'loyalty-digest.html',
             'promotional-offer.html',
             'welcome-enterprise.html',
             'booking-approved.html',
@@ -351,7 +359,7 @@ class EmailService {
     }
 
     /**
-     * Send loyalty points notification
+     * Send loyalty points notification (ORIGINAL METHOD - UPDATED)
      */
     async sendLoyaltyPointsUpdate(user, pointsEarned, totalPoints, booking = null) {
         try {
@@ -491,6 +499,340 @@ class EmailService {
         }
     }
 
+    // ============================================================================
+    // NOUVELLES MÉTHODES LOYALTY AVANCÉES
+    // ============================================================================
+
+    /**
+     * Send loyalty points earned email with enhanced template
+     */
+    async sendLoyaltyPointsEmail(userEmail, loyaltyData) {
+        try {
+            const templateData = {
+                user: loyaltyData.user,
+                points: loyaltyData.points,
+                booking: loyaltyData.booking,
+                progress: loyaltyData.progress,
+                benefits: loyaltyData.benefits,
+                redemptionOptions: loyaltyData.redemptionOptions,
+                tier: {
+                    current: loyaltyData.user.tier,
+                    display: this.getTierDisplayName(loyaltyData.user.tier),
+                    icon: this.getTierIcon(loyaltyData.user.tier),
+                    benefits: loyaltyData.benefits
+                },
+                motivation: this.getMotivationalMessage(loyaltyData.points.earned),
+                nextMilestone: this.calculateNextMilestone(loyaltyData.user.tier, loyaltyData.progress),
+                year: new Date().getFullYear(),
+                loyaltyDashboardLink: `${process.env.FRONTEND_URL}/account/loyalty`,
+                redeemPointsLink: `${process.env.FRONTEND_URL}/account/loyalty/redeem`,
+                supportEmail: process.env.SUPPORT_EMAIL || 'support@hotelmanagement.com'
+            };
+
+            const htmlContent = this.templates.get('loyalty-points')(templateData);
+
+            const mailOptions = {
+                from: `"Programme Fidélité" <${process.env.EMAIL_FROM || 'noreply@hotelmanagement.com'}>`,
+                to: userEmail,
+                subject: `🎉 ${loyaltyData.points.earned} points gagnés ! Total: ${loyaltyData.points.total} points`,
+                html: htmlContent
+            };
+
+            const result = await this.transporter.sendMail(mailOptions);
+            logger.info(`Loyalty points email sent to ${userEmail}`);
+            return result;
+        } catch (error) {
+            logger.error('Failed to send loyalty points email:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Send tier upgrade celebration email
+     */
+    async sendTierUpgradeEmail(userEmail, upgradeData) {
+        try {
+            const templateData = {
+                user: upgradeData.user,
+                upgrade: {
+                    oldTier: upgradeData.oldTier,
+                    newTier: upgradeData.newTier,
+                    oldTierDisplay: this.getTierDisplayName(upgradeData.oldTier),
+                    newTierDisplay: this.getTierDisplayName(upgradeData.newTier),
+                    newTierIcon: this.getTierIcon(upgradeData.newTier),
+                    bonusPoints: upgradeData.bonusPoints,
+                    achievementDate: new Date()
+                },
+                benefits: {
+                    old: upgradeData.oldBenefits,
+                    new: upgradeData.newBenefits,
+                    unlocked: this.getUnlockedBenefits(upgradeData.oldTier, upgradeData.newTier)
+                },
+                celebration: {
+                    title: `Félicitations ! Vous êtes maintenant niveau ${this.getTierDisplayName(upgradeData.newTier)} !`,
+                    message: this.getTierUpgradeMessage(upgradeData.newTier),
+                    badge: this.getTierBadgeUrl(upgradeData.newTier)
+                },
+                year: new Date().getFullYear(),
+                loyaltyDashboardLink: `${process.env.FRONTEND_URL}/account/loyalty`,
+                benefitsGuideLink: `${process.env.FRONTEND_URL}/loyalty/benefits/${upgradeData.newTier.toLowerCase()}`,
+                supportEmail: process.env.SUPPORT_EMAIL || 'support@hotelmanagement.com'
+            };
+
+            // Utiliser template spécialisé ou fallback
+            const templateName = this.templates.has('tier-upgrade') ? 'tier-upgrade' : 'loyalty-points';
+            const htmlContent = this.templates.get(templateName)(templateData);
+
+            const mailOptions = {
+                from: `"Programme Fidélité" <${process.env.EMAIL_FROM || 'noreply@hotelmanagement.com'}>`,
+                to: userEmail,
+                subject: `🏆 Promotion niveau ${this.getTierDisplayName(upgradeData.newTier)} - Félicitations !`,
+                html: htmlContent
+            };
+
+            const result = await this.transporter.sendMail(mailOptions);
+            logger.info(`Tier upgrade email sent to ${userEmail} for ${upgradeData.newTier}`);
+            return result;
+        } catch (error) {
+            logger.error('Failed to send tier upgrade email:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Send loyalty program welcome email
+     */
+    async sendLoyaltyWelcomeEmail(userEmail, userData) {
+        try {
+            const templateData = {
+                user: userData,
+                welcome: {
+                    title: 'Bienvenue dans notre programme de fidélité !',
+                    message: 'Commencez à gagner des points dès votre première réservation',
+                    startingPoints: userData.welcomePoints || 100
+                },
+                program: {
+                    tiers: this.getAllTiersInfo(),
+                    earningRules: [
+                        { action: 'Réservation', points: '1 point par euro dépensé' },
+                        { action: 'Avis client', points: '100 points' },
+                        { action: 'Parrainage ami', points: '500 points' },
+                        { action: 'Anniversaire', points: '250 points' }
+                    ],
+                    redemptionOptions: [
+                        { option: 'Réduction', rate: '100 points = 1€' },
+                        { option: 'Upgrade chambre', points: '1000 points' },
+                        { option: 'Nuit gratuite', points: '5000 points' },
+                        { option: 'Petit-déjeuner', points: '250 points' }
+                    ]
+                },
+                gettingStarted: [
+                    'Effectuez votre première réservation pour gagner des points',
+                    'Consultez votre solde dans votre espace personnel',
+                    'Utilisez vos points pour des réductions ou upgrades',
+                    'Progressez vers les niveaux supérieurs'
+                ],
+                year: new Date().getFullYear(),
+                loyaltyDashboardLink: `${process.env.FRONTEND_URL}/account/loyalty`,
+                firstBookingLink: `${process.env.FRONTEND_URL}/search`,
+                loyaltyGuideLink: `${process.env.FRONTEND_URL}/loyalty/guide`,
+                supportEmail: process.env.SUPPORT_EMAIL || 'support@hotelmanagement.com'
+            };
+
+            // Utiliser template spécialisé ou adapter un existant
+            const templateName = this.templates.has('loyalty-welcome') ? 'loyalty-welcome' : 'welcome-enterprise';
+            const htmlContent = this.templates.get(templateName)(templateData);
+
+            const mailOptions = {
+                from: `"Programme Fidélité" <${process.env.EMAIL_FROM || 'noreply@hotelmanagement.com'}>`,
+                to: userEmail,
+                subject: '🎁 Bienvenue dans notre programme de fidélité !',
+                html: htmlContent
+            };
+
+            const result = await this.transporter.sendMail(mailOptions);
+            logger.info(`Loyalty welcome email sent to ${userEmail}`);
+            return result;
+        } catch (error) {
+            logger.error('Failed to send loyalty welcome email:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Send points expiry warning email
+     */
+    async sendPointsExpiryWarning(userEmail, expiryData) {
+        try {
+            const templateData = {
+                user: expiryData.user,
+                expiry: {
+                    pointsExpiring: expiryData.pointsExpiring,
+                    expiryDate: moment(expiryData.earliestExpiry).format('DD/MM/YYYY'),
+                    daysRemaining: Math.ceil((expiryData.earliestExpiry - new Date()) / (24 * 60 * 60 * 1000)),
+                    urgency: expiryData.pointsExpiring >= 1000 ? 'HIGH' : 'MEDIUM'
+                },
+                redemptionOptions: expiryData.redemptionOptions.slice(0, 4), // Top 4 options
+                quickActions: [
+                    {
+                        action: 'Réserver maintenant',
+                        link: `${process.env.FRONTEND_URL}/search`,
+                        description: 'Utilisez vos points pour une réduction'
+                    },
+                    {
+                        action: 'Voir toutes les options',
+                        link: `${process.env.FRONTEND_URL}/account/loyalty/redeem`,
+                        description: 'Explorez toutes les façons d\'utiliser vos points'
+                    }
+                ],
+                year: new Date().getFullYear(),
+                loyaltyDashboardLink: `${process.env.FRONTEND_URL}/account/loyalty`,
+                redeemPointsLink: `${process.env.FRONTEND_URL}/account/loyalty/redeem`,
+                supportEmail: process.env.SUPPORT_EMAIL || 'support@hotelmanagement.com'
+            };
+
+            // Utiliser template spécialisé ou adapter
+            const templateName = this.templates.has('points-expiry-warning') ? 'points-expiry-warning' : 'promotional-offer';
+            const htmlContent = this.templates.get(templateName)(templateData);
+
+            const mailOptions = {
+                from: `"Programme Fidélité" <${process.env.EMAIL_FROM || 'noreply@hotelmanagement.com'}>`,
+                to: userEmail,
+                subject: `⏰ ${expiryData.pointsExpiring} points expirent bientôt !`,
+                html: htmlContent
+            };
+
+            const result = await this.transporter.sendMail(mailOptions);
+            logger.info(`Points expiry warning sent to ${userEmail}`);
+            return result;
+        } catch (error) {
+            logger.error('Failed to send points expiry warning:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Send bonus points email (birthday, referral, etc.)
+     */
+    async sendBonusPointsEmail(userEmail, bonusData) {
+        try {
+            const bonusMessages = {
+                'EARN_BIRTHDAY': {
+                    title: '🎂 Joyeux anniversaire !',
+                    message: 'Nous vous offrons des points bonus pour votre anniversaire',
+                    icon: '🎂'
+                },
+                'EARN_REFERRAL': {
+                    title: '👥 Merci pour le parrainage !',
+                    message: 'Votre ami(e) s\'est inscrit grâce à vous',
+                    icon: '👥'
+                },
+                'EARN_REVIEW': {
+                    title: '⭐ Merci pour votre avis !',
+                    message: 'Votre avis nous aide à améliorer nos services',
+                    icon: '⭐'
+                },
+                'EARN_ANNIVERSARY': {
+                    title: '🎉 Anniversaire de fidélité !',
+                    message: 'Cela fait un an que vous êtes membre fidèle',
+                    icon: '🎉'
+                }
+            };
+
+            const bonusInfo = bonusMessages[bonusData.type] || {
+                title: '🎁 Points bonus !',
+                message: 'Vous avez reçu des points bonus',
+                icon: '🎁'
+            };
+
+            const templateData = {
+                user: bonusData.user,
+                bonus: {
+                    ...bonusInfo,
+                    amount: bonusData.amount,
+                    description: bonusData.description,
+                    type: bonusData.type
+                },
+                points: {
+                    total: bonusData.points.total,
+                    tier: bonusData.tier
+                },
+                celebration: {
+                    specialMessage: this.getSpecialBonusMessage(bonusData.type),
+                    nextSteps: this.getBonusNextSteps(bonusData.type)
+                },
+                year: new Date().getFullYear(),
+                loyaltyDashboardLink: `${process.env.FRONTEND_URL}/account/loyalty`,
+                supportEmail: process.env.SUPPORT_EMAIL || 'support@hotelmanagement.com'
+            };
+
+            // Choisir le bon template selon le type
+            const templateName = this.getBonusEmailTemplate(bonusData.type);
+            const htmlContent = this.templates.get(templateName)(templateData);
+
+            const mailOptions = {
+                from: `"Programme Fidélité" <${process.env.EMAIL_FROM || 'noreply@hotelmanagement.com'}>`,
+                to: userEmail,
+                subject: `${bonusInfo.icon} ${bonusInfo.title} +${bonusData.amount} points`,
+                html: htmlContent
+            };
+
+            const result = await this.transporter.sendMail(mailOptions);
+            logger.info(`Bonus points email sent to ${userEmail} for ${bonusData.type}`);
+            return result;
+        } catch (error) {
+            logger.error('Failed to send bonus points email:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Send loyalty program newsletter/digest
+     */
+    async sendLoyaltyDigest(userEmail, digestData) {
+        try {
+            const templateData = {
+                user: digestData.user,
+                period: digestData.period,
+                summary: {
+                    pointsEarned: digestData.summary.pointsEarned,
+                    pointsRedeemed: digestData.summary.pointsRedeemed,
+                    bookings: digestData.summary.bookings,
+                    currentBalance: digestData.summary.currentBalance
+                },
+                highlights: digestData.highlights,
+                recommendations: digestData.recommendations,
+                tier: {
+                    current: digestData.user.tier,
+                    progress: digestData.progress,
+                    nextMilestone: digestData.nextMilestone
+                },
+                offers: digestData.specialOffers || [],
+                year: new Date().getFullYear(),
+                loyaltyDashboardLink: `${process.env.FRONTEND_URL}/account/loyalty`,
+                unsubscribeLink: `${process.env.FRONTEND_URL}/unsubscribe/loyalty/${digestData.user._id}`,
+                supportEmail: process.env.SUPPORT_EMAIL || 'support@hotelmanagement.com'
+            };
+
+            const templateName = this.templates.has('loyalty-digest') ? 'loyalty-digest' : 'promotional-offer';
+            const htmlContent = this.templates.get(templateName)(templateData);
+
+            const mailOptions = {
+                from: `"Programme Fidélité" <${process.env.EMAIL_FROM || 'noreply@hotelmanagement.com'}>`,
+                to: userEmail,
+                subject: `📊 Votre résumé fidélité - ${digestData.period}`,
+                html: htmlContent
+            };
+
+            const result = await this.transporter.sendMail(mailOptions);
+            logger.info(`Loyalty digest sent to ${userEmail}`);
+            return result;
+        } catch (error) {
+            logger.error('Failed to send loyalty digest:', error);
+            throw error;
+        }
+    }
+
     /**
      * Bulk email sending for marketing campaigns
      */
@@ -535,19 +877,203 @@ class EmailService {
         return results;
     }
 
+    // ============================================================================
+    // MÉTHODES HELPER POUR LOYALTY
+    // ============================================================================
+
     /**
-     * Helper methods
+     * Get tier display name
      */
-    calculateNextRewardThreshold(currentPoints) {
-        const thresholds = [100, 250, 500, 1000, 2500, 5000];
-        return thresholds.find(threshold => threshold > currentPoints) || 5000;
+    getTierDisplayName(tier) {
+        const names = {
+            'BRONZE': 'Bronze',
+            'SILVER': 'Argent',
+            'GOLD': 'Or',
+            'PLATINUM': 'Platine',
+            'DIAMOND': 'Diamant'
+        };
+        return names[tier] || 'Bronze';
     }
 
+    /**
+     * Get tier icon
+     */
+    getTierIcon(tier) {
+        const icons = {
+            'BRONZE': '🥉',
+            'SILVER': '🥈',
+            'GOLD': '🥇',
+            'PLATINUM': '💎',
+            'DIAMOND': '💠'
+        };
+        return icons[tier] || '🥉';
+    }
+
+    /**
+     * Get tier badge URL
+     */
+    getTierBadgeUrl(tier) {
+        return `${process.env.FRONTEND_URL}/images/badges/${tier.toLowerCase()}-badge.png`;
+    }
+
+    /**
+     * Get motivational message based on points earned
+     */
+    getMotivationalMessage(pointsEarned) {
+        if (pointsEarned >= 1000) return 'Fantastique ! Vous êtes sur la bonne voie !';
+        if (pointsEarned >= 500) return 'Excellent ! Continuez comme ça !';
+        if (pointsEarned >= 200) return 'Très bien ! Chaque point compte !';
+        return 'Bon début ! Vos points s\'accumulent !';
+    }
+
+    /**
+     * Calculate next milestone
+     */
+    calculateNextMilestone(currentTier, progress) {
+        const milestones = {
+            'BRONZE': { next: 'SILVER', points: 1000 },
+            'SILVER': { next: 'GOLD', points: 5000 },
+            'GOLD': { next: 'PLATINUM', points: 15000 },
+            'PLATINUM': { next: 'DIAMOND', points: 50000 },
+            'DIAMOND': { next: null, points: null }
+        };
+
+        const milestone = milestones[currentTier];
+        if (!milestone.next) return null;
+
+        return {
+            nextTier: milestone.next,
+            nextTierDisplay: this.getTierDisplayName(milestone.next),
+            pointsNeeded: progress.pointsToNextTier,
+            progressPercentage: progress.progressPercentage
+        };
+    }
+
+    /**
+     * Get all tiers info for welcome email
+     */
+    getAllTiersInfo() {
+        return [
+            {
+                name: 'Bronze',
+                icon: '🥉',
+                threshold: '0 points',
+                benefits: ['Points sur réservations', 'Offres exclusives']
+            },
+            {
+                name: 'Argent',
+                icon: '🥈',
+                threshold: '1 000 points',
+                benefits: ['20% bonus points', 'Check-in prioritaire', '1 upgrade/an']
+            },
+            {
+                name: 'Or',
+                icon: '🥇',
+                threshold: '5 000 points',
+                benefits: ['50% bonus points', 'Petit-déjeuner gratuit', '2 upgrades/an']
+            },
+            {
+                name: 'Platine',
+                icon: '💎',
+                threshold: '15 000 points',
+                benefits: ['Double points', 'Accès lounge', '1 nuit gratuite/an']
+            },
+            {
+                name: 'Diamant',
+                icon: '💠',
+                threshold: '50 000 points',
+                benefits: ['2.5x points', 'Suite upgrade', '2 nuits gratuites/an']
+            }
+        ];
+    }
+
+    /**
+     * Get unlocked benefits between tier upgrade
+     */
+    getUnlockedBenefits(oldTier, newTier) {
+        const allBenefits = {
+            'SILVER': ['20% bonus points', 'Check-in prioritaire', '1 upgrade gratuit/an'],
+            'GOLD': ['50% bonus points', 'Petit-déjeuner gratuit', '2 upgrades/an', 'Check-out tardif'],
+            'PLATINUM': ['Double points', 'Accès lounge VIP', '1 nuit gratuite/an', 'Upgrade automatique'],
+            'DIAMOND': ['2.5x points', 'Suite upgrade', '2 nuits gratuites/an', 'Service concierge']
+        };
+
+        const oldBenefits = allBenefits[oldTier] || [];
+        const newBenefits = allBenefits[newTier] || [];
+        
+        return newBenefits.filter(benefit => !oldBenefits.includes(benefit));
+    }
+
+    /**
+     * Get tier upgrade message
+     */
+    getTierUpgradeMessage(tier) {
+        const messages = {
+            'SILVER': 'Vous accédez maintenant aux avantages privilégiés !',
+            'GOLD': 'Bienvenue dans l\'élite de nos membres fidèles !',
+            'PLATINUM': 'Vous faites maintenant partie de notre cercle VIP !',
+            'DIAMOND': 'Félicitations ! Vous avez atteint le niveau le plus prestigieux !'
+        };
+        return messages[tier] || 'Félicitations pour votre promotion !';
+    }
+
+    /**
+     * Get special bonus message by type
+     */
+    getSpecialBonusMessage(type) {
+        const messages = {
+            'EARN_BIRTHDAY': 'Nous espérons que vous passez une merveilleuse journée !',
+            'EARN_REFERRAL': 'Merci de faire découvrir nos services à vos proches !',
+            'EARN_REVIEW': 'Votre avis compte énormément pour nous !',
+            'EARN_ANNIVERSARY': 'Merci pour votre fidélité durant cette année !'
+        };
+        return messages[type] || 'Merci de faire partie de notre programme !';
+    }
+
+    /**
+     * Get next steps after bonus
+     */
+    getBonusNextSteps(type) {
+        const steps = {
+            'EARN_BIRTHDAY': ['Profitez de votre journée spéciale', 'Planifiez votre prochaine escapade'],
+            'EARN_REFERRAL': ['Invitez d\'autres amis', 'Planifiez un voyage ensemble'],
+            'EARN_REVIEW': ['Partagez votre expérience', 'Découvrez nos autres hôtels'],
+            'EARN_ANNIVERSARY': ['Célébrez avec une nouvelle réservation', 'Explorez nos destinations']
+        };
+        return steps[type] || ['Utilisez vos points', 'Continuez à accumuler'];
+    }
+
+    /**
+     * Get bonus email template name
+     */
+    getBonusEmailTemplate(type) {
+        const templates = {
+            'EARN_BIRTHDAY': this.templates.has('birthday-bonus') ? 'birthday-bonus' : 'loyalty-points',
+            'EARN_REFERRAL': this.templates.has('referral-bonus') ? 'referral-bonus' : 'loyalty-points',
+            'EARN_REVIEW': this.templates.has('review-bonus') ? 'review-bonus' : 'loyalty-points',
+            'EARN_ANNIVERSARY': this.templates.has('anniversary-bonus') ? 'anniversary-bonus' : 'loyalty-points'
+        };
+        return templates[type] || 'loyalty-points';
+    }
+
+    /**
+     * Updated method to work with new loyalty system
+     */
+    calculateNextRewardThreshold(currentPoints) {
+        const thresholds = [100, 250, 500, 1000, 2500, 5000, 10000, 25000, 50000];
+        return thresholds.find(threshold => threshold > currentPoints) || 50000;
+    }
+
+    /**
+     * Updated method to work with new loyalty system
+     */
     getAvailableRewards(points) {
         const rewards = [];
-        if (points >= 100) rewards.push({ name: 'Surclassement gratuit', points: 100 });
-        if (points >= 250) rewards.push({ name: 'Petit-déjeuner offert', points: 250 });
-        if (points >= 500) rewards.push({ name: 'Nuit gratuite', points: 500 });
+        if (points >= 100) rewards.push({ name: 'Réduction 1€', points: 100, type: 'discount' });
+        if (points >= 250) rewards.push({ name: 'Petit-déjeuner gratuit', points: 250, type: 'breakfast' });
+        if (points >= 500) rewards.push({ name: 'Réduction 5€', points: 500, type: 'discount' });
+        if (points >= 1000) rewards.push({ name: 'Upgrade chambre', points: 1000, type: 'upgrade' });
+        if (points >= 5000) rewards.push({ name: 'Nuit gratuite', points: 5000, type: 'free_night' });
         return rewards;
     }
 }
