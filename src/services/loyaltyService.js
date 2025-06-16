@@ -424,13 +424,22 @@ class LoyaltyService {
         user.redeemLoyaltyPoints(pointsToRedeem, `Réduction ${discountAmount}€`);
         await user.save({ session });
 
-        // Notifications temps réel
+        // Notification standard (conservée)
         socketService.sendUserNotification(userId, 'POINTS_REDEEMED', {
           pointsUsed: pointsToRedeem,
           discountAmount,
           remainingPoints: user.loyalty.currentPoints,
           transactionId: transaction._id,
           message: `${pointsToRedeem} points utilisés pour ${discountAmount}€ de réduction`
+        });
+
+        // NOUVEAU : Notification loyalty spécialisée
+        socketService.notifyPointsRedeemed(userId, {
+          pointsUsed: pointsToRedeem,
+          benefit: `Réduction ${discountAmount}€`,
+          value: discountAmount,
+          remainingPoints: user.loyalty.currentPoints,
+          type: 'DISCOUNT'
         });
 
         this.updateDailyStats('redeemed', pointsToRedeem);
@@ -503,13 +512,22 @@ class LoyaltyService {
         user.redeemLoyaltyPoints(upgrade.cost, upgrade.description);
         await user.save({ session });
 
-        // Notifications
+        // Notification standard (conservée)
         socketService.sendUserNotification(userId, 'UPGRADE_REDEEMED', {
           upgradeType,
           upgradeDescription: upgrade.description,
           pointsUsed: upgrade.cost,
           remainingPoints: user.loyalty.currentPoints,
           bookingId
+        });
+
+        // NOUVEAU : Notification loyalty spécialisée
+        socketService.notifyPointsRedeemed(userId, {
+          pointsUsed: upgrade.cost,
+          benefit: upgrade.description,
+          value: upgrade.cost / this.config.redemptionRules.discountRate,
+          remainingPoints: user.loyalty.currentPoints,
+          type: 'UPGRADE'
         });
 
         this.updateDailyStats('redeemed', upgrade.cost);
@@ -577,7 +595,7 @@ class LoyaltyService {
         // Créer voucher ou réservation
         const voucherCode = this.generateVoucherCode();
 
-        // Notifications
+        // Notification standard (conservée)
         socketService.sendUserNotification(userId, 'FREE_NIGHT_REDEEMED', {
           hotelName: hotel.name,
           checkInDate,
@@ -586,6 +604,15 @@ class LoyaltyService {
           pointsUsed: pointsCost,
           voucherCode,
           remainingPoints: user.loyalty.currentPoints
+        });
+
+        // NOUVEAU : Notification loyalty spécialisée
+        socketService.notifyPointsRedeemed(userId, {
+          pointsUsed: pointsCost,
+          benefit: `Nuit gratuite - ${hotel.name}`,
+          value: pointsCost / this.config.redemptionRules.discountRate,
+          remainingPoints: user.loyalty.currentPoints,
+          type: 'FREE_NIGHT'
         });
 
         this.updateDailyStats('redeemed', pointsCost);
@@ -888,7 +915,7 @@ class LoyaltyService {
    */
   async sendPointsEarnedNotifications(user, pointsEarned, booking, loyaltyUpdate) {
     try {
-      // Notification temps réel
+      // Notification temps réel standard
       socketService.sendUserNotification(user._id, 'POINTS_EARNED', {
         pointsEarned,
         totalPoints: user.loyalty.currentPoints,
@@ -898,6 +925,21 @@ class LoyaltyService {
         tierProgress: user.loyalty.tierProgress,
         message: `Vous avez gagné ${pointsEarned} points !`,
         estimatedValue: Math.round((pointsEarned / this.config.redemptionRules.discountRate) * 100) / 100
+      });
+
+      // NOUVEAU : Notification loyalty spécialisée via socketService
+      socketService.notifyPointsEarned(user._id, {
+        amount: pointsEarned,
+        booking: {
+          number: booking.bookingNumber,
+          hotelName: booking.hotel.name,
+          amount: booking.totalPrice
+        },
+        tier: user.loyalty.tier,
+        breakdown: {
+          basePoints: Math.floor(booking.totalPrice * this.config.earningRules.bookingBase),
+          multiplier: loyaltyUpdate.tierUpgrade ? 'with_tier_bonus' : 'standard'
+        }
       });
 
       // Email avec template loyalty-points.html
@@ -965,7 +1007,7 @@ class LoyaltyService {
 
       const title = typeMessages[type] || '🎁 Points bonus !';
 
-      // Notification temps réel
+      // Notification temps réel standard
       socketService.sendUserNotification(user._id, 'BONUS_POINTS_EARNED', {
         type,
         amount,
@@ -973,6 +1015,15 @@ class LoyaltyService {
         totalPoints: user.loyalty.currentPoints,
         title,
         message: `${amount} points bonus ajoutés à votre compte`
+      });
+
+      // NOUVEAU : Notification bonus spécialisée
+      socketService.notifyPointsEarned(user._id, {
+        amount,
+        bonusType: type,
+        description,
+        tier: user.loyalty.tier,
+        celebration: amount >= 500 // Animation si gros bonus
       });
 
       // Email spécialisé selon le type
@@ -1002,7 +1053,7 @@ class LoyaltyService {
     try {
       const newBenefits = this.config.tierBenefits[newTier];
 
-      // Notification temps réel avec animation
+      // Notification temps réel avec animation standard
       socketService.sendUserNotification(user._id, 'TIER_UPGRADED', {
         oldTier,
         newTier,
@@ -1012,6 +1063,15 @@ class LoyaltyService {
         multiplier: newBenefits.pointsMultiplier,
         congratulations: `Félicitations ! Vous êtes maintenant niveau ${this.getTierDisplayName(newTier)} !`,
         animation: 'tier_upgrade_celebration'
+      });
+
+      // NOUVEAU : Notification tier upgrade spécialisée
+      socketService.notifyTierUpgrade(user._id, {
+        oldTier,
+        newTier,
+        bonusPoints,
+        newBenefits: newBenefits.benefits,
+        celebration: true
       });
 
       // Email de félicitations avec nouveau tier
@@ -1053,6 +1113,95 @@ class LoyaltyService {
 
     } catch (error) {
       logger.error('Erreur notifications promotion:', error);
+    }
+  }
+
+  /**
+   * Diffuser une campagne loyalty
+   */
+  async broadcastLoyaltyCampaign(campaignData) {
+    try {
+      const { campaignId, name, type, value, eligibleTiers, hotelIds, message } = campaignData;
+      
+      // Utiliser socketService pour diffuser
+      socketService.broadcastCampaign(campaignId, {
+        name,
+        type,
+        value,
+        eligibleTiers,
+        hotelIds,
+        message,
+        createdAt: new Date()
+      });
+
+      logger.info(`Loyalty campaign broadcast: ${name} (${campaignId})`);
+      return { success: true, campaignId, broadcastAt: new Date() };
+    } catch (error) {
+      logger.error('Erreur diffusion campagne loyalty:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Envoyer promotion personnalisée
+   */
+  async sendPersonalizedLoyaltyPromotion(userId, promotionData) {
+    try {
+      const user = await User.findById(userId).select('loyalty').lean();
+      if (!user?.loyalty) return false;
+
+      const enrichedPromotion = {
+        ...promotionData,
+        tier: user.loyalty.tier,
+        personalizedReason: `Offre spéciale niveau ${this.getTierDisplayName(user.loyalty.tier)}`,
+        validUntil: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 jours
+      };
+
+      return socketService.sendPersonalPromotion(userId, enrichedPromotion);
+    } catch (error) {
+      logger.error('Erreur promotion personnalisée:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Surveiller santé système loyalty et envoyer alertes
+   */
+  async monitorLoyaltySystemHealth() {
+    try {
+      // Vérifier métriques système
+      const dailyTransactions = this.stats.dailyTransactions;
+      const activeMembers = await User.countDocuments({ 
+        'loyalty.enrolledAt': { $exists: true },
+        'loyalty.statistics.lastActivity': { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) }
+      });
+
+      // Alertes de performance
+      if (dailyTransactions < 10 && new Date().getHours() > 12) {
+        socketService.sendLoyaltySystemAlert('low_activity', {
+          severity: 'warning',
+          message: `Faible activité loyalty aujourd'hui: ${dailyTransactions} transactions`,
+          recommendation: 'Vérifier campagnes actives'
+        });
+      }
+
+      // Alerte membres inactifs
+      if (activeMembers < 50) {
+        socketService.sendLoyaltySystemAlert('low_engagement', {
+          severity: 'medium',
+          message: `Seulement ${activeMembers} membres actifs`,
+          recommendation: 'Lancer campagne de réactivation'
+        });
+      }
+
+      return { healthy: true, dailyTransactions, activeMembers };
+    } catch (error) {
+      socketService.sendLoyaltySystemAlert('system_error', {
+        severity: 'critical',
+        message: 'Erreur monitoring système loyalty',
+        error: error.message
+      });
+      return { healthy: false, error: error.message };
     }
   }
 
@@ -1512,6 +1661,17 @@ class LoyaltyService {
       this.stats.dailyPointsRedeemed += points;
     }
     this.stats.dailyTransactions += 1;
+    
+    // NOUVEAU : Notifier dashboard admin en temps réel
+    socketService.updateLoyaltyAdminDashboard('daily_stats_update', {
+      type,
+      points,
+      newTotals: {
+        dailyTransactions: this.stats.dailyTransactions,
+        dailyPointsIssued: this.stats.dailyPointsIssued,
+        dailyPointsRedeemed: this.stats.dailyPointsRedeemed
+      }
+    });
   }
 
   /**
@@ -1704,12 +1864,20 @@ const expirePointsJob = async () => {
 
             await expireTransaction.save({ session });
 
-            // Notification expiration
+            // Notification standard (conservée)
             socketService.sendUserNotification(user._id, 'POINTS_EXPIRED', {
               pointsExpired: transaction.pointsAmount,
               description: transaction.description,
               remainingPoints: user.loyalty.currentPoints,
               message: `${transaction.pointsAmount} points ont expiré`
+            });
+
+            // NOUVEAU : Notification expiration spécialisée
+            socketService.notifyPointsExpiry(user._id, {
+              pointsExpiring: transaction.pointsAmount,
+              daysUntilExpiry: 0, // Déjà expiré
+              urgency: 'expired',
+              remainingPoints: user.loyalty.currentPoints
             });
 
             logger.info(`Points expirés: ${transaction.pointsAmount} pour user ${user._id}`);
@@ -1778,12 +1946,23 @@ const pointsExpiryWarningJob = async () => {
           }
         });
 
-        // Notification temps réel
+        // Notification standard (conservée)
         socketService.sendUserNotification(userId, 'POINTS_EXPIRY_WARNING', {
           pointsExpiring: data.totalExpiring,
           daysUntilExpiry: Math.ceil((data.transactions[0].expiresAt - new Date()) / (24 * 60 * 60 * 1000)),
           message: `${data.totalExpiring} points expirent bientôt`,
           action: 'Utilisez vos points avant expiration'
+        });
+
+        // NOUVEAU : Notification expiration spécialisée avec détails
+        const daysUntil = Math.ceil((data.transactions[0].expiresAt - new Date()) / (24 * 60 * 60 * 1000));
+        const urgency = daysUntil <= 7 ? 'critical' : daysUntil <= 30 ? 'high' : 'medium';
+
+        socketService.notifyPointsExpiry(userId, {
+          pointsExpiring: data.totalExpiring,
+          daysUntilExpiry: daysUntil,
+          urgency,
+          redemptionSuggestions: ['discount', 'upgrade']
         });
       }
     }
@@ -1968,6 +2147,30 @@ const checkDiscountEligibility = async (userId, requestedDiscount) => {
   }
 };
 
+/**
+ * NOUVEAU : Diffuser campagne loyalty
+ */
+const broadcastCampaign = async (campaignData) => {
+  const service = getLoyaltyService();
+  return await service.broadcastLoyaltyCampaign(campaignData);
+};
+
+/**
+ * NOUVEAU : Envoyer promotion personnalisée
+ */
+const sendPersonalizedPromotion = async (userId, promotionData) => {
+  const service = getLoyaltyService();
+  return await service.sendPersonalizedLoyaltyPromotion(userId, promotionData);
+};
+
+/**
+ * NOUVEAU : Surveiller santé système
+ */
+const monitorSystemHealth = async () => {
+  const service = getLoyaltyService();
+  return await service.monitorLoyaltySystemHealth();
+};
+
 // ============================================================================
 // EXPORTS
 // ============================================================================
@@ -1985,6 +2188,11 @@ module.exports = {
   quickRedeemPoints,
   quickGetStatus,
   checkDiscountEligibility,
+  
+  // NOUVEAU : Fonctions campagnes et promotions
+  broadcastCampaign,
+  sendPersonalizedPromotion,
+  monitorSystemHealth,
   
   // Jobs (pour configuration manuelle si besoin)
   expirePointsJob,

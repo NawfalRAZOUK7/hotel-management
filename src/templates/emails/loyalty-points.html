@@ -17,8 +17,16 @@
         .points-earned { font-size: 64px; font-weight: bold; margin: 20px 0; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
         .points-total { background: #f8f9fa; border-radius: 15px; padding: 25px; margin: 25px 0; text-align: center; border: 2px solid #ffc107; }
         .total-number { font-size: 48px; font-weight: bold; color: #fd7e14; margin: 15px 0; }
+        .tier-badge { margin-top: 20px; padding: 15px; background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%); border-radius: 10px; color: white; }
+        .tier-name { font-size: 20px; font-weight: bold; margin-bottom: 5px; }
+        .tier-benefits { font-size: 14px; opacity: 0.9; }
         .progress-bar { background: #e9ecef; border-radius: 10px; height: 20px; margin: 20px 0; overflow: hidden; }
         .progress-fill { background: linear-gradient(90deg, #ffc107, #fd7e14); height: 100%; border-radius: 10px; transition: width 0.5s ease; }
+        .benefits-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin: 15px 0; }
+        .benefit-card { background: white; padding: 15px; border-radius: 8px; text-align: center; border: 2px solid #28a745; }
+        .benefit-icon { font-size: 24px; margin-bottom: 8px; }
+        .benefit-text { font-weight: bold; color: #155724; font-size: 14px; }
+        .benefit-validity { font-size: 12px; color: #6c757d; margin-top: 5px; }
         .rewards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin: 25px 0; }
         .reward-card { background: white; border: 2px solid #ffc107; border-radius: 10px; padding: 20px; text-align: center; transition: transform 0.3s ease; }
         .reward-card:hover { transform: translateY(-5px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
@@ -26,11 +34,22 @@
         .reward-points { font-weight: bold; color: #fd7e14; }
         .reward-available { background: #d4edda; border-color: #28a745; }
         .reward-locked { opacity: 0.6; }
-        .btn { display: inline-block; background: #fd7e14; color: white; padding: 15px 30px; text-decoration: none; border-radius: 25px; font-weight: bold; margin: 10px; transition: all 0.3s ease; }
+        .expiring-alert { background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 10px; padding: 20px; margin: 25px 0; }
+        .expiring-title { color: #856404; margin-bottom: 10px; font-weight: bold; }
+        .expiring-text { color: #856404; font-size: 14px; }
+        .btn { display: inline-block; background: #fd7e14; color: white; padding: 15px 30px; text-decoration: none; border-radius: 25px; font-weight: bold; margin: 10px; transition: all 0.3s ease; text-align: center; }
         .btn:hover { background: #e55a00; transform: translateY(-2px); }
+        .btn-secondary { background: #6c757d; }
+        .btn-secondary:hover { background: #5a6268; }
+        .btn-success { background: #28a745; }
+        .btn-success:hover { background: #218838; }
         .footer { background: #333; color: white; padding: 30px; text-align: center; }
         @keyframes bounce { 0%, 20%, 50%, 80%, 100% { transform: translateY(0); } 40% { transform: translateY(-10px); } 60% { transform: translateY(-5px); } }
-        @media (max-width: 600px) { .rewards-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 600px) { 
+            .rewards-grid { grid-template-columns: 1fr; } 
+            .benefits-grid { grid-template-columns: 1fr; }
+            .btn { margin: 5px; padding: 12px 20px; font-size: 14px; }
+        }
     </style>
 </head>
 <body>
@@ -52,25 +71,66 @@
                 <div class="total-number">{{points.total}}</div>
                 <div>Points Fidélité</div>
                 
+                <!-- NOUVEAU: Niveau actuel -->
+                <div class="tier-badge">
+                    <div class="tier-name">🏆 Niveau {{user.tier}}</div>
+                    <div class="tier-benefits">{{user.tierBenefits}}</div>
+                </div>
+                
+                <!-- Progression vers niveau suivant (améliorée) -->
                 <div style="margin-top: 25px;">
                     <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
                         <span>Prochain Palier:</span>
-                        <span><strong>{{points.nextRewardThreshold}} points</strong></span>
+                        <span><strong>{{user.tierProgress.nextTier}} ({{user.tierProgress.pointsToNextTier}} points)</strong></span>
                     </div>
                     <div class="progress-bar">
-                        <div class="progress-fill" style="width: {{progressPercentage}}%;"></div>
+                        <div class="progress-fill" style="width: {{user.tierProgress.progressPercentage}}%;"></div>
                     </div>
-                    <small>Plus que {{pointsToNext}} points pour débloquer le prochain niveau !</small>
+                    <small>Plus que {{user.tierProgress.pointsToNextTier}} points pour {{user.tierProgress.nextTier}} !</small>
                 </div>
             </div>
+
+            <!-- NOUVEAU: Bénéfices actifs du niveau -->
+            {{#if user.activeBenefits}}
+            <div style="background: #e8f5e8; border-radius: 15px; padding: 25px; margin: 25px 0;">
+                <h4 style="color: #155724; margin-bottom: 20px; text-align: center;">🎁 Vos Bénéfices Actuels ({{user.tier}})</h4>
+                <div class="benefits-grid">
+                    {{#each user.activeBenefits}}
+                    <div class="benefit-card">
+                        <div class="benefit-icon">{{icon}}</div>
+                        <div class="benefit-text">{{description}}</div>
+                        {{#if validUntil}}
+                        <div class="benefit-validity">Valide jusqu'au {{validUntil}}</div>
+                        {{/if}}
+                        {{#if usageCount}}
+                        <div class="benefit-validity">Utilisé {{usageCount}}/{{maxUsage}} fois</div>
+                        {{/if}}
+                    </div>
+                    {{/each}}
+                </div>
+            </div>
+            {{/if}}
+
+            <!-- NOUVEAU: Alerte points qui expirent -->
+            {{#if pointsExpiring}}
+            <div class="expiring-alert">
+                <div class="expiring-title">⚠️ Points bientôt expirés</div>
+                <p class="expiring-text">{{pointsExpiring.amount}} points expireront le {{pointsExpiring.date}}.</p>
+                <p class="expiring-text"><strong>Utilisez-les rapidement pour ne pas les perdre !</strong></p>
+            </div>
+            {{/if}}
 
             {{#if booking}}
             <div style="background: #e7f3ff; border-left: 4px solid #007bff; padding: 20px; margin: 25px 0;">
                 <h4 style="color: #004085; margin-bottom: 15px;">📊 Détails du Séjour</h4>
                 <div style="color: #004085;">
                     <p><strong>Réservation:</strong> {{booking.confirmationNumber}}</p>
+                    <p><strong>Hôtel:</strong> {{booking.hotelName}}</p>
                     <p><strong>Montant:</strong> {{booking.totalAmount}}€</p>
-                    <p><strong>Points gagnés:</strong> +{{points.earned}} (1 point = 1€ dépensé)</p>
+                    <p><strong>Points gagnés:</strong> +{{points.earned}} {{#if points.bonusMultiplier}}(bonus {{user.tier}} x{{points.bonusMultiplier}}){{/if}}</p>
+                    {{#if points.basePoints}}
+                    <p><strong>Détail:</strong> {{points.basePoints}} points de base{{#if points.bonusPoints}} + {{points.bonusPoints}} points bonus{{/if}}</p>
+                    {{/if}}
                 </div>
             </div>
             {{/if}}
@@ -86,7 +146,7 @@
                         {{#if available}}
                         <div style="color: #28a745; font-size: 12px; margin-top: 10px;">✅ Disponible</div>
                         {{else}}
-                        <div style="color: #6c757d; font-size: 12px; margin-top: 10px;">🔒 Bientôt</div>
+                        <div style="color: #6c757d; font-size: 12px; margin-top: 10px;">🔒 {{#if pointsNeeded}}({{pointsNeeded}} points manquants){{else}}Bientôt{{/if}}</div>
                         {{/if}}
                     </div>
                     {{/each}}
@@ -96,57 +156,91 @@
             <div style="background: #fff3cd; border-radius: 10px; padding: 25px; margin: 25px 0; text-align: center;">
                 <h3 style="color: #856404; margin-bottom: 15px;">💡 Comment Utiliser vos Points ?</h3>
                 <ul style="color: #856404; text-align: left; margin-left: 20px;">
-                    <li>Échangez vos points contre des nuits gratuites</li>
-                    <li>Obtenez des surclassements automatiques</li>
-                    <li>Profitez de services gratuits (petit-déjeuner, spa...)</li>
-                    <li>Bénéficiez de réductions exclusives</li>
+                    <li>🏨 <strong>Nuits gratuites:</strong> À partir de 2500 points</li>
+                    <li>⬆️ <strong>Surclassements:</strong> 500-1500 points selon la chambre</li>
+                    <li>🍳 <strong>Services gratuits:</strong> Petit-déjeuner (150 pts), spa (300 pts)</li>
+                    <li>💰 <strong>Réductions:</strong> 100 points = 1€ de réduction</li>
+                    <li>🎁 <strong>Cadeaux exclusifs:</strong> Objets de la boutique hôtel</li>
                 </ul>
             </div>
 
+            <!-- Boutons d'action (améliorés) -->
             <div style="text-align: center; margin: 30px 0;">
                 <a href="{{accountLink}}" class="btn">
-                    Gérer mes Points
+                    💎 Gérer mes Points
                 </a>
-                <a href="{{FRONTEND_URL}}/search" class="btn" style="background: #28a745;">
-                    Nouvelle Réservation
+                <a href="{{accountLink}}/history" class="btn btn-secondary">
+                    📊 Historique Transactions
+                </a>
+                <a href="{{FRONTEND_URL}}/search" class="btn btn-success">
+                    🏨 Nouvelle Réservation
                 </a>
             </div>
 
             <div style="background: #f8f9fa; border-radius: 10px; padding: 20px; margin: 25px 0; text-align: center;">
                 <h4>🎯 Conseils pour Gagner Plus de Points</h4>
                 <div style="margin-top: 15px; text-align: left;">
-                    <p>• <strong>Réservez directement:</strong> +50% de points bonus</p>
-                    <p>• <strong>Séjours longs:</strong> Points doublés après 3 nuits</p>
-                    <p>• <strong>Parrainages:</strong> 500 points par ami parrainé</p>
-                    <p>• <strong>Avis clients:</strong> +25 points par avis publié</p>
+                    <p>🌐 <strong>Réservez directement:</strong> +{{#if user.tier === 'DIAMOND'}}150%{{else if user.tier === 'PLATINUM'}}100%{{else if user.tier === 'GOLD'}}50%{{else}}20%{{/if}} de points bonus</p>
+                    <p>📅 <strong>Séjours longs:</strong> Points doublés après 3 nuits consécutives</p>
+                    <p>👥 <strong>Parrainages:</strong> 500 points par ami qui effectue sa première réservation</p>
+                    <p>⭐ <strong>Avis clients:</strong> +25 points par avis publié avec photo</p>
+                    <p>🎂 <strong>Bonus anniversaire:</strong> {{#if user.tier === 'DIAMOND'}}1000{{else if user.tier === 'PLATINUM'}}750{{else if user.tier === 'GOLD'}}500{{else}}250{{/if}} points offerts chaque année</p>
+                    <p>📱 <strong>App mobile:</strong> +10% de points sur toutes les réservations via l'app</p>
+                </div>
+            </div>
+
+            <!-- NOUVEAU: Progression vers objectifs personnels -->
+            {{#if user.personalGoals.isActive}}
+            <div style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border-radius: 15px; padding: 25px; margin: 25px 0;">
+                <h4 style="color: #0d47a1; margin-bottom: 15px; text-align: center;">🎯 Votre Objectif Personnel</h4>
+                <div style="text-align: center; color: #1565c0;">
+                    <p><strong>Objectif:</strong> Atteindre le niveau {{user.personalGoals.targetTier}}</p>
+                    <p><strong>Cible:</strong> {{user.personalGoals.targetPoints}} points</p>
+                    {{#if user.personalGoals.targetDate}}
+                    <p><strong>Date limite:</strong> {{user.personalGoals.targetDate}}</p>
+                    {{/if}}
+                    <div style="margin-top: 15px;">
+                        <div class="progress-bar" style="background: #e1f5fe;">
+                            <div class="progress-fill" style="width: {{user.personalGoals.progressPercentage}}%; background: linear-gradient(90deg, #2196f3, #0d47a1);"></div>
+                        </div>
+                        <small style="color: #0d47a1;">{{user.personalGoals.remainingPoints}} points restants</small>
+                    </div>
+                </div>
+            </div>
+            {{/if}}
+
+            <!-- Invitation à partager -->
+            <div style="background: #e8f5e8; border-radius: 10px; padding: 20px; margin: 25px 0; text-align: center;">
+                <h4 style="color: #155724; margin-bottom: 15px;">📢 Partagez votre Réussite !</h4>
+                <p style="color: #155724; margin-bottom: 15px;">Vous êtes fier de votre niveau {{user.tier}} ? Partagez-le avec vos amis !</p>
+                <div>
+                    <a href="{{socialShare.facebook}}" class="btn" style="background: #3b5998;">📘 Facebook</a>
+                    <a href="{{socialShare.twitter}}" class="btn" style="background: #1da1f2;">🐦 Twitter</a>
+                    <a href="{{socialShare.linkedin}}" class="btn" style="background: #0077b5;">💼 LinkedIn</a>
                 </div>
             </div>
         </div>
 
         <div class="footer">
-            <p>Merci de votre fidélité ! 🏨</p>
-            <p>Questions sur vos points ? <a href="mailto:{{supportEmail}}" style="color: #ffc107;">{{supportEmail}}</a></p>
+            <div style="margin-bottom: 20px;">
+                <h4>🏨 Merci de votre fidélité !</h4>
+                <p>Vous êtes membre depuis {{user.memberSince}} et avez accumulé {{user.lifetimePoints}} points au total.</p>
+            </div>
+            
+            <div style="border-top: 1px solid #555; padding-top: 20px; margin-top: 20px;">
+                <p>Questions sur vos points ? <a href="mailto:{{supportEmail}}" style="color: #ffc107;">{{supportEmail}}</a></p>
+                <p style="font-size: 12px; margin-top: 10px;">
+                    <a href="{{unsubscribeLink}}" style="color: #ccc;">Se désabonner</a> | 
+                    <a href="{{privacyLink}}" style="color: #ccc;">Politique de confidentialité</a> |
+                    <a href="{{termsLink}}" style="color: #ccc;">Conditions d'utilisation</a>
+                </p>
+            </div>
         </div>
     </div>
 
     <script>
-        // Calculate progress percentage
-        const totalPoints = {{points.total}};
-        const nextThreshold = {{points.nextRewardThreshold}};
-        const previousThreshold = nextThreshold === 100 ? 0 : (nextThreshold === 250 ? 100 : (nextThreshold === 500 ? 250 : (nextThreshold === 1000 ? 500 : 1000)));
-        const progressPercentage = Math.min(100, ((totalPoints - previousThreshold) / (nextThreshold - previousThreshold)) * 100);
-        const pointsToNext = Math.max(0, nextThreshold - totalPoints);
-        
-        // Update progress bar
-        document.querySelector('.progress-fill').style.width = progressPercentage + '%';
-        
-        // Update text
-        const progressText = document.querySelector('small');
-        if (pointsToNext > 0) {
-            progressText.textContent = `Plus que ${pointsToNext} points pour débloquer le prochain niveau !`;
-        } else {
-            progressText.textContent = 'Niveau maximum atteint ! 🎉';
-        }
+        // Pas de changement nécessaire - les variables sont maintenant dynamiques
+        // Le JavaScript sera traité côté serveur via Handlebars
     </script>
 </body>
 </html>

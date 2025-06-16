@@ -5960,4 +5960,1886 @@ const calculateSavings = (yieldPricingDetails, nightsCount) => {
  return Math.max(0, baseTotalPrice - finalTotalPrice);
 };
 
-const determinePric
+/**
+ * Determine pricing trend based on occupancy
+ */
+
+const determinePricingTrend = (occupancyRate) => {
+  if (occupancyRate >= 85) return 'INCREASING';
+  if (occupancyRate >= 70) return 'STABLE_HIGH';
+  if (occupancyRate >= 50) return 'STABLE';
+  if (occupancyRate >= 30) return 'STABLE_LOW';
+  return 'DECREASING';
+};
+
+/**
+ * Calculate price elasticity for booking
+ */
+const calculatePriceElasticity = (booking) => {
+  if (!booking.yieldManagement?.pricingDetails) return 1.0;
+
+  const priceDetail = booking.yieldManagement.pricingDetails[0];
+  if (!priceDetail || priceDetail.basePrice === priceDetail.dynamicPrice) return 1.0;
+
+  const priceChange = (priceDetail.dynamicPrice - priceDetail.basePrice) / priceDetail.basePrice;
+  // Simplified elasticity calculation - would be more complex with demand data
+  return Math.abs(priceChange) > 0.1 ? 0.8 : 1.2;
+};
+
+/**
+ * Calculate booking's contribution to RevPAR
+ */
+const calculateBookingRevPARContribution = (booking) => {
+  const nightsCount = Math.ceil(
+    (booking.checkOutDate - booking.checkInDate) / (1000 * 60 * 60 * 24)
+  );
+  const roomNights = booking.rooms.length * nightsCount;
+  return booking.totalPrice / roomNights;
+};
+
+/**
+ * Get yield validation recommendation
+ */
+const getYieldValidationRecommendation = (booking, demandAnalysis, strategy) => {
+  const currentDemand = demandAnalysis.currentDemandLevel || 'NORMAL';
+  const revenueValue = booking.totalPrice;
+  const leadTime = Math.ceil((booking.checkInDate - new Date()) / (1000 * 60 * 60 * 24));
+
+  let recommendation = 'APPROVE';
+  let confidence = 70;
+  let reason = 'Standard validation';
+  let suggestedPriceAdjustment = 0;
+
+  // High-value bookings should be prioritized
+  if (revenueValue > 1500) {
+    confidence = 90;
+    reason = 'High-value booking - prioritize approval';
+  }
+
+  // Adjust based on demand and lead time
+  if (currentDemand === 'HIGH' || currentDemand === 'VERY_HIGH') {
+    if (leadTime <= 7) {
+      suggestedPriceAdjustment = 10; // Suggest 10% increase
+      reason = 'High demand + short lead time - consider price increase';
+    }
+    confidence += 10;
+  }
+
+  if (currentDemand === 'LOW' || currentDemand === 'VERY_LOW') {
+    if (revenueValue < 500) {
+      recommendation = 'REVIEW';
+      confidence = 50;
+      reason = 'Low demand + low value - review necessity';
+    }
+  }
+
+  return {
+    recommendation,
+    confidence,
+    reason,
+    demandLevel: currentDemand,
+    suggestedPriceAdjustment,
+    factors: {
+      revenueValue,
+      leadTime,
+      currentDemand,
+      strategy,
+    },
+  };
+};
+
+/**
+ * Calculate yield performance score
+ */
+const calculateYieldPerformance = (booking) => {
+  if (!booking.yieldManagement?.enabled) return 50;
+
+  let score = 50;
+  const pricing = booking.yieldManagement.pricingDetails?.[0];
+
+  if (pricing) {
+    // Score based on price optimization
+    if (pricing.dynamicPrice > pricing.basePrice) {
+      score += 20; // Positive for revenue increase
+    }
+
+    // Score based on demand alignment
+    const demandLevel = booking.yieldManagement.demandLevel;
+    if (demandLevel === 'HIGH' || demandLevel === 'VERY_HIGH') {
+      score += 15;
+    }
+
+    // Score based on booking timing
+    const leadTime = Math.ceil((booking.checkInDate - booking.createdAt) / (1000 * 60 * 60 * 24));
+    if (leadTime <= 7) score += 10; // Last-minute bookings
+    if (leadTime > 30) score += 5; // Early bookings
+  }
+
+  return Math.min(100, Math.max(0, score));
+};
+
+/**
+ * Calculate final yield score after checkout
+ */
+const calculateFinalYieldScore = (booking) => {
+  let score = calculateYieldPerformance(booking);
+
+  // Adjust based on actual performance
+  if (booking.actualStayDuration === booking.numberOfNights) {
+    score += 5; // No early checkout
+  }
+
+  if (booking.extrasTotal > 0) {
+    score += 10; // Additional revenue from extras
+  }
+
+  return Math.min(100, score);
+};
+
+/**
+ * Generate post-stay recommendations
+ */
+const generatePostStayRecommendations = (booking) => {
+  const recommendations = [];
+
+  if (!booking.yieldManagement?.enabled) {
+    recommendations.push({
+      type: 'YIELD_ADOPTION',
+      message: 'Consider enabling yield management for this room type',
+      priority: 'MEDIUM',
+    });
+  }
+
+  if (booking.extrasTotal === 0) {
+    recommendations.push({
+      type: 'UPSELL_OPPORTUNITY',
+      message: 'Guest did not purchase extras - review upselling strategies',
+      priority: 'LOW',
+    });
+  }
+
+  const yieldScore = calculateFinalYieldScore(booking);
+  if (yieldScore < 60) {
+    recommendations.push({
+      type: 'YIELD_OPTIMIZATION',
+      message: 'Low yield performance - review pricing strategy',
+      priority: 'HIGH',
+    });
+  }
+
+  return recommendations;
+};
+
+/**
+ * Calculate rebooking probability
+ */
+const calculateRebookingProbability = (daysUntilCheckIn) => {
+  if (daysUntilCheckIn <= 1) return 0.1;
+  if (daysUntilCheckIn <= 3) return 0.3;
+  if (daysUntilCheckIn <= 7) return 0.6;
+  if (daysUntilCheckIn <= 14) return 0.8;
+  return 0.9;
+};
+
+/**
+ * Generate cancellation recommendation
+ */
+const generateCancellationRecommendation = (
+  daysUntilCheckIn,
+  rebookingProbability,
+  currentDemand
+) => {
+  if (rebookingProbability > 0.7 && (currentDemand === 'HIGH' || currentDemand === 'VERY_HIGH')) {
+    return {
+      action: 'PROMOTE_AVAILABILITY',
+      reason: 'High rebooking probability with strong demand',
+      urgency: 'HIGH',
+    };
+  }
+
+  if (rebookingProbability < 0.3) {
+    return {
+      action: 'OFFER_INCENTIVE',
+      reason: 'Low rebooking probability - consider promotional pricing',
+      urgency: 'MEDIUM',
+    };
+  }
+
+  return {
+    action: 'MONITOR',
+    reason: 'Standard rebooking probability',
+    urgency: 'LOW',
+  };
+};
+
+/**
+ * Calculate business impact of booking
+ */
+const calculateBusinessImpact = (booking) => {
+  const revenueValue = booking.totalPrice;
+  const roomNights =
+    booking.rooms.length *
+    Math.ceil((booking.checkOutDate - booking.checkInDate) / (1000 * 60 * 60 * 24));
+
+  if (revenueValue > 2000 || roomNights > 10) return 'HIGH';
+  if (revenueValue > 1000 || roomNights > 5) return 'MEDIUM';
+  return 'LOW';
+};
+
+/**
+ * Generate invoice with yield data
+ */
+const generateInvoiceWithYieldData = async (booking, includeYieldData = false) => {
+  const baseInvoice = await generateInvoiceData(booking);
+
+  if (!includeYieldData || !booking.yieldManagement?.enabled) {
+    return baseInvoice;
+  }
+
+  // Add yield management section
+  baseInvoice.yieldManagement = {
+    enabled: true,
+    strategy: booking.yieldManagement.strategy,
+    demandLevel: booking.yieldManagement.demandLevel,
+    priceOptimization: {
+      basePrice: booking.yieldManagement.pricingDetails?.[0]?.basePrice,
+      optimizedPrice: booking.yieldManagement.pricingDetails?.[0]?.dynamicPrice,
+      optimization:
+        booking.yieldManagement.pricingDetails?.[0]?.dynamicPrice >
+        booking.yieldManagement.pricingDetails?.[0]?.basePrice
+          ? 'INCREASED'
+          : 'STANDARD',
+    },
+    performanceScore:
+      booking.yieldManagement.checkOutData?.yieldPerformanceScore ||
+      calculateYieldPerformance(booking),
+  };
+
+  return baseInvoice;
+};
+
+/**
+ * Generate yield action items
+ */
+const generateYieldActionItems = (recommendations, demandAnalysis, yieldPerformance) => {
+  const actionItems = [];
+
+  if (recommendations.suggestions?.length > 0) {
+    actionItems.push({
+      type: 'PRICING_OPTIMIZATION',
+      priority: 'HIGH',
+      action: 'Review and apply pricing recommendations',
+      impact: 'Revenue increase potential',
+    });
+  }
+
+  if (demandAnalysis.trend === 'INCREASING') {
+    actionItems.push({
+      type: 'DEMAND_MONITORING',
+      priority: 'MEDIUM',
+      action: 'Monitor demand surge and adjust pricing accordingly',
+      impact: 'Maximize revenue during high demand',
+    });
+  }
+
+  if (yieldPerformance.averageYieldScore < 60) {
+    actionItems.push({
+      type: 'STRATEGY_REVIEW',
+      priority: 'HIGH',
+      action: 'Review yield management strategy effectiveness',
+      impact: 'Improve overall yield performance',
+    });
+  }
+
+  return actionItems;
+};
+
+/**
+ * Generate yield insights
+ */
+const generateYieldInsights = (performanceData, overallMetrics, revenueOptimization) => {
+  const insights = [];
+
+  if (revenueOptimization > 10) {
+    insights.push({
+      type: 'SUCCESS',
+      message: `Yield management increased revenue by ${revenueOptimization.toFixed(1)}%`,
+      impact: 'HIGH',
+    });
+  }
+
+  if (overallMetrics.avgYieldScore < 60) {
+    insights.push({
+      type: 'WARNING',
+      message: 'Below-average yield performance detected',
+      recommendation: 'Review pricing strategy and demand forecasting',
+      impact: 'MEDIUM',
+    });
+  }
+
+  const optimizationRate =
+    overallMetrics.totalBookings > 0
+      ? (overallMetrics.optimizedBookings / overallMetrics.totalBookings) * 100
+      : 0;
+
+  if (optimizationRate < 50) {
+    insights.push({
+      type: 'OPPORTUNITY',
+      message: `Only ${optimizationRate.toFixed(1)}% of bookings are yield-optimized`,
+      recommendation: 'Increase yield management adoption',
+      impact: 'HIGH',
+    });
+  }
+
+  return insights;
+};
+
+/**
+ * Calculate revenue contribution
+ */
+const calculateRevenueContribution = (booking) => {
+  const nightsCount = Math.ceil(
+    (booking.checkOutDate - booking.checkInDate) / (1000 * 60 * 60 * 24)
+  );
+  const roomNights = booking.rooms.length * nightsCount;
+
+  return {
+    totalRevenue: booking.totalPrice,
+    revenuePerNight: booking.totalPrice / nightsCount,
+    revenuePerRoom: booking.totalPrice / booking.rooms.length,
+    revPARContribution: booking.totalPrice / roomNights,
+  };
+};
+
+/**
+ * ================================
+ * NOUVELLES FONCTIONS RÉEL-TIME BOOKING MANAGEMENT
+ * ================================
+ */
+
+/**
+ * @desc    Subscribe to real-time booking updates
+ * @route   POST /api/bookings/subscribe
+ * @access  All authenticated users
+ */
+const subscribeToBookingUpdates = async (req, res) => {
+  try {
+    const { hotelId, bookingIds = [], eventTypes = [] } = req.body;
+
+    // Subscribe user to booking updates
+    const subscriptionData = {
+      userId: req.user.id,
+      hotelId: hotelId || 'ALL',
+      bookingIds,
+      eventTypes: eventTypes.length > 0 ? eventTypes : ['ALL'],
+      subscribedAt: new Date(),
+    };
+
+    // Join relevant Socket.io rooms
+    if (hotelId) {
+      socketService.sendUserNotification(req.user.id, 'JOIN_HOTEL_ROOM', {
+        hotelId,
+        room: `hotel-${hotelId}`,
+      });
+    }
+
+    bookingIds.forEach((bookingId) => {
+      socketService.sendUserNotification(req.user.id, 'JOIN_BOOKING_ROOM', {
+        bookingId,
+        room: `booking-${bookingId}`,
+      });
+    });
+
+    // Send current status for requested bookings
+    if (bookingIds.length > 0) {
+      const bookings = await Booking.find({
+        _id: { $in: bookingIds },
+        $or: [
+          { customer: req.user.id },
+          { createdBy: req.user.id },
+          ...(req.user.role !== USER_ROLES.CLIENT ? [{}] : []),
+        ],
+      }).select('_id status totalPrice checkInDate checkOutDate');
+
+      socketService.sendUserNotification(req.user.id, 'BOOKING_STATUS_BATCH', {
+        bookings: bookings.map((b) => ({
+          id: b._id,
+          status: b.status,
+          totalPrice: b.totalPrice,
+          checkInDate: b.checkInDate,
+          checkOutDate: b.checkOutDate,
+        })),
+        subscribedAt: new Date(),
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Successfully subscribed to real-time updates',
+      data: {
+        subscription: subscriptionData,
+        activeConnections: {
+          bookings: bookingIds.length,
+          hotels: hotelId ? 1 : 0,
+        },
+        capabilities: {
+          realTimeStatus: true,
+          instantNotifications: true,
+          liveAvailability: !!hotelId,
+          yieldUpdates: req.user.role !== USER_ROLES.CLIENT,
+          loyaltyUpdates: true,
+        },
+      },
+    });
+  } catch (error) {
+    console.error('Error subscribing to booking updates:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erreur lors de la souscription aux mises à jour',
+    });
+  }
+};
+
+/**
+ * @desc    Get live availability for specific booking modification
+ * @route   GET /api/bookings/:id/live-availability
+ * @access  Authenticated users
+ */
+const getLiveAvailabilityForBooking = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { newCheckInDate, newCheckOutDate, newRoomTypes } = req.query;
+
+    const booking = await Booking.findById(id).populate('hotel', 'name');
+
+    if (!booking) {
+      return res.status(404).json({
+        success: false,
+        message: 'Réservation non trouvée',
+      });
+    }
+
+    // Permission check
+    if (req.user.role === USER_ROLES.CLIENT && booking.customer.toString() !== req.user.id) {
+      return res.status(403).json({
+        success: false,
+        message: 'Accès non autorisé',
+      });
+    }
+
+    const checkIn = newCheckInDate ? new Date(newCheckInDate) : booking.checkInDate;
+    const checkOut = newCheckOutDate ? new Date(newCheckOutDate) : booking.checkOutDate;
+
+    // Get real-time availability
+    const availability = await availabilityRealtimeService.getRealTimeAvailability(
+      booking.hotel._id,
+      checkIn,
+      checkOut
+    );
+
+    // Calculate pricing for new dates/rooms if yield management enabled
+    let pricingUpdate = null;
+    if (booking.hotel.yieldManagement?.enabled && (newCheckInDate || newCheckOutDate || newRoomTypes)) {
+      try {
+        const roomType = newRoomTypes ? newRoomTypes.split(',')[0] : booking.rooms[0].type;
+        const yieldPricing = await yieldManager.calculateDynamicPrice({
+          hotelId: booking.hotel._id,
+          roomType,
+          checkInDate: checkIn,
+          checkOutDate: checkOut,
+          strategy: booking.hotel.yieldManagement.strategy || 'MODERATE',
+        });
+
+        pricingUpdate = {
+          currentPrice: booking.totalPrice,
+          newPrice: yieldPricing.totalPrice,
+          priceDifference: yieldPricing.totalPrice - booking.totalPrice,
+          yieldFactors: yieldPricing.factors,
+        };
+      } catch (error) {
+        console.error('Error calculating yield pricing update:', error);
+      }
+    }
+
+    // Broadcast availability request for analytics
+    socketService.sendHotelNotification(booking.hotel._id, 'AVAILABILITY_CHECK', {
+      bookingId: booking._id,
+      requestedDates: { checkIn, checkOut },
+      requestedBy: req.user.id,
+      modificationType: newCheckInDate || newCheckOutDate ? 'DATE_CHANGE' : 'ROOM_CHANGE',
+      timestamp: new Date(),
+    });
+
+    res.status(200).json({
+      success: true,
+      data: {
+        bookingId: booking._id,
+        hotelName: booking.hotel.name,
+        currentDates: {
+          checkIn: booking.checkInDate,
+          checkOut: booking.checkOutDate,
+        },
+        requestedDates: { checkIn, checkOut },
+        availability: availability.rooms,
+        summary: availability.summary,
+        pricingUpdate,
+        modificationFeasible: Object.values(availability.rooms).some(
+          (room) => room.availableRooms > 0
+        ),
+        realTimeTracking: {
+          lastUpdated: new Date(),
+          nextUpdate: new Date(Date.now() + 30000), // 30 seconds
+        },
+      },
+    });
+  } catch (error) {
+    console.error('Error getting live availability:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erreur lors de la récupération de la disponibilité',
+    });
+  }
+};
+
+/**
+ * @desc    Send instant notification for booking events
+ * @route   POST /api/bookings/:id/notify
+ * @access  Admin + Receptionist
+ */
+const sendInstantBookingNotification = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { message, type = 'INFO', recipients = ['customer'], urgent = false } = req.body;
+
+    const booking = await Booking.findById(id)
+      .populate('customer', 'firstName lastName email')
+      .populate('hotel', 'name');
+
+    if (!booking) {
+      return res.status(404).json({
+        success: false,
+        message: 'Réservation non trouvée',
+      });
+    }
+
+    const notificationData = {
+      bookingId: booking._id,
+      message,
+      type,
+      urgent,
+      senderRole: req.user.role,
+      senderId: req.user.id,
+      hotelName: booking.hotel.name,
+      customerName: `${booking.customer.firstName} ${booking.customer.lastName}`,
+      timestamp: new Date(),
+    };
+
+    // Send to specified recipients
+    const notifications = [];
+
+    if (recipients.includes('customer')) {
+      notifications.push(
+        socketService.sendUserNotification(booking.customer._id, 'BOOKING_INSTANT_MESSAGE', {
+          ...notificationData,
+          priority: urgent ? 'HIGH' : 'NORMAL',
+        })
+      );
+    }
+
+    if (recipients.includes('hotel') || recipients.includes('staff')) {
+      notifications.push(
+        socketService.sendHotelNotification(booking.hotel._id, 'STAFF_INSTANT_MESSAGE', {
+          ...notificationData,
+          forBooking: booking._id,
+        })
+      );
+    }
+
+    if (recipients.includes('admin')) {
+      notifications.push(
+        socketService.sendAdminNotification('BOOKING_INSTANT_MESSAGE', notificationData)
+      );
+    }
+
+    await Promise.all(notifications);
+
+    // Log notification in booking history
+    booking.communicationHistory = [
+      ...(booking.communicationHistory || []),
+      {
+        type: 'INSTANT_NOTIFICATION',
+        message,
+        sentBy: req.user.id,
+        sentTo: recipients,
+        sentAt: new Date(),
+        urgent,
+      },
+    ];
+
+    await booking.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Notification envoyée avec succès',
+      data: {
+        bookingId: booking._id,
+        notificationsSent: recipients.length,
+        recipients,
+        timestamp: new Date(),
+        messageId: `msg-${Date.now()}`,
+      },
+    });
+  } catch (error) {
+    console.error('Error sending instant notification:', error);
+    res.status(500).json({
+      success: false,
+      message: "Erreur lors de l'envoi de la notification",
+    });
+  }
+};
+
+/**
+ * @desc    Get real-time booking analytics
+ * @route   GET /api/bookings/analytics/realtime
+ * @access  Admin + Receptionist
+ */
+const getRealTimeBookingAnalytics = async (req, res) => {
+  try {
+    const { hotelId, period = '24h' } = req.query;
+
+    const periodMap = {
+      '1h': 1,
+      '24h': 24,
+      '7d': 24 * 7,
+    };
+
+    const hours = periodMap[period] || 24;
+    const startTime = new Date(Date.now() - hours * 60 * 60 * 1000);
+
+    const query = {
+      createdAt: { $gte: startTime },
+    };
+
+    if (hotelId) {
+      query.hotel = hotelId;
+    }
+
+    // Real-time booking metrics
+    const [
+      recentBookings,
+      statusDistribution,
+      revenueMetrics,
+      sourceAnalytics,
+      hourlyTrends,
+    ] = await Promise.all([
+      Booking.find(query)
+        .populate('hotel', 'name')
+        .populate('customer', 'firstName lastName loyalty')
+        .sort({ createdAt: -1 })
+        .limit(50)
+        .select('status totalPrice source createdAt yieldManagement loyaltyProgram'),
+
+      Booking.aggregate([
+        { $match: query },
+        {
+          $group: {
+            _id: '$status',
+            count: { $sum: 1 },
+            totalValue: { $sum: '$totalPrice' },
+          },
+        },
+      ]),
+
+      Booking.aggregate([
+        { $match: query },
+        {
+          $group: {
+            _id: null,
+            totalRevenue: { $sum: '$totalPrice' },
+            avgBookingValue: { $avg: '$totalPrice' },
+            totalBookings: { $sum: 1 },
+            yieldOptimized: {
+              $sum: { $cond: ['$yieldManagement.enabled', 1, 0] },
+            },
+            loyaltyBookings: {
+              $sum: { $cond: ['$loyaltyProgram.discountApplied', 1, 0] },
+            },
+          },
+        },
+      ]),
+
+      Booking.aggregate([
+        { $match: query },
+        {
+          $group: {
+            _id: '$source',
+            count: { $sum: 1 },
+            revenue: { $sum: '$totalPrice' },
+          },
+        },
+      ]),
+
+      Booking.aggregate([
+        { $match: query },
+        {
+          $group: {
+            _id: { $hour: '$createdAt' },
+            bookings: { $sum: 1 },
+            revenue: { $sum: '$totalPrice' },
+          },
+        },
+        { $sort: { _id: 1 } },
+      ]),
+    ]);
+
+    const analytics = {
+      period: {
+        duration: period,
+        start: startTime,
+        end: new Date(),
+      },
+      realTimeMetrics: {
+        totalBookings: recentBookings.length,
+        totalRevenue: revenueMetrics[0]?.totalRevenue || 0,
+        avgBookingValue: Math.round((revenueMetrics[0]?.avgBookingValue || 0) * 100) / 100,
+        yieldOptimizationRate: revenueMetrics[0]?.totalBookings
+          ? Math.round((revenueMetrics[0].yieldOptimized / revenueMetrics[0].totalBookings) * 100)
+          : 0,
+        loyaltyAdoptionRate: revenueMetrics[0]?.totalBookings
+          ? Math.round((revenueMetrics[0].loyaltyBookings / revenueMetrics[0].totalBookings) * 100)
+          : 0,
+      },
+      statusDistribution: statusDistribution.reduce((acc, status) => {
+        acc[status._id] = {
+          count: status.count,
+          totalValue: Math.round(status.totalValue * 100) / 100,
+        };
+        return acc;
+      }, {}),
+      sourceAnalytics: sourceAnalytics.reduce((acc, source) => {
+        acc[source._id] = {
+          count: source.count,
+          revenue: Math.round(source.revenue * 100) / 100,
+        };
+        return acc;
+      }, {}),
+      hourlyTrends: hourlyTrends.map((trend) => ({
+        hour: trend._id,
+        bookings: trend.bookings,
+        revenue: Math.round(trend.revenue * 100) / 100,
+      })),
+      recentActivity: recentBookings.slice(0, 10).map((booking) => ({
+        id: booking._id,
+        hotel: booking.hotel?.name || 'Unknown',
+        customer: `${booking.customer?.firstName || ''} ${booking.customer?.lastName || ''}`.trim(),
+        status: booking.status,
+        totalPrice: booking.totalPrice,
+        source: booking.source,
+        createdAt: booking.createdAt,
+        yieldOptimized: booking.yieldManagement?.enabled || false,
+        loyaltyCustomer: booking.customer?.loyalty?.tier || null,
+        hasLoyaltyDiscount: booking.loyaltyProgram?.discountApplied || false,
+      })),
+      lastUpdated: new Date(),
+    };
+
+    // Send real-time analytics update
+    if (req.user.role !== USER_ROLES.CLIENT) {
+      socketService.sendUserNotification(req.user.id, 'ANALYTICS_UPDATE', {
+        analytics,
+        updateType: 'REAL_TIME_REFRESH',
+        subscribedBy: req.user.id,
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: analytics,
+      realTimeCapabilities: {
+        autoRefresh: true,
+        refreshInterval: 30000, // 30 seconds
+        liveUpdates: true,
+      },
+    });
+  } catch (error) {
+    console.error('Error getting real-time analytics:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erreur lors de la récupération des analytics',
+    });
+  }
+};
+
+/**
+ * @desc    Get real-time status of specific booking
+ * @route   GET /api/bookings/:id/status/realtime
+ * @access  Authenticated users (with permissions)
+ */
+const getRealTimeBookingStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const booking = await Booking.findById(id)
+      .populate('hotel', 'name code')
+      .populate('customer', 'firstName lastName loyalty')
+      .populate('rooms.room', 'number type status')
+      .populate('createdBy updatedBy', 'firstName lastName role');
+
+    if (!booking) {
+      return res.status(404).json({
+        success: false,
+        message: 'Réservation non trouvée',
+      });
+    }
+
+    // Permission check
+    if (req.user.role === USER_ROLES.CLIENT && booking.customer._id.toString() !== req.user.id) {
+      return res.status(403).json({
+        success: false,
+        message: 'Accès non autorisé',
+      });
+    }
+
+    // Calculate progress percentage and next actions
+    const progressInfo = getBookingProgressPercentage(booking);
+    const nextAction = getNextBookingAction(booking, req.user.role);
+
+    // Get current room status if assigned
+    const roomStatus = [];
+    if (booking.rooms.some((r) => r.room)) {
+      for (const roomBooking of booking.rooms) {
+        if (roomBooking.room) {
+          roomStatus.push({
+            roomNumber: roomBooking.room.number,
+            roomType: roomBooking.room.type,
+            currentStatus: roomBooking.room.status,
+            assignedAt: roomBooking.assignedAt,
+          });
+        }
+      }
+    }
+
+    // Get real-time hotel occupancy context
+    let occupancyContext = null;
+    if (req.user.role !== USER_ROLES.CLIENT) {
+      try {
+        const occupancy = await availabilityRealtimeService.getRealTimeOccupancy(booking.hotel._id);
+        occupancyContext = {
+          currentOccupancy: occupancy.occupancyRate,
+          availableRooms: occupancy.availableRooms,
+          demandLevel: await getCurrentDemandLevel(booking.hotel._id),
+        };
+      } catch (error) {
+        console.error('Error getting occupancy context:', error);
+      }
+    }
+
+    const realTimeStatus = {
+      bookingId: booking._id,
+      currentStatus: booking.status,
+      progress: progressInfo,
+      nextAction,
+      timing: {
+        createdAt: booking.createdAt,
+        lastUpdated: booking.updatedAt,
+        checkInDate: booking.checkInDate,
+        checkOutDate: booking.checkOutDate,
+        timeUntilCheckIn: booking.checkInDate > new Date() 
+          ? Math.ceil((booking.checkInDate - new Date()) / (1000 * 60 * 60 * 24))
+          : 0,
+      },
+      roomStatus,
+      occupancyContext,
+      statusHistory: booking.statusHistory?.slice(-3) || [], // Last 3 status changes
+      yieldData: booking.yieldManagement ? {
+        enabled: booking.yieldManagement.enabled,
+        demandLevel: booking.yieldManagement.demandLevel,
+        performanceScore: booking.yieldManagement.performanceScore || calculateYieldPerformance(booking),
+        lastOptimization: booking.yieldManagement.lastOptimization?.optimizedAt,
+      } : null,
+      loyaltyData: booking.customer.loyalty ? {
+        customerTier: booking.customer.loyalty.tier,
+        currentPoints: booking.customer.loyalty.currentPoints,
+        pointsUsedThisBooking: booking.loyaltyProgram?.pointsUsed || 0,
+        pointsToEarn: booking.loyaltyProgram?.pointsToEarn || Math.floor(booking.totalPrice),
+        vipTreatment: booking.loyaltyProgram?.vipBenefitsApplied || false,
+      } : null,
+      lastUpdated: new Date(),
+    };
+
+    // Send real-time status to subscriber
+    socketService.sendBookingNotification(booking._id, 'STATUS_UPDATE', realTimeStatus);
+
+    res.status(200).json({
+      success: true,
+      data: realTimeStatus,
+      realTimeTracking: {
+        enabled: true,
+        nextUpdate: new Date(Date.now() + 60000), // 1 minute
+        webSocketConnected: true,
+      },
+    });
+  } catch (error) {
+    console.error('Error getting real-time booking status:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erreur lors de la récupération du statut',
+    });
+  }
+};
+
+/**
+ * @desc    Process bulk booking actions with real-time updates
+ * @route   POST /api/bookings/bulk-action
+ * @access  Admin + Receptionist
+ */
+const processBulkBookingAction = async (req, res) => {
+  try {
+    const { bookingIds, action, actionData = {} } = req.body;
+
+    if (!bookingIds || !Array.isArray(bookingIds) || bookingIds.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Liste des réservations requise',
+      });
+    }
+
+    if (!['validate', 'reject', 'auto-assign-rooms', 'send-notification'].includes(action)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Action non supportée',
+      });
+    }
+
+    // Get bookings to process
+    const bookings = await Booking.find({
+      _id: { $in: bookingIds },
+    }).populate('hotel', 'name').populate('customer', 'firstName lastName email loyalty');
+
+    if (bookings.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Aucune réservation trouvée',
+      });
+    }
+
+    const results = {
+      processed: 0,
+      successful: 0,
+      failed: 0,
+      details: [],
+    };
+
+    // Process each booking
+    for (const booking of bookings) {
+      try {
+        results.processed++;
+
+        let success = false;
+        let result = null;
+
+        switch (action) {
+          case 'validate':
+            if (booking.status === BOOKING_STATUS.PENDING) {
+              // Simplified validation for bulk operation
+              booking.status = BOOKING_STATUS.CONFIRMED;
+              booking.confirmedAt = new Date();
+              booking.confirmedBy = req.user.id;
+
+              // Attribution points loyalty après validation en masse
+              if (booking.customer.loyalty?.enrolledAt) {
+                try {
+                  const loyaltyResult = await handleLoyaltyPointsAttribution(
+                    booking.customer._id,
+                    booking._id,
+                    'BOOKING_CONFIRMED',
+                    {
+                      source: 'BULK_VALIDATION',
+                      confirmedBy: req.user.id
+                    }
+                  );
+
+                  if (loyaltyResult.success) {
+                    booking.loyaltyProgram = booking.loyaltyProgram || {};
+                    booking.loyaltyProgram.pointsEarned = loyaltyResult.points;
+                    booking.loyaltyProgram.earnedAt = new Date();
+                  }
+                } catch (loyaltyError) {
+                  console.warn(`Loyalty processing failed for booking ${booking._id}:`, loyaltyError.message);
+                }
+              }
+
+              await booking.save();
+              success = true;
+              result = 'Validated successfully';
+
+              // Send notifications
+              socketService.sendUserNotification(booking.customer._id, 'BOOKING_BULK_VALIDATED', {
+                bookingId: booking._id,
+                hotelName: booking.hotel.name,
+                checkInDate: booking.checkInDate,
+                message: 'Votre réservation a été confirmée',
+              });
+            } else {
+              result = `Cannot validate - status is ${booking.status}`;
+            }
+            break;
+
+          case 'reject':
+            if (booking.status === BOOKING_STATUS.PENDING) {
+              booking.status = BOOKING_STATUS.REJECTED;
+              booking.rejectedAt = new Date();
+              booking.rejectedBy = req.user.id;
+              booking.rejectionReason = actionData.reason || 'Bulk rejection';
+              await booking.save();
+              success = true;
+              result = 'Rejected successfully';
+
+              socketService.sendUserNotification(booking.customer._id, 'BOOKING_BULK_REJECTED', {
+                bookingId: booking._id,
+                reason: booking.rejectionReason,
+                message: 'Votre réservation a été refusée',
+              });
+            } else {
+              result = `Cannot reject - status is ${booking.status}`;
+            }
+            break;
+
+          case 'send-notification':
+            socketService.sendUserNotification(booking.customer._id, 'BULK_NOTIFICATION', {
+              bookingId: booking._id,
+              message: actionData.message || 'Notification from hotel',
+              type: actionData.type || 'INFO',
+              senderRole: req.user.role,
+            });
+            success = true;
+            result = 'Notification sent';
+            break;
+
+          default:
+            result = 'Action not implemented';
+        }
+
+        results.details.push({
+          bookingId: booking._id,
+          customer: `${booking.customer.firstName} ${booking.customer.lastName}`,
+          hotel: booking.hotel.name,
+          success,
+          result,
+        });
+
+        if (success) results.successful++;
+        else results.failed++;
+
+      } catch (error) {
+        console.error(`Error processing booking ${booking._id}:`, error);
+        results.failed++;
+        results.details.push({
+          bookingId: booking._id,
+          customer: `${booking.customer?.firstName || ''} ${booking.customer?.lastName || ''}`,
+          hotel: booking.hotel?.name || 'Unknown',
+          success: false,
+          result: error.message,
+        });
+      }
+    }
+
+    // Send bulk operation summary
+    socketService.sendAdminNotification('BULK_OPERATION_COMPLETED', {
+      action,
+      operatorId: req.user.id,
+      results,
+      timestamp: new Date(),
+    });
+
+    res.status(200).json({
+      success: true,
+      message: `Opération en masse complétée`,
+      data: {
+        action,
+        results,
+        timestamp: new Date(),
+      },
+    });
+  } catch (error) {
+    console.error('Error processing bulk booking action:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erreur lors de l\'opération en masse',
+    });
+  }
+};
+
+/**
+ * ================================
+ * HELPER FUNCTIONS POUR REAL-TIME FUNCTIONALITY
+ * ================================
+ */
+
+/**
+ * Calculate booking progress percentage
+ */
+const getBookingProgressPercentage = (booking) => {
+  const statusPoints = {
+    [BOOKING_STATUS.PENDING]: 25,
+    [BOOKING_STATUS.CONFIRMED]: 50,
+    [BOOKING_STATUS.CHECKED_IN]: 75,
+    [BOOKING_STATUS.COMPLETED]: 100,
+    [BOOKING_STATUS.CANCELLED]: 0,
+    [BOOKING_STATUS.REJECTED]: 0,
+    [BOOKING_STATUS.NO_SHOW]: 0,
+  };
+
+  const baseProgress = statusPoints[booking.status] || 0;
+
+  // Add bonus points for milestones
+  let bonusProgress = 0;
+  if (booking.rooms.some(r => r.room)) bonusProgress += 5; // Rooms assigned
+  if (booking.confirmedAt) bonusProgress += 5; // Admin confirmed
+  if (booking.loyaltyProgram?.pointsEarned) bonusProgress += 2; // Loyalty processed
+
+  return Math.min(100, baseProgress + bonusProgress);
+};
+
+/**
+ * Get next logical action for booking
+ */
+const getNextBookingAction = (booking, userRole) => {
+  switch (booking.status) {
+    case BOOKING_STATUS.PENDING:
+      if (userRole === USER_ROLES.ADMIN) {
+        return {
+          action: 'VALIDATE',
+          description: 'Valider ou rejeter la réservation',
+          urgency: 'HIGH',
+          estimated_time: '5 minutes',
+        };
+      }
+      return {
+        action: 'WAIT',
+        description: 'En attente de validation',
+        urgency: 'LOW',
+        estimated_time: '24 heures',
+      };
+
+    case BOOKING_STATUS.CONFIRMED:
+      if ([USER_ROLES.ADMIN, USER_ROLES.RECEPTIONIST].includes(userRole)) {
+        if (!booking.rooms.some(r => r.room)) {
+          return {
+            action: 'ASSIGN_ROOMS',
+            description: 'Assigner les chambres',
+            urgency: 'MEDIUM',
+            estimated_time: '10 minutes',
+          };
+        }
+        const daysUntilCheckIn = Math.ceil((booking.checkInDate - new Date()) / (1000 * 60 * 60 * 24));
+        if (daysUntilCheckIn <= 1) {
+          return {
+            action: 'PREPARE_CHECKIN',
+            description: 'Préparer le check-in',
+            urgency: 'HIGH',
+            estimated_time: '30 minutes',
+          };
+        }
+      }
+      return {
+        action: 'WAIT_CHECKIN',
+        description: 'Attendre la date d\'arrivée',
+        urgency: 'LOW',
+        estimated_time: `${Math.max(0, Math.ceil((booking.checkInDate - new Date()) / (1000 * 60 * 60 * 24)))} jours`,
+      };
+
+    case BOOKING_STATUS.CHECKED_IN:
+      if ([USER_ROLES.ADMIN, USER_ROLES.RECEPTIONIST].includes(userRole)) {
+        const daysUntilCheckOut = Math.ceil((booking.checkOutDate - new Date()) / (1000 * 60 * 60 * 24));
+        if (daysUntilCheckOut <= 1) {
+          return {
+            action: 'PREPARE_CHECKOUT',
+            description: 'Préparer le check-out',
+            urgency: 'HIGH',
+            estimated_time: '30 minutes',
+          };
+        }
+        return {
+          action: 'MONITOR_STAY',
+          description: 'Surveiller le séjour',
+          urgency: 'LOW',
+          estimated_time: 'Continu',
+        };
+      }
+      return {
+        action: 'ENJOY_STAY',
+        description: 'Profiter du séjour',
+        urgency: 'LOW',
+        estimated_time: `${Math.max(0, Math.ceil((booking.checkOutDate - new Date()) / (1000 * 60 * 60 * 24)))} jours`,
+      };
+
+    case BOOKING_STATUS.COMPLETED:
+      return {
+        action: 'REVIEW_STAY',
+        description: 'Laisser un avis (optionnel)',
+        urgency: 'LOW',
+        estimated_time: '5 minutes',
+      };
+
+    default:
+      return {
+        action: 'VIEW_DETAILS',
+        description: 'Consulter les détails',
+        urgency: 'LOW',
+        estimated_time: '2 minutes',
+      };
+  }
+};
+
+/**
+ * Calculate average processing time for bookings
+ */
+const calculateAverageProcessingTime = async (hotelId = null) => {
+  const query = {
+    status: { $in: [BOOKING_STATUS.CONFIRMED, BOOKING_STATUS.COMPLETED] },
+    confirmedAt: { $exists: true },
+  };
+
+  if (hotelId) {
+    query.hotel = hotelId;
+  }
+
+  const bookings = await Booking.find(query)
+    .select('createdAt confirmedAt')
+    .limit(100)
+    .sort({ confirmedAt: -1 });
+
+  if (bookings.length === 0) return 0;
+
+  const totalProcessingTime = bookings.reduce((sum, booking) => {
+    return sum + (booking.confirmedAt - booking.createdAt);
+  }, 0);
+
+  return Math.round(totalProcessingTime / bookings.length / (1000 * 60 * 60)); // Hours
+};
+
+/**
+ * Get most active booking status
+ */
+const getMostActiveStatus = async (period = '24h') => {
+  const hours = period === '24h' ? 24 : period === '7d' ? 168 : 1;
+  const startDate = new Date(Date.now() - hours * 60 * 60 * 1000);
+
+  const statusCounts = await Booking.aggregate([
+    {
+      $match: {
+        updatedAt: { $gte: startDate },
+      },
+    },
+    {
+      $group: {
+        _id: '$status',
+        count: { $sum: 1 },
+      },
+    },
+    {
+      $sort: { count: -1 },
+    },
+    {
+      $limit: 1,
+    },
+  ]);
+
+  return statusCounts[0]?._id || BOOKING_STATUS.PENDING;
+};
+
+/**
+ * Calculate conversion rate from pending to confirmed
+ */
+const calculateConversionRate = async (period = '30d') => {
+  const days = period === '30d' ? 30 : period === '7d' ? 7 : 1;
+  const startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+
+  const [pendingCount, confirmedCount] = await Promise.all([
+    Booking.countDocuments({
+      status: BOOKING_STATUS.PENDING,
+      createdAt: { $gte: startDate },
+    }),
+    Booking.countDocuments({
+      status: { $in: [BOOKING_STATUS.CONFIRMED, BOOKING_STATUS.COMPLETED] },
+      createdAt: { $gte: startDate },
+    }),
+  ]);
+
+  const totalBookings = pendingCount + confirmedCount;
+  return totalBookings > 0 ? Math.round((confirmedCount / totalBookings) * 100) : 0;
+};
+
+/**
+ * Calculate projected occupancy based on confirmed bookings
+ */
+const calculateProjectedOccupancy = async (hotelId, date = new Date()) => {
+  const startOfDay = new Date(date);
+  startOfDay.setHours(0, 0, 0, 0);
+  const endOfDay = new Date(date);
+  endOfDay.setHours(23, 59, 59, 999);
+
+  const confirmedBookings = await Booking.find({
+    hotel: hotelId,
+    status: { $in: [BOOKING_STATUS.CONFIRMED, BOOKING_STATUS.CHECKED_IN] },
+    checkInDate: { $lte: endOfDay },
+    checkOutDate: { $gt: startOfDay },
+  }).select('rooms');
+
+  const totalRoomsBooked = confirmedBookings.reduce((sum, booking) => {
+    return sum + booking.rooms.length;
+  }, 0);
+
+  // Get total rooms for hotel (simplified - should come from hotel data)
+  const hotel = await Hotel.findById(hotelId).select('totalRooms');
+  const totalRooms = hotel?.totalRooms || 50; // Default fallback
+
+  return Math.round((totalRoomsBooked / totalRooms) * 100);
+};
+
+/**
+ * ================================
+ * HELPER FUNCTIONS DE BASE (KEEP EXISTING)
+ * ================================
+ */
+
+/**
+ * Crée un compte client pour réservation à la réception
+ */
+const createCustomerAccount = async (customerInfo, session) => {
+  const {
+    firstName,
+    lastName,
+    email,
+    phone,
+    address,
+    temporaryPassword = 'temp123',
+  } = customerInfo;
+
+  const User = require('../models/User');
+
+  const newUser = new User({
+    firstName,
+    lastName,
+    email,
+    phone,
+    address,
+    password: temporaryPassword, // Sera hashé par le middleware
+    role: USER_ROLES.CLIENT,
+    isTemporaryAccount: true,
+    mustChangePassword: true,
+    createdAt: new Date(),
+  });
+
+  return await newUser.save({ session });
+};
+
+/**
+ * Génère les données structurées de facture
+ */
+const generateInvoiceData = async (booking) => {
+  const nightsCount = Math.ceil(
+    (booking.checkOutDate - booking.checkInDate) / (1000 * 60 * 60 * 24)
+  );
+
+  return {
+    invoiceNumber: `INV-${booking._id.toString().slice(-8).toUpperCase()}`,
+    issueDate: new Date(),
+
+    // Informations hôtel
+    hotel: {
+      name: booking.hotel.name,
+      code: booking.hotel.code,
+      address: booking.hotel.address,
+      city: booking.hotel.city,
+      phone: booking.hotel.phone,
+      email: booking.hotel.email,
+    },
+
+    // Informations client
+    customer: {
+      name: `${booking.customer.firstName} ${booking.customer.lastName}`,
+      email: booking.customer.email,
+      phone: booking.customer.phone,
+      address: booking.customer.address,
+      clientType: booking.clientType,
+    },
+
+    // Détails séjour
+    stay: {
+      checkInDate: booking.checkInDate,
+      checkOutDate: booking.checkOutDate,
+      actualCheckInDate: booking.actualCheckInDate,
+      actualCheckOutDate: booking.actualCheckOutDate,
+      nightsCount,
+      actualStayDuration: booking.actualStayDuration || nightsCount,
+      numberOfGuests: booking.numberOfGuests,
+    },
+
+    // Détail chambres
+    rooms: booking.rooms.map((room) => ({
+      type: room.type,
+      roomNumber: room.room?.number || 'Non assignée',
+      basePrice: room.basePrice,
+      calculatedPrice: room.calculatedPrice,
+      nights: nightsCount,
+      total: room.calculatedPrice,
+    })),
+
+    // Extras et services
+    extras: (booking.extras || []).map((extra) => ({
+      name: extra.name,
+      category: extra.category,
+      price: extra.price,
+      quantity: extra.quantity,
+      total: extra.total,
+      addedAt: extra.addedAt,
+    })),
+
+    // Totaux
+    totals: {
+      roomsSubtotal: booking.totalPrice - (booking.extrasTotal || 0),
+      extrasSubtotal: booking.extrasTotal || 0,
+      subtotal: booking.totalPrice,
+      taxes: 0, // TODO: Implémenter calcul taxes
+      total: booking.totalPrice,
+      currency: 'EUR',
+    },
+
+    // Informations paiement
+    payment: {
+      status: booking.paymentStatus,
+      method: booking.paymentMethod || 'À définir',
+      paidAt: booking.paidAt,
+    },
+
+    // Métadonnées
+    metadata: {
+      bookingId: booking._id,
+      source: booking.source,
+      generatedAt: new Date(),
+      generatedBy: 'Système',
+    },
+  };
+};
+
+/**
+ * Recalcule le prix d'une réservation avec les tarifs actuels
+ */
+const recalculateBookingPrice = async (booking) => {
+  const hotel = await Hotel.findById(booking.hotel).select('category seasonalPricing');
+
+  let newTotalPrice = 0;
+
+  for (const roomBooking of booking.rooms) {
+    const roomPrice = calculateBookingPrice({
+      basePrice: roomBooking.basePrice,
+      roomType: roomBooking.type,
+      hotelCategory: hotel.category,
+      checkInDate: booking.checkInDate,
+      checkOutDate: booking.checkOutDate,
+      numberOfRooms: 1,
+      customSeasonalPeriods: hotel.seasonalPricing
+        ? extractSeasonalPeriods(hotel.seasonalPricing)
+        : null,
+    });
+
+    newTotalPrice += roomPrice.totalPrice;
+  }
+
+  return {
+    totalPrice: newTotalPrice + (booking.extrasTotal || 0),
+    breakdown: {
+      roomsTotal: newTotalPrice,
+      extrasTotal: booking.extrasTotal || 0,
+      numberOfRooms: booking.rooms.length,
+    },
+  };
+};
+
+/**
+ * Détermine les actions disponibles selon le statut et le rôle
+ */
+const getAvailableActions = (booking, userRole) => {
+  const actions = [];
+
+  // Actions communes selon statut
+  switch (booking.status) {
+    case BOOKING_STATUS.PENDING:
+      if (userRole === USER_ROLES.ADMIN) {
+        actions.push('validate', 'reject', 'modify', 'yield_optimize');
+      }
+      if (userRole === USER_ROLES.CLIENT) {
+        actions.push('cancel', 'modify', 'apply_loyalty_discount');
+      }
+      break;
+
+    case BOOKING_STATUS.CONFIRMED:
+      if ([USER_ROLES.ADMIN, USER_ROLES.RECEPTIONIST].includes(userRole)) {
+        actions.push('checkin', 'cancel', 'yield_analyze');
+      }
+      if (userRole === USER_ROLES.CLIENT) {
+        actions.push('cancel', 'view', 'apply_loyalty_discount');
+      }
+      break;
+
+    case BOOKING_STATUS.CHECKED_IN:
+      if ([USER_ROLES.ADMIN, USER_ROLES.RECEPTIONIST].includes(userRole)) {
+        actions.push('checkout', 'add_extras');
+      }
+      if (userRole === USER_ROLES.CLIENT) {
+        actions.push('view', 'request_service');
+      }
+      break;
+
+    case BOOKING_STATUS.COMPLETED:
+      actions.push('view_invoice');
+      if (userRole === USER_ROLES.ADMIN) {
+        actions.push('refund', 'modify_invoice', 'yield_performance');
+      }
+      break;
+
+    default:
+      actions.push('view');
+  }
+
+  return actions;
+};
+
+/**
+ * Génère une politique d'annulation pour un hôtel/date
+ */
+const generateCancellationPolicy = async (hotel, checkInDate) => {
+  return {
+    freeUntil: BUSINESS_RULES.FREE_CANCELLATION_HOURS,
+    policies: [
+      {
+        hoursBeforeCheckIn: BUSINESS_RULES.FREE_CANCELLATION_HOURS,
+        refundPercentage: 100,
+        description: 'Annulation gratuite',
+      },
+      {
+        hoursBeforeCheckIn: 12,
+        refundPercentage: 50,
+        description: 'Annulation tardive - 50% remboursé',
+      },
+      {
+        hoursBeforeCheckIn: 0,
+        refundPercentage: 0,
+        description: 'Annulation le jour même - aucun remboursement',
+      },
+    ],
+  };
+};
+
+/**
+ * Extrait les périodes saisonnières depuis la config hôtel
+ */
+const extractSeasonalPeriods = (seasonalPricing) => {
+  // TODO: Implémenter logique pour convertir seasonalPricing en périodes
+  // Pour l'instant, retourner null pour utiliser les périodes par défaut
+  return null;
+};
+
+/**
+ * Programme les notifications pour une réservation
+ */
+const scheduleBookingNotifications = async (bookingId) => {
+  console.log(`Notifications programmées pour réservation ${bookingId}`);
+
+  try {
+    const booking = await Booking.findById(bookingId)
+      .populate('customer', 'firstName lastName email phone')
+      .populate('hotel', 'name');
+
+    if (booking) {
+      // Schedule check-in reminder
+      setTimeout(
+        async () => {
+          const reminderData = {
+            bookingId: booking._id,
+            customerName: `${booking.customer.firstName} ${booking.customer.lastName}`,
+            hotelName: booking.hotel.name,
+            checkInDate: booking.checkInDate,
+            reminderType: 'check-in-24h',
+          };
+
+          socketService.sendUserNotification(booking.customer._id, 'CHECK_IN_REMINDER', {
+            ...reminderData,
+            message: 'Votre check-in est prévu dans 24h!',
+            preparationTips: [
+              "Préparez vos documents d'identité",
+              "Vérifiez votre heure d'arrivée",
+              'Contactez-nous pour toute demande spéciale',
+            ],
+          });
+
+          // Notify hotel staff
+          socketService.sendHotelNotification(booking.hotel._id, 'GUEST_ARRIVING_TOMORROW', {
+            ...reminderData,
+            roomPreparation: 'Préparer les chambres',
+            specialRequests: booking.specialRequests,
+          });
+        },
+        Math.max(0, new Date(booking.checkInDate).getTime() - Date.now() - 24 * 60 * 60 * 1000)
+      );
+    }
+  } catch (error) {
+    console.error('Error scheduling real-time notifications:', error);
+  }
+};
+
+/**
+ * Programme notification de validation
+ */
+const scheduleValidationNotification = async (bookingId, action) => {
+  console.log(`Notification ${action} programmée pour réservation ${bookingId}`);
+
+  try {
+    const booking = await Booking.findById(bookingId)
+      .populate('customer', 'firstName lastName email phone')
+      .populate('hotel', 'name');
+
+    if (booking) {
+      const notificationData = {
+        bookingId: booking._id,
+        customerName: `${booking.customer.firstName} ${booking.customer.lastName}`,
+        hotelName: booking.hotel.name,
+        action,
+        timestamp: new Date(),
+      };
+
+      if (action === 'approve') {
+        // Send immediate approval notifications
+        await Promise.all([
+          emailService.sendBookingConfirmation(booking, booking.customer, booking.hotel),
+          smsService.sendBookingConfirmation(booking, booking.customer, booking.hotel),
+        ]);
+
+        socketService.sendUserNotification(booking.customer._id, 'BOOKING_CONFIRMED_IMMEDIATE', {
+          ...notificationData,
+          message: "Votre réservation vient d'être confirmée!",
+          nextSteps: {
+            preparation: 'Préparez votre voyage',
+            contact: "L'hôtel vous contactera si nécessaire",
+            checkIn: `Check-in prévu le ${booking.checkInDate.toLocaleDateString()}`,
+          },
+        });
+      } else {
+        await emailService.sendBookingStatusUpdate(
+          booking,
+          booking.customer,
+          booking.hotel,
+          'REJECTED'
+        );
+
+        socketService.sendUserNotification(booking.customer._id, 'BOOKING_REJECTED_IMMEDIATE', {
+          ...notificationData,
+          message: 'Votre réservation a été refusée',
+          alternatives: "Essayez d'autres dates ou hôtels",
+        });
+      }
+    }
+  } catch (error) {
+    console.error('Error sending validation notifications:', error);
+  }
+};
+
+/**
+ * Enhanced comprehensive notifications with yield + loyalty data
+ */
+const sendComprehensiveNotifications = async (booking, action, context = {}) => {
+  try {
+    // Prepare enhanced notification data with yield + loyalty information
+    const notificationData = {
+      bookingId: booking._id,
+      hotelName: booking.hotel.name || 'Hotel',
+      customerName: `${booking.customer.firstName} ${booking.customer.lastName}`,
+      checkIn: booking.checkInDate,
+      checkOut: booking.checkOutDate,
+      status: booking.status,
+      action,
+      timestamp: new Date(),
+      realTimeTracking: true,
+      yieldData: context.yieldTracking
+        ? {
+            enabled: booking.yieldManagement?.enabled,
+            demandLevel: booking.yieldManagement?.demandLevel,
+            performanceScore:
+              booking.yieldManagement?.checkInData?.yieldPerformanceScore ||
+              booking.yieldManagement?.checkOutData?.yieldPerformanceScore,
+          }
+        : null,
+      loyaltyData: context.loyaltyTracking
+        ? {
+            customerTier: booking.customer.loyalty?.tier,
+            pointsEarned: booking.loyaltyProgram?.pointsEarned || 0,
+            pointsUsed: booking.loyaltyProgram?.pointsUsed || 0,
+            vipTreatment: booking.loyaltyProgram?.vipBenefitsApplied || false,
+          }
+        : null,
+      ...context,
+    };
+
+    // Enhanced notification sending based on action
+    switch (action) {
+      case 'CREATED':
+        await Promise.all([
+          emailService.sendBookingConfirmation(booking, booking.customer, booking.hotel),
+          smsService.sendBookingConfirmation(booking, booking.customer, booking.hotel),
+          broadcastBookingEvent('BOOKING_CREATED', booking, notificationData),
+        ]);
+        break;
+
+      case 'CONFIRMED':
+        await Promise.all([
+          emailService.sendBookingStatusUpdate(
+            booking,
+            booking.customer,
+            booking.hotel,
+            'CONFIRMED'
+          ),
+          smsService.sendBookingStatusUpdate(booking, booking.customer, booking.hotel, 'CONFIRMED'),
+          broadcastBookingEvent('BOOKING_CONFIRMED', booking, notificationData),
+        ]);
+        break;
+
+      case 'CHECKED_IN':
+        await Promise.all([
+          smsService.sendCheckInInstructions(
+            booking,
+            booking.customer,
+            booking.hotel,
+            context.roomNumber
+          ),
+          broadcastBookingEvent('GUEST_CHECKED_IN', booking, notificationData),
+        ]);
+        break;
+
+      case 'CHECKED_OUT':
+        await Promise.all([
+          emailService.sendBookingStatusUpdate(
+            booking,
+            booking.customer,
+            booking.hotel,
+            'COMPLETED',
+            context.reason
+          ),
+          broadcastBookingEvent('GUEST_CHECKED_OUT', booking, notificationData),
+        ]);
+        break;
+
+      case 'CANCELLED':
+        await Promise.all([
+          emailService.sendBookingStatusUpdate(
+            booking,
+            booking.customer,
+            booking.hotel,
+            'CANCELLED',
+            context.reason
+          ),
+          broadcastBookingEvent('BOOKING_CANCELLED', booking, notificationData),
+        ]);
+        break;
+    }
+  } catch (error) {
+    console.error('Error sending comprehensive notifications:', error);
+  }
+};
+
+/**
+ * ================================
+ * EXPORTS - ENHANCED WITH YIELD MANAGEMENT + LOYALTY PROGRAM
+ * ================================
+ */
+module.exports = {
+  // CRUD principal
+  createBooking,
+  getBookings,
+  getBookingById,
+  updateBooking,
+
+  // Workflow management
+  validateBooking,
+  checkInBooking,
+  checkOutBooking,
+  cancelBooking,
+
+  // Extras et services
+  addBookingExtras,
+
+  // NOUVEAU: Loyalty Program endpoints
+  applyLoyaltyDiscountToExistingBooking,
+
+  // Factures et rapports
+  getBookingInvoice,
+
+  // Statistiques
+  getBookingStats,
+
+  // Routes spécialisées staff
+  getPendingBookings,
+  getTodayCheckIns,
+
+  // Yield Management endpoints
+  getYieldRecommendations,
+  optimizeBookingYield,
+  getYieldPerformance,
+
+  // Real-time specific endpoints
+  subscribeToBookingUpdates,
+  getLiveAvailabilityForBooking,
+  sendInstantBookingNotification,
+  getRealTimeBookingAnalytics,
+  getRealTimeBookingStatus,
+  processBulkBookingAction,
+
+  // Utilitaires (pour tests et intégrations)
+  generateInvoiceData,
+  generateInvoiceWithYieldData,
+  recalculateBookingPrice,
+  getAvailableActions,
+  createCustomerAccount,
+  sendComprehensiveNotifications,
+
+  // Enhanced real-time utilities with yield + loyalty
+  broadcastBookingEvent,
+  getBookingProgressPercentage,
+  getNextBookingAction,
+  calculateAverageProcessingTime,
+  getMostActiveStatus,
+  calculateConversionRate,
+  calculateProjectedOccupancy,
+
+  // Yield management utilities
+  calculateAverageYieldMultiplier,
+  getCurrentDemandLevel,
+  calculateAverageDiscount,
+  calculateSavings,
+  determinePricingTrend,
+  calculatePriceElasticity,
+  calculateBookingRevPARContribution,
+  getYieldValidationRecommendation,
+  calculateYieldPerformance,
+  calculateFinalYieldScore,
+  generatePostStayRecommendations,
+  calculateRebookingProbability,
+  generateCancellationRecommendation,
+  calculateBusinessImpact,
+  generateYieldActionItems,
+  generateYieldInsights,
+  calculateRevenueContribution,
+
+  // NOUVEAU: Loyalty Program utilities
+  handleLoyaltyPointsAttribution,
+  calculateCompletionBonus,
+  sendLoyaltyNotifications,
+  handleLoyaltyDiscount,
+  applyLoyaltyDiscountToBooking,
+  calculateRetentionRisk,
+  calculateCustomerValue,
+  calculateCombinedPriority,
+  generateLoyaltyRecommendations,
+  getTierDisplayName,
+};

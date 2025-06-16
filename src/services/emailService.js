@@ -504,97 +504,149 @@ class EmailService {
     // ============================================================================
 
     /**
-     * Send loyalty points earned email with enhanced template
+     * Send loyalty points earned email with enhanced template (NOUVELLE VERSION COMPLÈTE)
      */
-    async sendLoyaltyPointsEmail(userEmail, loyaltyData) {
+    async sendLoyaltyPointsEmail(user, loyaltyData) {
         try {
+            // Calculer données dynamiques pour le template
+            const tierBenefits = this.getTierBenefitsDescription(user.loyalty.tier);
+            const expiringPoints = await this.getExpiringPoints(user._id);
+            const socialShareUrls = this.generateSocialShareUrls(user, loyaltyData.points.earned);
+            
             const templateData = {
-                user: loyaltyData.user,
-                points: loyaltyData.points,
-                booking: loyaltyData.booking,
-                progress: loyaltyData.progress,
-                benefits: loyaltyData.benefits,
-                redemptionOptions: loyaltyData.redemptionOptions,
-                tier: {
-                    current: loyaltyData.user.tier,
-                    display: this.getTierDisplayName(loyaltyData.user.tier),
-                    icon: this.getTierIcon(loyaltyData.user.tier),
-                    benefits: loyaltyData.benefits
+                // Données utilisateur enrichies
+                user: {
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    tier: user.loyalty.tier,
+                    tierBenefits: tierBenefits.description,
+                    tierProgress: {
+                        nextTier: user.loyalty.tierProgress.nextTier,
+                        pointsToNextTier: user.loyalty.tierProgress.pointsToNextTier,
+                        progressPercentage: user.loyalty.tierProgress.progressPercentage
+                    },
+                    activeBenefits: this.formatActiveBenefits(user.loyalty.activeBenefits),
+                    personalGoals: user.loyalty.personalGoals || null,
+                    memberSince: moment(user.loyalty.enrolledAt).format('MMMM YYYY'),
+                    lifetimePoints: user.loyalty.lifetimePoints
                 },
-                motivation: this.getMotivationalMessage(loyaltyData.points.earned),
-                nextMilestone: this.calculateNextMilestone(loyaltyData.user.tier, loyaltyData.progress),
-                year: new Date().getFullYear(),
-                loyaltyDashboardLink: `${process.env.FRONTEND_URL}/account/loyalty`,
-                redeemPointsLink: `${process.env.FRONTEND_URL}/account/loyalty/redeem`,
-                supportEmail: process.env.SUPPORT_EMAIL || 'support@hotelmanagement.com'
+                
+                // Données points enrichies
+                points: {
+                    earned: loyaltyData.points.earned,
+                    total: loyaltyData.points.total,
+                    bonusMultiplier: loyaltyData.bonusMultiplier || 1,
+                    basePoints: loyaltyData.basePoints || loyaltyData.points.earned,
+                    bonusPoints: loyaltyData.bonusPoints || 0
+                },
+                
+                // Points qui expirent (NOUVEAU)
+                pointsExpiring: expiringPoints ? {
+                    amount: expiringPoints.amount,
+                    date: moment(expiringPoints.earliestDate).format('DD/MM/YYYY')
+                } : null,
+                
+                // Récompenses disponibles mises à jour
+                rewards: this.getAvailableRewardsEnhanced(loyaltyData.points.total),
+                
+                // Données réservation (si applicable)
+                booking: loyaltyData.booking ? {
+                    confirmationNumber: loyaltyData.booking.confirmationNumber || loyaltyData.booking.bookingNumber,
+                    hotelName: loyaltyData.booking.hotel?.name || loyaltyData.booking.hotelName,
+                    totalAmount: loyaltyData.booking.totalAmount || loyaltyData.booking.totalPrice,
+                    checkInDate: loyaltyData.booking.checkInDate ? moment(loyaltyData.booking.checkInDate).format('DD/MM/YYYY') : null
+                } : null,
+                
+                // Partage social (NOUVEAU)
+                socialShare: socialShareUrls,
+                
+                // Liens et métadonnées
+                accountLink: `${process.env.FRONTEND_URL}/account/loyalty`,
+                historyLink: `${process.env.FRONTEND_URL}/account/loyalty/history`,
+                redeemLink: `${process.env.FRONTEND_URL}/account/loyalty/redeem`,
+                FRONTEND_URL: process.env.FRONTEND_URL,
+                supportEmail: process.env.SUPPORT_EMAIL || 'support@hotelmanagement.com',
+                unsubscribeLink: `${process.env.FRONTEND_URL}/unsubscribe/loyalty/${user._id}`,
+                privacyLink: `${process.env.FRONTEND_URL}/privacy`,
+                termsLink: `${process.env.FRONTEND_URL}/terms`,
+                year: new Date().getFullYear()
             };
 
             const htmlContent = this.templates.get('loyalty-points')(templateData);
 
             const mailOptions = {
                 from: `"Programme Fidélité" <${process.env.EMAIL_FROM || 'noreply@hotelmanagement.com'}>`,
-                to: userEmail,
+                to: user.email,
                 subject: `🎉 ${loyaltyData.points.earned} points gagnés ! Total: ${loyaltyData.points.total} points`,
                 html: htmlContent
             };
 
             const result = await this.transporter.sendMail(mailOptions);
-            logger.info(`Loyalty points email sent to ${userEmail}`);
+            logger.info(`Enhanced loyalty points email sent to ${user.email}`);
             return result;
         } catch (error) {
-            logger.error('Failed to send loyalty points email:', error);
+            logger.error('Failed to send enhanced loyalty points email:', error);
             throw error;
         }
     }
 
     /**
-     * Send tier upgrade celebration email
+     * Send tier upgrade celebration email (VERSION AMÉLIORÉE)
      */
-    async sendTierUpgradeEmail(userEmail, upgradeData) {
+    async sendTierUpgradeEmail(user, upgradeData) {
         try {
+            const oldBenefits = this.getTierBenefitsDescription(upgradeData.oldTier);
+            const newBenefits = this.getTierBenefitsDescription(upgradeData.newTier);
+            const unlockedBenefits = this.getUnlockedBenefits(upgradeData.oldTier, upgradeData.newTier);
+            const celebrationData = this.getTierCelebrationData(upgradeData.newTier);
+            
             const templateData = {
-                user: upgradeData.user,
+                user: {
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    tier: upgradeData.newTier,
+                    lifetimePoints: user.loyalty.lifetimePoints
+                },
                 upgrade: {
                     oldTier: upgradeData.oldTier,
                     newTier: upgradeData.newTier,
                     oldTierDisplay: this.getTierDisplayName(upgradeData.oldTier),
                     newTierDisplay: this.getTierDisplayName(upgradeData.newTier),
                     newTierIcon: this.getTierIcon(upgradeData.newTier),
-                    bonusPoints: upgradeData.bonusPoints,
-                    achievementDate: new Date()
+                    bonusPoints: upgradeData.bonusPoints || 0,
+                    achievementDate: moment().format('DD/MM/YYYY')
                 },
                 benefits: {
-                    old: upgradeData.oldBenefits,
-                    new: upgradeData.newBenefits,
-                    unlocked: this.getUnlockedBenefits(upgradeData.oldTier, upgradeData.newTier)
+                    old: oldBenefits.benefits,
+                    new: newBenefits.benefits,
+                    unlocked: unlockedBenefits
                 },
-                celebration: {
-                    title: `Félicitations ! Vous êtes maintenant niveau ${this.getTierDisplayName(upgradeData.newTier)} !`,
-                    message: this.getTierUpgradeMessage(upgradeData.newTier),
-                    badge: this.getTierBadgeUrl(upgradeData.newTier)
+                celebration: celebrationData,
+                links: {
+                    loyaltyDashboard: `${process.env.FRONTEND_URL}/account/loyalty`,
+                    benefitsGuide: `${process.env.FRONTEND_URL}/loyalty/benefits/${upgradeData.newTier.toLowerCase()}`,
+                    newBooking: `${process.env.FRONTEND_URL}/search`
                 },
                 year: new Date().getFullYear(),
-                loyaltyDashboardLink: `${process.env.FRONTEND_URL}/account/loyalty`,
-                benefitsGuideLink: `${process.env.FRONTEND_URL}/loyalty/benefits/${upgradeData.newTier.toLowerCase()}`,
                 supportEmail: process.env.SUPPORT_EMAIL || 'support@hotelmanagement.com'
             };
 
-            // Utiliser template spécialisé ou fallback
+            // Utiliser template spécialisé ou fallback sur loyalty-points
             const templateName = this.templates.has('tier-upgrade') ? 'tier-upgrade' : 'loyalty-points';
             const htmlContent = this.templates.get(templateName)(templateData);
 
             const mailOptions = {
                 from: `"Programme Fidélité" <${process.env.EMAIL_FROM || 'noreply@hotelmanagement.com'}>`,
-                to: userEmail,
+                to: user.email,
                 subject: `🏆 Promotion niveau ${this.getTierDisplayName(upgradeData.newTier)} - Félicitations !`,
                 html: htmlContent
             };
 
             const result = await this.transporter.sendMail(mailOptions);
-            logger.info(`Tier upgrade email sent to ${userEmail} for ${upgradeData.newTier}`);
+            logger.info(`Enhanced tier upgrade email sent to ${user.email} for ${upgradeData.newTier}`);
             return result;
         } catch (error) {
-            logger.error('Failed to send tier upgrade email:', error);
+            logger.error('Failed to send enhanced tier upgrade email:', error);
             throw error;
         }
     }
@@ -882,6 +934,219 @@ class EmailService {
     // ============================================================================
 
     /**
+     * Get tier benefits description (NOUVELLE MÉTHODE)
+     */
+    getTierBenefitsDescription(tier) {
+        const descriptions = {
+            'BRONZE': {
+                description: 'Membre Bronze - Gagnez des points sur chaque réservation',
+                benefits: ['Points sur réservations', 'Offres exclusives']
+            },
+            'SILVER': {
+                description: 'Membre Argent - Bénéfices privilégiés et check-in prioritaire',
+                benefits: ['20% bonus points', 'Check-in prioritaire', '1 upgrade gratuit/an']
+            },
+            'GOLD': {
+                description: 'Membre Or - Accès aux services premium et petit-déjeuner gratuit',
+                benefits: ['50% bonus points', 'Petit-déjeuner gratuit', '2 upgrades/an', 'Check-out tardif']
+            },
+            'PLATINUM': {
+                description: 'Membre Platine - Statut VIP avec accès lounge exclusif',
+                benefits: ['Double points', 'Accès lounge VIP', '1 nuit gratuite/an', 'Upgrade automatique']
+            },
+            'DIAMOND': {
+                description: 'Membre Diamant - Le niveau le plus prestigieux avec service concierge',
+                benefits: ['2.5x points', 'Suite upgrade automatique', '2 nuits gratuites/an', 'Service concierge dédié']
+            }
+        };
+        return descriptions[tier] || descriptions['BRONZE'];
+    }
+
+    /**
+     * Format active benefits for email display (NOUVELLE MÉTHODE)
+     */
+    formatActiveBenefits(activeBenefits) {
+        if (!activeBenefits || activeBenefits.length === 0) return [];
+        
+        return activeBenefits.filter(benefit => 
+            benefit.isActive && 
+            benefit.validUntil > new Date() &&
+            benefit.usageCount < benefit.maxUsage
+        ).map(benefit => ({
+            type: benefit.type,
+            description: benefit.description,
+            icon: this.getBenefitIcon(benefit.type),
+            validUntil: moment(benefit.validUntil).format('DD/MM/YYYY'),
+            usageCount: benefit.usageCount,
+            maxUsage: benefit.maxUsage
+        }));
+    }
+
+    /**
+     * Get benefit icon (NOUVELLE MÉTHODE)
+     */
+    getBenefitIcon(benefitType) {
+        const icons = {
+            'DISCOUNT': '💰',
+            'UPGRADE': '⬆️',
+            'FREE_NIGHT': '🏨',
+            'EARLY_CHECKIN': '🕐',
+            'LATE_CHECKOUT': '🕕',
+            'BONUS_POINTS': '⭐',
+            'FREE_BREAKFAST': '🍳',
+            'LOUNGE_ACCESS': '🥂',
+            'FREE_WIFI': '📶',
+            'ROOM_SERVICE_DISCOUNT': '🍽️',
+            'SPA_DISCOUNT': '💆',
+            'PARKING_FREE': '🚗',
+            'AIRPORT_TRANSFER': '✈️'
+        };
+        return icons[benefitType] || '🎁';
+    }
+
+    /**
+     * Get expiring points for a user (NOUVELLE MÉTHODE)
+     */
+    async getExpiringPoints(userId) {
+        try {
+            const LoyaltyTransaction = require('../models/LoyaltyTransaction');
+            
+            // Chercher les points qui expirent dans les 30 prochains jours
+            const thirtyDaysFromNow = new Date();
+            thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
+            
+            const expiringTransactions = await LoyaltyTransaction.find({
+                user: userId,
+                pointsAmount: { $gt: 0 }, // Seulement les gains
+                status: 'COMPLETED',
+                expiresAt: { 
+                    $gte: new Date(), 
+                    $lte: thirtyDaysFromNow 
+                }
+            }).sort({ expiresAt: 1 });
+            
+            if (expiringTransactions.length === 0) return null;
+            
+            const totalExpiring = expiringTransactions.reduce((sum, tx) => sum + tx.pointsAmount, 0);
+            const earliestExpiry = expiringTransactions[0].expiresAt;
+            
+            return {
+                amount: totalExpiring,
+                earliestDate: earliestExpiry,
+                transactions: expiringTransactions.length
+            };
+        } catch (error) {
+            logger.error('Error getting expiring points:', error);
+            return null;
+        }
+    }
+
+    /**
+     * Generate social share URLs (NOUVELLE MÉTHODE)
+     */
+    generateSocialShareUrls(user, pointsEarned) {
+        const shareText = `Je viens de gagner ${pointsEarned} points fidélité ! Niveau ${user.loyalty.tier} 🏆`;
+        const shareUrl = `${process.env.FRONTEND_URL}/loyalty/share/${user._id}`;
+        
+        return {
+            facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}&quote=${encodeURIComponent(shareText)}`,
+            twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`,
+            linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}&summary=${encodeURIComponent(shareText)}`
+        };
+    }
+
+    /**
+     * Get enhanced available rewards (AMÉLIORATION DE LA MÉTHODE EXISTANTE)
+     */
+    getAvailableRewardsEnhanced(points) {
+        const rewards = [
+            {
+                name: 'Réduction 1€',
+                points: 100,
+                type: 'discount',
+                icon: '💰',
+                available: points >= 100,
+                pointsNeeded: points < 100 ? 100 - points : 0
+            },
+            {
+                name: 'Petit-déjeuner',
+                points: 250,
+                type: 'breakfast',
+                icon: '🍳',
+                available: points >= 250,
+                pointsNeeded: points < 250 ? 250 - points : 0
+            },
+            {
+                name: 'Réduction 5€',
+                points: 500,
+                type: 'discount',
+                icon: '💰',
+                available: points >= 500,
+                pointsNeeded: points < 500 ? 500 - points : 0
+            },
+            {
+                name: 'Upgrade chambre',
+                points: 1000,
+                type: 'upgrade',
+                icon: '⬆️',
+                available: points >= 1000,
+                pointsNeeded: points < 1000 ? 1000 - points : 0
+            },
+            {
+                name: 'Accès Spa',
+                points: 1500,
+                type: 'spa',
+                icon: '💆',
+                available: points >= 1500,
+                pointsNeeded: points < 1500 ? 1500 - points : 0
+            },
+            {
+                name: 'Nuit gratuite',
+                points: 5000,
+                type: 'free_night',
+                icon: '🏨',
+                available: points >= 5000,
+                pointsNeeded: points < 5000 ? 5000 - points : 0
+            }
+        ];
+        
+        return rewards;
+    }
+
+    /**
+     * Get tier celebration data (NOUVELLE MÉTHODE)
+     */
+    getTierCelebrationData(tier) {
+        const celebrations = {
+            'SILVER': {
+                title: '🥈 Bienvenue au niveau Argent !',
+                message: 'Vous accédez maintenant aux avantages privilégiés et au check-in prioritaire !',
+                badge: `${process.env.FRONTEND_URL}/images/badges/silver-badge.png`,
+                achievement: 'Première promotion ! Continuez sur cette voie !'
+            },
+            'GOLD': {
+                title: '🥇 Félicitations, vous êtes Or !',
+                message: 'Bienvenue dans l\'élite ! Profitez du petit-déjeuner gratuit et de vos upgrades !',
+                badge: `${process.env.FRONTEND_URL}/images/badges/gold-badge.png`,
+                achievement: 'Excellent ! Vous faites partie des membres privilégiés !'
+            },
+            'PLATINUM': {
+                title: '💎 Niveau Platine atteint !',
+                message: 'Vous faites maintenant partie du cercle VIP avec accès lounge exclusif !',
+                badge: `${process.env.FRONTEND_URL}/images/badges/platinum-badge.png`,
+                achievement: 'Exceptionnel ! Statut VIP confirmé !'
+            },
+            'DIAMOND': {
+                title: '💠 Diamant - Le Summum !',
+                message: 'Félicitations ! Vous avez atteint notre niveau le plus prestigieux !',
+                badge: `${process.env.FRONTEND_URL}/images/badges/diamond-badge.png`,
+                achievement: 'Legendary ! Vous êtes dans le top 1% de nos membres !'
+            }
+        };
+        return celebrations[tier] || celebrations['SILVER'];
+    }
+
+    /**
      * Get tier display name
      */
     getTierDisplayName(tier) {
@@ -1075,6 +1340,44 @@ class EmailService {
         if (points >= 1000) rewards.push({ name: 'Upgrade chambre', points: 1000, type: 'upgrade' });
         if (points >= 5000) rewards.push({ name: 'Nuit gratuite', points: 5000, type: 'free_night' });
         return rewards;
+    }
+
+    // ============================================================================
+    // MÉTHODE D'INTÉGRATION PRINCIPALE
+    // ============================================================================
+
+    /**
+     * Main method to integrate with loyalty service (NOUVELLE MÉTHODE PRINCIPALE)
+     */
+    async sendLoyaltyNotification(type, user, data) {
+        try {
+            switch (type) {
+                case 'POINTS_EARNED':
+                    return await this.sendLoyaltyPointsEmail(user, data);
+                
+                case 'TIER_UPGRADE':
+                    return await this.sendTierUpgradeEmail(user, data);
+                
+                case 'POINTS_EXPIRING':
+                    return await this.sendPointsExpiryWarning(user.email, data);
+                
+                case 'WELCOME':
+                    return await this.sendLoyaltyWelcomeEmail(user.email, user);
+                
+                case 'BONUS_POINTS':
+                    return await this.sendBonusPointsEmail(user.email, data);
+                
+                case 'MONTHLY_DIGEST':
+                    return await this.sendLoyaltyDigest(user.email, data);
+                
+                default:
+                    logger.warn(`Unknown loyalty notification type: ${type}`);
+                    return false;
+            }
+        } catch (error) {
+            logger.error(`Failed to send loyalty notification ${type}:`, error);
+            throw error;
+        }
     }
 }
 

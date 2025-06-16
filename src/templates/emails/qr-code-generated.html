@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Votre QR Code Check-in - {{hotelName}}</title>
+    <!--[if mso]>
+    <noscript>
+        <xml>
+            <o:OfficeDocumentSettings>
+                <o:PixelsPerInch>96</o:PixelsPerInch>
+            </o:OfficeDocumentSettings>
+        </xml>
+    </noscript>
+    <![endif]-->
+    <style>
+        /* Reset styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333333;
+            background-color: #f4f4f4;
+        }
+
+        table {
+            border-collapse: collapse;
+            mso-table-lspace: 0pt;
+            mso-table-rspace: 0pt;
+        }
+
+        img {
+            border: 0;
+            height: auto;
+            line-height: 100%;
+            outline: none;
+            text-decoration: none;
+            -ms-interpolation-mode: bicubic;
+        }
+
+        /* Main container */
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px 30px;
+            text-align: center;
+            color: white;
+        }
+
+        .hotel-logo {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            font-weight: bold;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+
+        /* Content sections */
+        .content {
+            padding: 40px 30px;
+        }
+
+        .greeting {
+            font-size: 20px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        .intro-text {
+            font-size: 16px;
+            color: #555555;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        /* QR Code section */
+        .qr-section {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            margin: 30px 0;
+            border: 3px dashed #dee2e6;
+        }
+
+        .qr-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        .qr-code-container {
+            background: white;
+            padding: 25px;
+            border-radius: 16px;
+            display: inline-block;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .qr-code-container img {
+            width: 200px;
+            height: 200px;
+            border-radius: 8px;
+        }
+
+        .qr-instructions {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .qr-instructions strong {
+            color: #1976d2;
+            font-weight: 600;
+        }
+
+        /* Booking details */
+        .booking-section {
+            background: #ffffff;
+            border: 2px solid #f1f3f4;
+            border-radius: 16px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+
+        .booking-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .booking-title::before {
+            content: '📋';
+            margin-right: 10px;
+            font-size: 24px;
+        }
+
+        .booking-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .detail-item {
+            border-bottom: 1px solid #f1f3f4;
+            padding-bottom: 15px;
+        }
+
+        .detail-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #6c757d;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .detail-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        /* Validity alert */
+        .validity-alert {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 25px 0;
+            text-align: center;
+        }
+
+        .validity-alert h3 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .validity-alert p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        /* Step-by-step instructions */
+        .instructions-section {
+            margin: 30px 0;
+        }
+
+        .instructions-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .instruction-step {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+        }
+
+        .step-number {
+            width: 32px;
+            height: 32px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        .step-text {
+            font-size: 15px;
+            color: #495057;
+            line-height: 1.5;
+        }
+
+        /* Important notes */
+        .important-notes {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+
+        .important-notes h4 {
+            color: #856404;
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        .important-notes h4::before {
+            content: '⚠️';
+            margin-right: 8px;
+        }
+
+        .important-notes ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .important-notes li {
+            color: #856404;
+            font-size: 14px;
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .important-notes li::before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        /* Action buttons */
+        .actions {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 15px 30px;
+            margin: 10px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        /* Hotel info */
+        .hotel-info {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 30px 0;
+        }
+
+        .hotel-info h4 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            color: #495057;
+        }
+
+        .contact-item::before {
+            margin-right: 10px;
+            font-size: 16px;
+        }
+
+        .contact-phone::before { content: '📞'; }
+        .contact-email::before { content: '📧'; }
+        .contact-address::before { content: '📍'; }
+        .contact-checkin::before { content: '🕐'; }
+
+        /* Footer */
+        .footer {
+            background: #2c3e50;
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .footer p {
+            font-size: 14px;
+            opacity: 0.8;
+            margin-bottom: 10px;
+        }
+
+        .footer a {
+            color: #74b9ff;
+            text-decoration: none;
+        }
+
+        .social-links {
+            margin-top: 20px;
+        }
+
+        .social-links a {
+            display: inline-block;
+            margin: 0 10px;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            text-align: center;
+            line-height: 24px;
+            text-decoration: none;
+            color: white;
+            transition: background 0.3s ease;
+        }
+
+        .social-links a:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Security badge */
+        .security-badge {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            margin-top: 15px;
+        }
+
+        .security-badge::before {
+            content: '🔒';
+            margin-right: 8px;
+        }
+
+        /* Mobile responsive */
+        @media only screen and (max-width: 600px) {
+            .email-container {
+                width: 100% !important;
+                margin: 0 !important;
+            }
+
+            .header, .content {
+                padding: 20px !important;
+            }
+
+            .qr-section {
+                padding: 20px !important;
+            }
+
+            .qr-code-container img {
+                width: 150px !important;
+                height: 150px !important;
+            }
+
+            .booking-details {
+                grid-template-columns: 1fr !important;
+                gap: 15px !important;
+            }
+
+            .instruction-step {
+                flex-direction: column !important;
+                text-align: center !important;
+            }
+
+            .step-number {
+                margin-bottom: 10px !important;
+                margin-right: 0 !important;
+            }
+
+            .contact-grid {
+                grid-template-columns: 1fr !important;
+            }
+
+            .btn {
+                display: block !important;
+                margin: 10px 0 !important;
+            }
+        }
+
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            .email-container {
+                background-color: #1a1a1a !important;
+                color: #ffffff !important;
+            }
+
+            .booking-section {
+                background: #2d2d2d !important;
+                border-color: #404040 !important;
+            }
+
+            .qr-section {
+                background: linear-gradient(135deg, #2d2d2d, #404040) !important;
+            }
+
+            .hotel-info {
+                background: #2d2d2d !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="hotel-logo">
+                {{hotelInitials}}
+            </div>
+            <h1>{{hotelName}}</h1>
+            <p>Votre QR Code Check-in est prêt</p>
+        </div>
+
+        <!-- Main Content -->
+        <div class="content">
+            <!-- Greeting -->
+            <h2 class="greeting">Bonjour {{customerFirstName}},</h2>
+            
+            <p class="intro-text">
+                Nous sommes ravis de vous accueillir prochainement au <strong>{{hotelName}}</strong>. 
+                Votre QR Code Check-in est maintenant disponible pour faciliter votre arrivée.
+            </p>
+
+            <!-- QR Code Section -->
+            <div class="qr-section">
+                <h3 class="qr-title">🎯 Votre QR Code Check-in</h3>
+                
+                <div class="qr-code-container">
+                    <img src="{{qrCodeDataURL}}" alt="QR Code Check-in" />
+                </div>
+
+                <div class="security-badge">
+                    Code sécurisé - Valable {{hoursValid}} heures
+                </div>
+
+                <div class="qr-instructions">
+                    <strong>💡 Astuce :</strong> Enregistrez cette image sur votre téléphone ou imprimez cet email pour un accès rapide à la réception.
+                </div>
+            </div>
+
+            <!-- Validity Alert -->
+            <div class="validity-alert">
+                <h3>⏰ Important - Validité</h3>
+                <p>Ce QR code est valable jusqu'au <strong>{{expiresAt}}</strong></p>
+            </div>
+
+            <!-- Booking Details -->
+            <div class="booking-section">
+                <h3 class="booking-title">Détails de votre réservation</h3>
+                
+                <div class="booking-details">
+                    <div class="detail-item">
+                        <div class="detail-label">Numéro de confirmation</div>
+                        <div class="detail-value">{{bookingNumber}}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Client principal</div>
+                        <div class="detail-value">{{customerName}}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Date d'arrivée</div>
+                        <div class="detail-value">{{checkInDate}}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Date de départ</div>
+                        <div class="detail-value">{{checkOutDate}}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Nombre de chambres</div>
+                        <div class="detail-value">{{roomsCount}} chambre(s)</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Nombre d'invités</div>
+                        <div class="detail-value">{{guestCount}} personne(s)</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step-by-step Instructions -->
+            <div class="instructions-section">
+                <h3 class="instructions-title">📱 Comment utiliser votre QR Code</h3>
+                
+                <div class="instruction-step">
+                    <div class="step-number">1</div>
+                    <div class="step-text">
+                        <strong>À votre arrivée</strong><br>
+                        Dirigez-vous directement à la réception de l'hôtel avec votre QR code (sur votre téléphone ou imprimé).
+                    </div>
+                </div>
+
+                <div class="instruction-step">
+                    <div class="step-number">2</div>
+                    <div class="step-text">
+                        <strong>Présentez votre QR code</strong><br>
+                        Montrez le code à notre équipe de réception qui le scannera pour vous identifier instantanément.
+                    </div>
+                </div>
+
+                <div class="instruction-step">
+                    <div class="step-number">3</div>
+                    <div class="step-text">
+                        <strong>Check-in automatique</strong><br>
+                        Votre check-in sera traité automatiquement et vos chambres seront attribuées immédiatement.
+                    </div>
+                </div>
+
+                <div class="instruction-step">
+                    <div class="step-number">4</div>
+                    <div class="step-text">
+                        <strong>Récupérez vos clés</strong><br>
+                        Récupérez vos clés de chambre et profitez de votre séjour au {{hotelName}} !
+                    </div>
+                </div>
+            </div>
+
+            <!-- Important Notes -->
+            <div class="important-notes">
+                <h4>Points importants à retenir</h4>
+                <ul>
+                    <li>Présentez-vous avec une pièce d'identité valide</li>
+                    <li>Le QR code peut être utilisé maximum {{maxUsage}} fois</li>
+                    <li>Ne partagez pas ce code avec d'autres personnes</li>
+                    <li>En cas de problème, contactez directement la réception</li>
+                    <li>Arrivée possible à partir de {{checkInTime}}</li>
+                </ul>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="actions">
+                <a href="{{viewQRUrl}}" class="btn btn-primary">
+                    📱 Voir le QR Code en grand
+                </a>
+                <a href="{{downloadQRUrl}}" class="btn btn-secondary">
+                    💾 Télécharger le QR Code
+                </a>
+            </div>
+
+            <!-- Hotel Information -->
+            <div class="hotel-info">
+                <h4>📍 Informations de l'hôtel</h4>
+                <div class="contact-grid">
+                    <div class="contact-item contact-phone">{{hotelPhone}}</div>
+                    <div class="contact-item contact-email">{{hotelEmail}}</div>
+                    <div class="contact-item contact-address">{{hotelAddress}}</div>
+                    <div class="contact-item contact-checkin">Check-in: {{checkInTime}} - Check-out: {{checkOutTime}}</div>
+                </div>
+            </div>
+
+            <!-- Closing Message -->
+            <p style="margin-top: 30px; font-size: 16px; color: #555555; text-align: center;">
+                Notre équipe se réjouit de vous accueillir et de vous faire vivre une expérience exceptionnelle au <strong>{{hotelName}}</strong>.
+            </p>
+
+            <p style="margin-top: 20px; font-size: 16px; color: #555555; text-align: center;">
+                Bon voyage et à très bientôt ! ✈️
+            </p>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p><strong>{{hotelName}}</strong></p>
+            <p>{{hotelAddress}}</p>
+            <p>Téléphone: {{hotelPhone}} | Email: {{hotelEmail}}</p>
+            <p>
+                <a href="{{hotelWebsite}}">Site web</a> | 
+                <a href="{{unsubscribeUrl}}">Se désabonner</a> | 
+                <a href="{{privacyPolicyUrl}}">Politique de confidentialité</a>
+            </p>
+            
+            <div class="social-links">
+                <a href="{{facebookUrl}}" title="Facebook">📘</a>
+                <a href="{{instagramUrl}}" title="Instagram">📷</a>
+                <a href="{{twitterUrl}}" title="Twitter">🐦</a>
+                <a href="{{linkedinUrl}}" title="LinkedIn">💼</a>
+            </div>
+            
+            <p style="margin-top: 20px; font-size: 12px; opacity: 0.7;">
+                Cet email a été envoyé automatiquement. Merci de ne pas y répondre directement.<br>
+                Pour toute question, veuillez contacter directement l'hôtel.
+            </p>
+        </div>
+    </div>
+
+    <!-- Tracking pixel (optional) -->
+    <img src="{{trackingPixelUrl}}" width="1" height="1" style="display: none;" alt="">
+</body>
+</html>

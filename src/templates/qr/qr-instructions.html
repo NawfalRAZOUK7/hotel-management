@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guide d'utilisation QR Code - {{hotelName}}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px 20px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, #667eea, #764ba2, #f093fb, #f5576c);
+        }
+
+        .hotel-logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 20px;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 36px;
+            font-weight: bold;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .title {
+            font-size: 32px;
+            font-weight: 800;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 18px;
+            color: #7f8c8d;
+            font-weight: 500;
+        }
+
+        /* Quick Start Section */
+        .quick-start {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .quick-start h2 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .quick-start h2::before {
+            content: '⚡';
+            margin-right: 10px;
+            font-size: 28px;
+        }
+
+        .quick-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .quick-step {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .quick-step-icon {
+            font-size: 40px;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .quick-step h4 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .quick-step p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        /* Main Content Sections */
+        .section {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+        }
+
+        .section-title::before {
+            margin-right: 12px;
+            font-size: 28px;
+        }
+
+        /* Detailed Steps */
+        .detailed-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .step {
+            display: flex;
+            align-items: flex-start;
+            padding: 25px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 16px;
+            border-left: 5px solid #667eea;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .step:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .step-number {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 20px;
+            margin-right: 20px;
+            flex-shrink: 0;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .step-description {
+            font-size: 16px;
+            color: #495057;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .step-tips {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            border-left: 4px solid #28a745;
+            margin-top: 15px;
+        }
+
+        .step-tips h5 {
+            color: #28a745;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+        }
+
+        .step-tips h5::before {
+            content: '💡';
+            margin-right: 6px;
+        }
+
+        .step-tips ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .step-tips li {
+            font-size: 14px;
+            color: #495057;
+            margin-bottom: 5px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .step-tips li::before {
+            content: '•';
+            color: #28a745;
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        /* QR Types Section */
+        .qr-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .qr-type {
+            background: white;
+            border: 2px solid #f1f3f4;
+            border-radius: 16px;
+            padding: 25px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .qr-type:hover {
+            border-color: #667eea;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.15);
+        }
+
+        .qr-type-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .qr-type h4 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .qr-type p {
+            font-size: 14px;
+            color: #6c757d;
+            line-height: 1.5;
+        }
+
+        /* FAQ Section */
+        .faq-item {
+            border-bottom: 1px solid #f1f3f4;
+            padding: 20px 0;
+        }
+
+        .faq-item:last-child {
+            border-bottom: none;
+        }
+
+        .faq-question {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: color 0.3s ease;
+        }
+
+        .faq-question:hover {
+            color: #667eea;
+        }
+
+        .faq-question::after {
+            content: '+';
+            font-size: 24px;
+            transition: transform 0.3s ease;
+        }
+
+        .faq-question.active::after {
+            transform: rotate(45deg);
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            color: #495057;
+            line-height: 1.6;
+        }
+
+        .faq-answer.active {
+            max-height: 200px;
+            padding-top: 10px;
+        }
+
+        /* Troubleshooting */
+        .troubleshooting-item {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .troubleshooting-item h4 {
+            color: #856404;
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        .troubleshooting-item h4::before {
+            content: '⚠️';
+            margin-right: 8px;
+        }
+
+        .troubleshooting-item p {
+            color: #856404;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .troubleshooting-solution {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        .troubleshooting-solution h5 {
+            color: #28a745;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        /* Contact Section */
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .contact-item {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            padding: 25px;
+            border-radius: 16px;
+            text-align: center;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .contact-item:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .contact-icon {
+            font-size: 40px;
+            margin-bottom: 15px;
+        }
+
+        .contact-item h4 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .contact-item p {
+            font-size: 14px;
+            color: #6c757d;
+            margin-bottom: 15px;
+        }
+
+        .contact-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+
+        .contact-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Security Badge */
+        .security-badge {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            padding: 20px;
+            border-radius: 16px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .security-badge h3 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .security-badge h3::before {
+            content: '🔒';
+            margin-right: 10px;
+        }
+
+        /* Print Styles */
+        @media print {
+            body {
+                background: white;
+            }
+
+            .section {
+                box-shadow: none;
+                border: 1px solid #ddd;
+                break-inside: avoid;
+            }
+
+            .quick-start {
+                background: #f8f9fa !important;
+                color: #333 !important;
+            }
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            .title {
+                font-size: 28px;
+            }
+
+            .section {
+                padding: 20px;
+            }
+
+            .step {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .step-number {
+                margin-bottom: 15px;
+                margin-right: 0;
+            }
+
+            .quick-steps {
+                grid-template-columns: 1fr;
+            }
+
+            .qr-types {
+                grid-template-columns: 1fr;
+            }
+
+            .contact-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="hotel-logo">{{hotelInitials}}</div>
+            <h1 class="title">Guide QR Code Check-in</h1>
+            <p class="subtitle">{{hotelName}} - Instructions complètes</p>
+        </div>
+
+        <!-- Quick Start Guide -->
+        <div class="quick-start">
+            <h2>Démarrage rapide</h2>
+            <div class="quick-steps">
+                <div class="quick-step">
+                    <span class="quick-step-icon">📱</span>
+                    <h4>1. Recevez votre QR</h4>
+                    <p>Par email ou SMS avant votre arrivée</p>
+                </div>
+                <div class="quick-step">
+                    <span class="quick-step-icon">🏨</span>
+                    <h4>2. Présentez-vous</h4>
+                    <p>Allez directement à la réception</p>
+                </div>
+                <div class="quick-step">
+                    <span class="quick-step-icon">📷</span>
+                    <h4>3. Scannez</h4>
+                    <p>Le personnel scanne votre code</p>
+                </div>
+                <div class="quick-step">
+                    <span class="quick-step-icon">🔑</span>
+                    <h4>4. Récupérez</h4>
+                    <p>Vos clés sont prêtes instantanément</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed Instructions -->
+        <div class="section">
+            <h2 class="section-title">
+                📋 Instructions détaillées
+            </h2>
+            <div class="detailed-steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3 class="step-title">Préparation avant l'arrivée</h3>
+                        <p class="step-description">
+                            Avant de vous rendre à l'hôtel, assurez-vous d'avoir votre QR code accessible sur votre téléphone ou imprimé sur papier.
+                        </p>
+                        <div class="step-tips">
+                            <h5>Conseils pratiques</h5>
+                            <ul>
+                                <li>Sauvegardez l'image QR dans votre galerie photo</li>
+                                <li>Vérifiez que votre écran est suffisamment lumineux</li>
+                                <li>Gardez une pièce d'identité à portée de main</li>
+                                <li>Imprimez une copie de secours si possible</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3 class="step-title">Arrivée à l'hôtel</h3>
+                        <p class="step-description">
+                            Dirigez-vous directement vers la réception de l'hôtel. Vous n'avez pas besoin de faire la queue aux bornes automatiques.
+                        </p>
+                        <div class="step-tips">
+                            <h5>Informations importantes</h5>
+                            <ul>
+                                <li>Le check-in est possible à partir de {{checkInTime}}</li>
+                                <li>Si vous arrivez en avance, vos bagages peuvent être stockés</li>
+                                <li>Le personnel de réception vous accueillera prioritairement</li>
+                                <li>Présentez-vous avec le nom de la réservation</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3 class="step-title">Présentation du QR code</h3>
+                        <p class="step-description">
+                            Montrez votre QR code au personnel de réception qui utilisera un scanner professionnel pour lire instantanément vos informations de réservation.
+                        </p>
+                        <div class="step-tips">
+                            <h5>Pour un scan optimal</h5>
+                            <ul>
+                                <li>Tenez votre téléphone stable à 20-30cm du scanner</li>
+                                <li>Assurez-vous que l'écran est propre et sans reflet</li>
+                                <li>Laissez le personnel ajuster la distance si nécessaire</li>
+                                <li>Le code peut être scanné plusieurs fois si besoin</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h3 class="step-title">Vérification et attribution</h3>
+                        <p class="step-description">
+                            Le système vérifie automatiquement votre identité et attribue vos chambres selon vos préférences. Cette étape ne prend que quelques secondes.
+                        </p>
+                        <div class="step-tips">
+                            <h5>Pendant le traitement</h5>
+                            <ul>
+                                <li>Préparez votre pièce d'identité pour vérification</li>
+                                <li>Mentionnez vos préférences spéciales si nécessaire</li>
+                                <li>Confirmez le nombre d'occupants</li>
+                                <li>Vérifiez les dates de séjour affichées</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">5</div>
+                    <div class="step-content">
+                        <h3 class="step-title">Remise des clés et informations</h3>
+                        <p class="step-description">
+                            Une fois le check-in validé, le personnel vous remettra vos clés de chambre ainsi que toutes les informations nécessaires pour votre séjour.
+                        </p>
+                        <div class="step-tips">
+                            <h5>Informations reçues</h5>
+                            <ul>
+                                <li>Numéros de chambre et étages</li>
+                                <li>Codes WiFi et services de l'hôtel</li>
+                                <li>Horaires des restaurants et activités</li>
+                                <li>Plan de l'hôtel et consignes de sécurité</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- QR Code Types -->
+        <div class="section">
+            <h2 class="section-title">
+                🎯 Types de QR codes
+            </h2>
+            <div class="qr-types">
+                <div class="qr-type">
+                    <div class="qr-type-icon">🏨</div>
+                    <h4>Check-in Standard</h4>
+                    <p>Pour l'enregistrement à votre arrivée. Valable 48h avant votre date d'arrivée prévue.</p>
+                </div>
+                <div class="qr-type">
+                    <div class="qr-type-icon">🚪</div>
+                    <h4>Accès Chambre</h4>
+                    <p>QR temporaire pour accéder à votre chambre en cas de problème avec la clé électronique.</p>
+                </div>
+                <div class="qr-type">
+                    <div class="qr-type-icon">💳</div>
+                    <h4>Paiement Express</h4>
+                    <p>Pour régler rapidement vos consommations au bar, restaurant ou spa de l'hôtel.</p>
+                </div>
+                <div class="qr-type">
+                    <div class="qr-type-icon">📶</div>
+                    <h4>WiFi Automatique</h4>
+                    <p>Connexion instantanée au réseau WiFi de l'hôtel sans saisir de mot de passe.</p>
+                </div>
+                <div class="qr-type">
+                    <div class="qr-type-icon">🍽️</div>
+                    <h4>Menu Numérique</h4>
+                    <p>Accès aux menus des restaurants avec possibilité de commander directement.</p>
+                </div>
+                <div class="qr-type">
+                    <div class="qr-type-icon">⭐</div>
+                    <h4>Avis & Feedback</h4>
+                    <p>Pour laisser votre avis sur votre séjour et nous aider à nous améliorer.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Security Information -->
+        <div class="security-badge">
+            <h3>Sécurité et confidentialité</h3>
+            <p>
+                Tous nos QR codes utilisent un chiffrement AES-256 et sont à usage unique ou limité dans le temps. 
+                Vos données personnelles sont protégées selon les normes RGPD les plus strictes.
+            </p>
+        </div>
+
+        <!-- FAQ Section -->
+        <div class="section">
+            <h2 class="section-title">
+                ❓ Questions fréquentes
+            </h2>
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFAQ(this)">
+                    Mon QR code ne fonctionne pas, que faire ?
+                </div>
+                <div class="faq-answer">
+                    Vérifiez d'abord que le code n'est pas expiré. Assurez-vous que votre écran est propre et lumineux. 
+                    Si le problème persiste, présentez-vous à la réception avec votre confirmation de réservation.
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFAQ(this)">
+                    Puis-je utiliser le QR code plusieurs fois ?
+                </div>
+                <div class="faq-answer">
+                    Cela dépend du type de QR code. Le code de check-in peut être utilisé jusqu'à 5 fois. 
+                    Les codes d'accès chambre sont généralement à usage unique pour des raisons de sécurité.
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFAQ(this)">
+                    Que faire si j'ai perdu mon QR code ?
+                </div>
+                <div class="faq-answer">
+                    Contactez immédiatement la réception de l'hôtel avec votre numéro de confirmation. 
+                    Un nouveau QR code peut être généré instantanément. Nous pouvons aussi l'envoyer par SMS.
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFAQ(this)">
+                    Le QR code fonctionne-t-il sans connexion Internet ?
+                </div>
+                <div class="faq-answer">
+                    Le scanner de l'hôtel peut lire votre QR code même si votre téléphone n'a pas de connexion. 
+                    Cependant, certaines fonctionnalités avancées nécessitent une connexion.
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFAQ(this)">
+                    Puis-je partager mon QR code avec d'autres personnes ?
+                </div>
+                <div class="faq-answer">
+                    Non, pour des raisons de sécurité, ne partagez jamais votre QR code. 
+                    Chaque code est personnel et lié à votre réservation spécifique.
+                </div>
+            </div>
+        </div>
+
+        <!-- Troubleshooting -->
+        <div class="section">
+            <h2 class="section-title">
+                🔧 Résolution de problèmes
+            </h2>
+            <div class="troubleshooting-item">
+                <h4>Le scanner ne lit pas mon QR code</h4>
+                <p>Le code peut être illisible à cause de reflets ou d'un écran trop sombre.</p>
+                <div class="troubleshooting-solution">
+                    <h5>Solutions :</h5>
+                    <p>• Augmentez la luminosité de votre écran au maximum<br>
+                    • Nettoyez l'écran avec un chiffon doux<br>
+                    • Changez l'angle pour éviter les reflets<br>
+                    • Utilisez une version imprimée si disponible</p>
+                </div>
+            </div>
+
+            <div class="troubleshooting-item">
+                <h4>Message d'erreur "QR code expiré"</h4>
+                <p>Votre QR code a dépassé sa durée de validité ou a été utilisé trop de fois.</p>
+                <div class="troubleshooting-solution">
+                    <h5>Solutions :</h5>
+                    <p>• Demandez un nouveau QR code à la réception<br>
+                    • Vérifiez vos emails pour un code plus récent<br>
+                    • Présentez votre confirmation de réservation<br>
+                    • Contactez le service client de l'hôtel</p>
+                </div>
+            </div>
+
+            <div class="troubleshooting-item">
+                <h4>Le système affiche "Réservation non trouvée"</h4>
+                <p>Le QR code ne correspond pas à une réservation valide dans le système.</p>
+                <div class="troubleshooting-solution">
+                    <h5>Solutions :</h5>
+                    <p>• Vérifiez que vous êtes dans le bon hôtel<br>
+                    • Contrôlez les dates de votre séjour<br>
+                    • Montrez votre email de confirmation<br>
+                    • Demandez une vérification manuelle</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact Information -->
+        <div class="section">
+            <h2 class="section-title">
+                📞 Besoin d'aide ?
+            </h2>
+            <div class="contact-grid">
+                <div class="contact-item">
+                    <div class="contact-icon">📞</div>
+                    <h4>Réception 24h/24</h4>
+                    <p>Pour toute assistance immédiate</p>
+                    <a href="tel:{{hotelPhone}}" class="contact-btn">{{hotelPhone}}</a>
+                </div>
+                <div class="contact-item">
+                    <div class="contact-icon">📧</div>
+                    <h4>Support Email</h4>
+                    <p>Réponse sous 2h en moyenne</p>
+                    <a href="mailto:{{hotelEmail}}" class="contact-btn">{{hotelEmail}}</a>
+                </div>
+                <div class="contact-item">
+                    <div class="contact-icon">💬</div>
+                    <h4>Chat en Direct</h4>
+                    <p>Assistance instantanée en ligne</p>
+                    <a href="{{hotelChatUrl}}" class="contact-btn">Ouvrir le Chat</a>
+                </div>
+                <div class="contact-item">
+                    <div class="contact-icon">📱</div>
+                    <h4>WhatsApp</h4>
+                    <p>Support via messagerie WhatsApp</p>
+                    <a href="{{hotelWhatsApp}}" class="contact-btn">Contacter</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional Tips -->
+        <div class="section">
+            <h2 class="section-title">
+                💡 Conseils supplémentaires
+            </h2>
+            <div class="detailed-steps">
+                <div class="step">
+                    <div class="step-number">💾</div>
+                    <div class="step-content">
+                        <h3 class="step-title">Sauvegarde recommandée</h3>
+                        <p class="step-description">
+                            Nous recommandons fortement de sauvegarder votre QR code de plusieurs façons pour éviter tout problème.
+                        </p>
+                        <div class="step-tips">
+                            <h5>Méthodes de sauvegarde</h5>
+                            <ul>
+                                <li>Capture d'écran dans votre galerie photo</li>
+                                <li>Impression papier en format portefeuille</li>
+                                <li>Envoi par email à un proche de confiance</li>
+                                <li>Sauvegarde dans votre gestionnaire de mots de passe</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">🔋</div>
+                    <div class="step-content">
+                        <h3 class="step-title">Autonomie de batterie</h3>
+                        <p class="step-description">
+                            Assurez-vous que votre téléphone a suffisamment de batterie pour afficher le QR code à votre arrivée.
+                        </p>
+                        <div class="step-tips">
+                            <h5>Précautions à prendre</h5>
+                            <ul>
+                                <li>Chargez votre téléphone avant le départ</li>
+                                <li>Emportez un chargeur portable si nécessaire</li>
+                                <li>Activez le mode économie d'énergie si besoin</li>
+                                <li>Ayez une version imprimée en secours</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">⏰</div>
+                    <div class="step-content">
+                        <h3 class="step-title">Gestion du temps</h3>
+                        <p class="step-description">
+                            Le check-in via QR code est plus rapide qu'un enregistrement traditionnel, mais prévoyez quelques minutes.
+                        </p>
+                        <div class="step-tips">
+                            <h5>Temps estimés</h5>
+                            <ul>
+                                <li>Scan du QR code : 30 secondes</li>
+                                <li>Vérification d'identité : 1 minute</li>
+                                <li>Attribution des chambres : 1 minute</li>
+                                <li>Remise des clés et informations : 2 minutes</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Toggle FAQ answers
+        function toggleFAQ(element) {
+            const answer = element.nextElementSibling;
+            const isActive = answer.classList.contains('active');
+            
+            // Close all other FAQ items
+            document.querySelectorAll('.faq-answer.active').forEach(item => {
+                item.classList.remove('active');
+            });
+            document.querySelectorAll('.faq-question.active').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Toggle current item
+            if (!isActive) {
+                answer.classList.add('active');
+                element.classList.add('active');
+            }
+        }
+
+        // Smooth scrolling for internal links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Add animation on scroll
+        function animateOnScroll() {
+            const elements = document.querySelectorAll('.step, .qr-type, .contact-item');
+            elements.forEach(element => {
+                const elementTop = element.getBoundingClientRect().top;
+                const elementVisible = 150;
+                
+                if (elementTop < window.innerHeight - elementVisible) {
+                    element.style.animation = 'fadeInUp 0.6s ease forwards';
+                }
+            });
+        }
+
+        // Add CSS animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeInUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(30px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Initialize scroll animation
+        window.addEventListener('scroll', animateOnScroll);
+        window.addEventListener('load', animateOnScroll);
+
+        // Print functionality
+        function printInstructions() {
+            window.print();
+        }
+
+        // Add print button
+        const printBtn = document.createElement('button');
+        printBtn.innerHTML = '🖨️ Imprimer ce guide';
+        printBtn.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            z-index: 1000;
+            transition: all 0.3s ease;
+        `;
+        printBtn.onclick = printInstructions;
+        printBtn.onmouseover = () => {
+            printBtn.style.transform = 'translateY(-2px)';
+            printBtn.style.boxShadow = '0 8px 25px rgba(102, 126, 234, 0.4)';
+        };
+        printBtn.onmouseout = () => {
+            printBtn.style.transform = 'translateY(0)';
+            printBtn.style.boxShadow = '0 4px 15px rgba(102, 126, 234, 0.3)';
+        };
+        document.body.appendChild(printBtn);
+
+        // Hide print button on mobile
+        if (window.innerWidth <= 768) {
+            printBtn.style.display = 'none';
+        }
+    </script>
+</body>
+</html>

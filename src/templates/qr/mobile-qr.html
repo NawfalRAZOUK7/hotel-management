@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="theme-color" content="#667eea">
+    <title>QR Check-in - {{hotelName}}</title>
+    
+    <!-- PWA manifest -->
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Mobile-first container */
+        .mobile-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Header optimized for mobile */
+        .mobile-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px 16px 16px;
+            text-align: center;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .hotel-badge {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 16px;
+            margin: 0 auto 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .hotel-name {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 4px;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: #6c757d;
+            font-weight: 500;
+        }
+
+        /* Main content area */
+        .main-content {
+            flex: 1;
+            padding: 20px 16px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* QR Code section - mobile optimized */
+        .qr-display {
+            background: white;
+            border-radius: 24px;
+            padding: 30px 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+            position: relative;
+        }
+
+        .qr-status {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-used {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-expired {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .qr-code {
+            width: 220px;
+            height: 220px;
+            margin: 0 auto 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .qr-code img {
+            width: 100%;
+            height: 100%;
+            border-radius: 8px;
+        }
+
+        .qr-code::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 49%, rgba(102, 126, 234, 0.1) 50%, transparent 51%);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+
+        .qr-description {
+            font-size: 16px;
+            color: #495057;
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+
+        /* Validity countdown */
+        .validity-timer {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            padding: 16px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+        }
+
+        .validity-title {
+            font-size: 13px;
+            opacity: 0.9;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .countdown {
+            font-size: 24px;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* Booking info card */
+        .booking-card {
+            background: white;
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+        }
+
+        .card-title::before {
+            content: '📋';
+            margin-right: 8px;
+        }
+
+        .booking-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .booking-item {
+            padding: 12px 0;
+            border-bottom: 1px solid #f1f3f4;
+        }
+
+        .booking-item:last-child {
+            border-bottom: none;
+        }
+
+        .item-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #6c757d;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .item-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        /* Quick actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .action-btn {
+            padding: 16px;
+            border-radius: 16px;
+            font-weight: 600;
+            font-size: 14px;
+            text-decoration: none;
+            text-align: center;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .action-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .action-btn:active::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .action-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* Instructions - mobile collapsed */
+        .instructions {
+            background: white;
+            border-radius: 20px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .instructions-header {
+            padding: 20px;
+            background: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .instructions-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .toggle-icon {
+            font-size: 18px;
+            transition: transform 0.3s ease;
+        }
+
+        .instructions-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .instructions.expanded .instructions-content {
+            max-height: 400px;
+        }
+
+        .instructions.expanded .toggle-icon {
+            transform: rotate(180deg);
+        }
+
+        .instruction-list {
+            padding: 0 20px 20px;
+        }
+
+        .instruction-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 16px;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+
+        .step-num {
+            width: 24px;
+            height: 24px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 12px;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .step-text {
+            font-size: 14px;
+            color: #495057;
+            line-height: 1.4;
+        }
+
+        /* Security info */
+        .security-info {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 16px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .security-info h4 {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .security-info h4::before {
+            content: '🔒';
+            margin-right: 8px;
+        }
+
+        .security-details {
+            font-size: 12px;
+            opacity: 0.9;
+            line-height: 1.3;
+        }
+
+        /* Contact info */
+        .contact-card {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .contact-grid {
+            display: grid;
+            gap: 12px;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            font-size: 14px;
+            color: #495057;
+        }
+
+        .contact-item::before {
+            margin-right: 12px;
+            font-size: 16px;
+        }
+
+        .contact-phone::before { content: '📞'; }
+        .contact-address::before { content: '📍'; }
+        .contact-time::before { content: '🕐'; }
+
+        /* Bottom actions - sticky */
+        .bottom-actions {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 16px;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            position: sticky;
+            bottom: 0;
+            margin-top: auto;
+        }
+
+        .main-action {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+            transition: all 0.2s ease;
+        }
+
+        .main-action:active {
+            transform: scale(0.98);
+            box-shadow: 0 2px 10px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Loading states */
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Pull to refresh indicator */
+        .pull-refresh {
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+            transform: translateY(-60px);
+            transition: transform 0.3s ease;
+        }
+
+        .pull-refresh.active {
+            transform: translateY(0);
+        }
+
+        /* Haptic feedback simulation */
+        .haptig-feedback {
+            animation: vibrate 0.1s;
+        }
+
+        @keyframes vibrate {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-2px); }
+            75% { transform: translateX(2px); }
+        }
+
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            }
+
+            .mobile-header {
+                background: rgba(44, 62, 80, 0.95);
+                color: white;
+            }
+
+            .hotel-name {
+                color: white;
+            }
+
+            .subtitle {
+                color: #bdc3c7;
+            }
+
+            .qr-display, .booking-card, .instructions, .contact-card {
+                background: #34495e;
+                color: white;
+            }
+
+            .booking-item {
+                border-bottom-color: #4a5f7a;
+            }
+
+            .instruction-item {
+                background: #4a5f7a;
+            }
+
+            .item-label {
+                color: #bdc3c7;
+            }
+        }
+
+        /* Safe area support for iPhone X+ */
+        @supports (padding: max(0px)) {
+            .mobile-header {
+                padding-top: max(20px, env(safe-area-inset-top));
+                padding-left: max(16px, env(safe-area-inset-left));
+                padding-right: max(16px, env(safe-area-inset-right));
+            }
+
+            .main-content {
+                padding-left: max(16px, env(safe-area-inset-left));
+                padding-right: max(16px, env(safe-area-inset-right));
+            }
+
+            .bottom-actions {
+                padding-bottom: max(16px, env(safe-area-inset-bottom));
+                padding-left: max(16px, env(safe-area-inset-left));
+                padding-right: max(16px, env(safe-area-inset-right));
+            }
+        }
+
+        /* Landscape orientation */
+        @media (orientation: landscape) and (max-height: 600px) {
+            .qr-code {
+                width: 160px;
+                height: 160px;
+            }
+
+            .booking-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="mobile-container">
+        <!-- Pull to refresh indicator -->
+        <div class="pull-refresh" id="pullRefresh">
+            <div class="spinner"></div>
+            Actualisation...
+        </div>
+
+        <!-- Mobile Header -->
+        <header class="mobile-header">
+            <div class="hotel-badge">{{hotelInitials}}</div>
+            <h1 class="hotel-name">{{hotelName}}</h1>
+            <p class="subtitle">QR Code Check-in</p>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- QR Code Display -->
+            <section class="qr-display">
+                <div class="qr-status status-{{qrStatus}}">{{qrStatusText}}</div>
+                
+                <div class="qr-code" id="qrCode">
+                    <img src="{{qrCodeDataURL}}" alt="QR Code Check-in" />
+                </div>
+                
+                <p class="qr-description">
+                    Présentez ce code à la réception pour un check-in rapide et automatique
+                </p>
+                
+                <!-- Validity Timer -->
+                <div class="validity-timer" id="validityTimer">
+                    <div class="validity-title">Valable encore</div>
+                    <div class="countdown" id="countdown">{{timeRemaining}}</div>
+                </div>
+            </section>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <a href="#" class="action-btn btn-primary" onclick="adjustBrightness()">
+                    🔆 Éclaircir
+                </a>
+                <a href="#" class="action-btn btn-secondary" onclick="shareQR()">
+                    📤 Partager
+                </a>
+            </div>
+
+            <!-- Booking Information -->
+            <section class="booking-card">
+                <h3 class="card-title">Votre réservation</h3>
+                <div class="booking-grid">
+                    <div class="booking-item">
+                        <div class="item-label">Confirmation</div>
+                        <div class="item-value">{{bookingNumber}}</div>
+                    </div>
+                    <div class="booking-item">
+                        <div class="item-label">Client</div>
+                        <div class="item-value">{{customerName}}</div>
+                    </div>
+                    <div class="booking-item">
+                        <div class="item-label">Arrivée</div>
+                        <div class="item-value">{{checkInDate}}</div>
+                    </div>
+                    <div class="booking-item">
+                        <div class="item-label">Départ</div>
+                        <div class="item-value">{{checkOutDate}}</div>
+                    </div>
+                    <div class="booking-item">
+                        <div class="item-label">Chambres</div>
+                        <div class="item-value">{{roomsCount}}</div>
+                    </div>
+                    <div class="booking-item">
+                        <div class="item-label">Invités</div>
+                        <div class="item-value">{{guestCount}}</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Instructions (Collapsible) -->
+            <section class="instructions" id="instructions">
+                <div class="instructions-header" onclick="toggleInstructions()">
+                    <h3 class="instructions-title">📱 Comment utiliser</h3>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="instructions-content">
+                    <div class="instruction-list">
+                        <div class="instruction-item">
+                            <div class="step-num">1</div>
+                            <div class="step-text">Dirigez-vous à la réception avec votre téléphone</div>
+                        </div>
+                        <div class="instruction-item">
+                            <div class="step-num">2</div>
+                            <div class="step-text">Présentez ce QR code au personnel de réception</div>
+                        </div>
+                        <div class="instruction-item">
+                            <div class="step-num">3</div>
+                            <div class="step-text">Votre check-in sera traité automatiquement</div>
+                        </div>
+                        <div class="instruction-item">
+                            <div class="step-num">4</div>
+                            <div class="step-text">Récupérez vos clés et profitez de votre séjour</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Security Information -->
+            <div class="security-info">
+                <h4>Code sécurisé</h4>
+                <div class="security-details">
+                    Maximum {{maxUsage}} utilisations • Chiffrement AES-256<br>
+                    Ne partagez pas ce code avec d'autres personnes
+                </div>
+            </div>
+
+            <!-- Contact Information -->
+            <section class="contact-card">
+                <h3 class="card-title">Contact hôtel</h3>
+                <div class="contact-grid">
+                    <a href="tel:{{hotelPhone}}" class="contact-item contact-phone">
+                        {{hotelPhone}}
+                    </a>
+                    <div class="contact-item contact-address">
+                        {{hotelAddress}}
+                    </div>
+                    <div class="contact-item contact-time">
+                        Check-in: {{checkInTime}} - Check-out: {{checkOutTime}}
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Bottom Action Bar -->
+        <div class="bottom-actions">
+            <button class="main-action" id="mainAction" onclick="handleMainAction()">
+                <span id="actionText">Je suis arrivé(e)</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let qrBrightnessLevel = 1;
+        let refreshing = false;
+        let countdownInterval;
+        const expiryDate = new Date('{{expiresAtISO}}');
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeCountdown();
+            initializePullToRefresh();
+            checkQRStatus();
+            setupServiceWorker();
+            
+            // Auto-refresh status every 30 seconds
+            setInterval(checkQRStatus, 30000);
+        });
+
+        // Countdown timer
+        function initializeCountdown() {
+            countdownInterval = setInterval(updateCountdown, 1000);
+            updateCountdown();
+        }
+
+        function updateCountdown() {
+            const now = new Date();
+            const diff = expiryDate - now;
+
+            if (diff > 0) {
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+                let timeString = '';
+                if (days > 0) {
+                    timeString = `${days}j ${hours}h`;
+                } else if (hours > 0) {
+                    timeString = `${hours}h ${minutes}m`;
+                } else if (minutes > 0) {
+                    timeString = `${minutes}m ${seconds}s`;
+                } else {
+                    timeString = `${seconds}s`;
+                }
+
+                document.getElementById('countdown').textContent = timeString;
+
+                // Warning when less than 1 hour
+                if (diff < 3600000) { // 1 hour
+                    document.getElementById('validityTimer').style.background = 
+                        'linear-gradient(135deg, #ff6b6b, #ee5a24)';
+                }
+            } else {
+                clearInterval(countdownInterval);
+                document.getElementById('validityTimer').style.background = 
+                    'linear-gradient(135deg, #dc3545, #c82333)';
+                document.getElementById('validityTimer').querySelector('.validity-title').textContent = 'Expiré';
+                document.getElementById('countdown').textContent = 'Code expiré';
+                handleExpiredQR();
+            }
+        }
+
+        // Toggle instructions
+        function toggleInstructions() {
+            const instructions = document.getElementById('instructions');
+            instructions.classList.toggle('expanded');
+            
+            // Haptic feedback
+            if ('vibrate' in navigator) {
+                navigator.vibrate(50);
+            }
+        }
+
+        // Adjust brightness
+        function adjustBrightness() {
+            const qrCode = document.getElementById('qrCode');
+            qrBrightnessLevel = qrBrightnessLevel >= 1.5 ? 0.7 : qrBrightnessLevel + 0.2;
+            qrCode.style.filter = `brightness(${qrBrightnessLevel}) contrast(${qrBrightnessLevel})`;
+            
+            // Haptic feedback
+            if ('vibrate' in navigator) {
+                navigator.vibrate(30);
+            }
+        }
+
+        // Share QR code
+        async function shareQR() {
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: 'QR Code Check-in - {{hotelName}}',
+                        text: 'Mon QR code pour le check-in à l\'hôtel',
+                        url: window.location.href
+                    });
+                } catch (error) {
+                    console.log('Partage annulé');
+                }
+            } else {
+                // Fallback: copy to clipboard
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(window.location.href);
+                    showToast('Lien copié dans le presse-papiers');
+                }
+            }
+        }
+
+        // Handle main action
+        function handleMainAction() {
+            const actionBtn = document.getElementById('mainAction');
+            const actionText = document.getElementById('actionText');
+            
+            // Add loading state
+            actionBtn.classList.add('loading');
+            actionText.innerHTML = '<div class="spinner"></div>Notification en cours...';
+            
+            // Haptic feedback
+            if ('vibrate' in navigator) {
+                navigator.vibrate([100, 50, 100]);
+            }
+            
+            // Simulate arrival notification
+            setTimeout(() => {
+                fetch('/api/qr/arrival-notification', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        bookingId: '{{bookingId}}',
+                        location: getCurrentLocation()
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        actionText.textContent = '✅ Hôtel notifié !';
+                        actionBtn.style.background = 'linear-gradient(135deg, #28a745, #20c997)';
+                        showToast('L\'hôtel a été notifié de votre arrivée');
+                    } else {
+                        throw new Error('Notification failed');
+                    }
+                })
+                .catch(error => {
+                    actionText.textContent = '❌ Erreur de notification';
+                    actionBtn.style.background = 'linear-gradient(135deg, #dc3545, #c82333)';
+                    showToast('Erreur lors de la notification');
+                })
+                .finally(() => {
+                    actionBtn.classList.remove('loading');
+                    setTimeout(() => {
+                        actionText.textContent = 'Je suis arrivé(e)';
+                        actionBtn.style.background = 'linear-gradient(135deg, #667eea, #764ba2)';
+                    }, 3000);
+                });
+            }, 1000);
+        }
+
+        // Check QR status
+        function checkQRStatus() {
+            fetch(`/api/qr/status/{{identifier}}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        updateQRStatus(data.data.current.status);
+                    }
+                })
+                .catch(error => {
+                    console.error('Status check failed:', error);
+                });
+        }
+
+        // Update QR status display
+        function updateQRStatus(status) {
+            const statusElement = document.querySelector('.qr-status');
+            const statusTexts = {
+                'active': 'Actif',
+                'used': 'Utilisé',
+                'expired': 'Expiré',
+                'revoked': 'Révoqué'
+            };
+            
+            statusElement.className = `qr-status status-${status}`;
+            statusElement.textContent = statusTexts[status] || 'Inconnu';
+            
+            if (status === 'expired' || status === 'revoked') {
+                handleExpiredQR();
+            }
+        }
+
+        // Handle expired QR
+        function handleExpiredQR() {
+            const qrCode = document.getElementById('qrCode');
+            const mainAction = document.getElementById('mainAction');
+            
+            qrCode.style.filter = 'grayscale(1) opacity(0.5)';
+            mainAction.textContent = 'Code expiré - Contactez l\'hôtel';
+            mainAction.style.background = 'linear-gradient(135deg, #6c757d, #495057)';
+            mainAction.onclick = () => window.location.href = `tel:{{hotelPhone}}`;
+        }
+
+        // Pull to refresh
+        function initializePullToRefresh() {
+            let startY = 0;
+            let currentY = 0;
+            let pulling = false;
+            
+            document.addEventListener('touchstart', (e) => {
+                if (window.scrollY === 0) {
+                    startY = e.touches[0].pageY;
+                    pulling = true;
+                }
+            });
+            
+            document.addEventListener('touchmove', (e) => {
+                if (!pulling) return;
+                
+                currentY = e.touches[0].pageY;
+                const pullDistance = currentY - startY;
+                
+                if (pullDistance > 0 && pullDistance < 100) {
+                    const pullRefresh = document.getElementById('pullRefresh');
+                    pullRefresh.style.transform = `translateY(${pullDistance - 60}px)`;
+                    
+                    if (pullDistance > 60) {
+                        pullRefresh.classList.add('active');
+                    }
+                }
+            });
+            
+            document.addEventListener('touchend', () => {
+                if (!pulling) return;
+                
+                const pullDistance = currentY - startY;
+                const pullRefresh = document.getElementById('pullRefresh');
+                
+                if (pullDistance > 60 && !refreshing) {
+                    refreshData();
+                } else {
+                    pullRefresh.style.transform = 'translateY(-60px)';
+                    pullRefresh.classList.remove('active');
+                }
+                
+                pulling = false;
+            });
+        }
+
+        // Refresh data
+        function refreshData() {
+            refreshing = true;
+            const pullRefresh = document.getElementById('pullRefresh');
+            
+            // Haptic feedback
+            if ('vibrate' in navigator) {
+                navigator.vibrate(100);
+            }
+            
+            Promise.all([
+                checkQRStatus(),
+                new Promise(resolve => setTimeout(resolve, 1000)) // Minimum loading time
+            ]).finally(() => {
+                refreshing = false;
+                pullRefresh.style.transform = 'translateY(-60px)';
+                pullRefresh.classList.remove('active');
+                showToast('QR code actualisé');
+            });
+        }
+
+        // Get current location (if available)
+        function getCurrentLocation() {
+            return new Promise((resolve) => {
+                if ('geolocation' in navigator) {
+                    navigator.geolocation.getCurrentPosition(
+                        (position) => {
+                            resolve({
+                                latitude: position.coords.latitude,
+                                longitude: position.coords.longitude,
+                                accuracy: position.coords.accuracy
+                            });
+                        },
+                        () => resolve(null),
+                        { timeout: 5000, enableHighAccuracy: false }
+                    );
+                } else {
+                    resolve(null);
+                }
+            });
+        }
+
+        // Show toast message
+        function showToast(message) {
+            // Create toast element
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: rgba(0, 0, 0, 0.8);
+                color: white;
+                padding: 12px 20px;
+                border-radius: 25px;
+                font-size: 14px;
+                z-index: 1000;
+                backdrop-filter: blur(10px);
+                animation: slideDown 0.3s ease;
+            `;
+            toast.textContent = message;
+            
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'slideUp 0.3s ease forwards';
+                setTimeout(() => document.body.removeChild(toast), 300);
+            }, 2700);
+        }
+
+        // Service Worker for offline support
+        function setupServiceWorker() {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(() => console.log('Service Worker registered'))
+                    .catch(() => console.log('Service Worker registration failed'));
+            }
+        }
+
+        // Add CSS animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideDown {
+                from { transform: translateX(-50%) translateY(-100%); opacity: 0; }
+                to { transform: translateX(-50%) translateY(0); opacity: 1; }
+            }
+            @keyframes slideUp {
+                from { transform: translateX(-50%) translateY(0); opacity: 1; }
+                to { transform: translateX(-50%) translateY(-100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Prevent zoom on double tap
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function (event) {
+            const now = (new Date()).getTime();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+
+        // Keep screen awake (if supported)
+        if ('wakeLock' in navigator) {
+            let wakeLock = null;
+            
+            async function requestWakeLock() {
+                try {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                } catch (err) {
+                    console.log('Wake lock failed:', err);
+                }
+            }
+            
+            requestWakeLock();
+            
+            document.addEventListener('visibilitychange', () => {
+                if (wakeLock !== null && document.visibilityState === 'visible') {
+                    requestWakeLock();
+                }
+            });
+        }
+
+        // Auto-save to Photos app (iOS Safari)
+        function saveToPhotos() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const img = document.querySelector('.qr-code img');
+            
+            canvas.width = img.naturalWidth;
+            canvas.height = img.naturalHeight;
+            ctx.drawImage(img, 0, 0);
+            
+            canvas.toBlob((blob) => {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'qr-checkin-{{bookingNumber}}.png';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                showToast('QR code sauvegardé');
+            });
+        }
+
+        // Add save button for iOS
+        if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+            const saveBtn = document.createElement('button');
+            saveBtn.className = 'action-btn btn-secondary';
+            saveBtn.innerHTML = '💾 Sauvegarder';
+            saveBtn.onclick = saveToPhotos;
+            
+            const quickActions = document.querySelector('.quick-actions');
+            quickActions.appendChild(saveBtn);
+            quickActions.style.gridTemplateColumns = '1fr 1fr 1fr';
+        }
+    </script>
+</body>
+</html>
