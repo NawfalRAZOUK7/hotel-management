@@ -1515,10 +1515,14 @@ router.get('/realtime/stats', auth, roleAuth(['ADMIN']), async (req, res) => {
 });
 
 // Export router and initialization function
-module.exports = {
+/**
+ * module.exports = {
     router,
     initializeWebSocketIntegration
 };
 
 // For backward compatibility, also export just the router
 module.exports.default = router;
+
+*/
+module.exports = router;

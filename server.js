@@ -6,25 +6,46 @@
  * Description: Main server file with advanced real-time features + Yield Management
  */
 
+console.log('=== DEBUT EXECUTION SERVER.JS ===');
+console.log('process.env.NODE_ENV =', process.env.NODE_ENV);
+console.log('process.env.MONGODB_URI =', process.env.MONGODB_URI);
+console.log('process.cwd() =', process.cwd());
+
 // Load environment variables first
 require('dotenv').config();
+console.log('✅ dotenv chargé');
+
+console.log('🟢 Après chargement .env: process.env.NODE_ENV =', process.env.NODE_ENV);
+console.log('🟢 Après chargement .env: process.env.MONGODB_URI =', process.env.MONGODB_URI);
 
 const http = require('http');
+console.log('✅ http chargé');
 const app = require('./app');
+console.log('✅ app chargé');
 const { connectDatabase } = require('./src/config/database');
+console.log('✅ connectDatabase chargé');
 
 // Import real-time services
 const socketService = require('./src/services/socketService');
+console.log('✅ socketService chargé');
 const notificationService = require('./src/services/notificationService');
+console.log('✅ notificationService chargé');
 const emailService = require('./src/services/emailService');
+console.log('✅ emailService chargé');
 const smsService = require('./src/services/smsService');
+console.log('✅ smsService chargé');
 const currencyService = require('./src/services/currencyService');
+console.log('✅ currencyService chargé');
 
 // Import Yield Management services
 const schedulerService = require('./src/services/scheduler');
+console.log('✅ schedulerService chargé');
 const yieldManager = require('./src/services/yieldManager');
+console.log('✅ yieldManager chargé');
 const demandAnalyzer = require('./src/services/demandAnalyzer');
+console.log('✅ demandAnalyzer chargé');
 const revenueAnalytics = require('./src/services/revenueAnalytics');
+console.log('✅ revenueAnalytics chargé');
 
 // Get port from environment
 const port = normalizePort(process.env.PORT || '5000');

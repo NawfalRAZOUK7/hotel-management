@@ -4,31 +4,56 @@
  * Description: Main Express app configuration with middleware and routes
  */
 
+console.log('=== DEBUT APP.JS ===');
+
+
 const express = require('express');
+console.log('✅ express chargé');
 const cors = require('cors');
+console.log('✅ cors chargé');
 const helmet = require('helmet');
+console.log('✅ helmet chargé');
 const compression = require('compression');
+console.log('✅ compression chargé');
 const rateLimit = require('express-rate-limit');
+console.log('✅ express-rate-limit chargé');
 const mongoSanitize = require('express-mongo-sanitize');
+console.log('✅ express-mongo-sanitize chargé');
 const path = require('path');
+console.log('✅ path chargé');
 
 // Import middleware
 const errorHandler = require('./src/middleware/errorHandler');
+console.log('✅ errorHandler chargé');
 const logger = require('./src/middleware/logger');
+console.log('✅ logger chargé');
 
 // Import route modules
-const authRoutes = require('./src/routes/auth');
+//const authRoutes = require('./src/routes/auth');
+const routes = require('./src/routes');
+app.use('/api', routes);
+
+console.log('✅ authRoutes chargé');
 const hotelRoutes = require('./src/routes/hotels');
+console.log('✅ hotelRoutes chargé');
 const roomRoutes = require('./src/routes/rooms');
+console.log('✅ roomRoutes chargé');
 const bookingRoutes = require('./src/routes/bookings');
+console.log('✅ bookingRoutes chargé');
 const adminRoutes = require('./src/routes/admin');
+console.log('✅ adminRoutes chargé');
 const receptionRoutes = require('./src/routes/reception');
+console.log('✅ receptionRoutes chargé');
 const userRoutes = require('./src/routes/users');
+console.log('✅ userRoutes chargé');
 const paymentRoutes = require('./src/routes/payments');
+console.log('✅ paymentRoutes chargé');
 
 // Swagger documentation
 const swaggerUi = require('swagger-ui-express');
+console.log('✅ swagger-ui-express chargé');
 const { swaggerSpec } = require('./src/config/swagger');
+console.log('✅ swaggerSpec chargé');
 
 // Create Express app
 const app = express();
